@@ -17,7 +17,7 @@
         <dependency>
             <groupId>net.wbz.selecttrix4java</groupId>
             <artifactId>selecttrix4java-api</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
