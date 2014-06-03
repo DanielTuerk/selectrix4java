@@ -6,6 +6,7 @@ import net.wbz.selecttrix4java.api.device.DeviceAccessException;
 import net.wbz.selecttrix4java.api.device.DeviceConnectionListener;
 import net.wbz.selecttrix4java.api.train.TrainModule;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class FccTest {
 
 //        Assert.assertTrue(device.getRailVoltage());
     }
-
+    @Ignore
     public void testRailVoltage() throws IOException {
 //        device.setRailVoltage(true);
 //        Assert.assertTrue(device.getRailVoltage());
@@ -35,7 +36,7 @@ public class FccTest {
 //        Assert.assertFalse(device.getRailVoltage());
     }
 
-    @Test
+    @Ignore
     public void testTrain() throws DeviceAccessException, InterruptedException, IOException {
         device = new SerialDevice(DEVICE_ID, SerialDevice.DEFAULT_BAUD_RATE_FCC);
         device.addDeviceConnectionListener(new DeviceConnectionListener() {
