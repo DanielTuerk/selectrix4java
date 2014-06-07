@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>net.wbz.selecttrix4java</groupId>
-        <artifactId>selecttrix4java</artifactId>
+        <groupId>net.wbz.selectrix4java</groupId>
+        <artifactId>selectrix4java</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>selecttrix4java-api</artifactId>
-    <name>Selecttrix4Java - API</name>
+    <artifactId>selectrix4java-api</artifactId>
+    <name>Selectrix4Java - API</name>
     <packaging>jar</packaging>
 
 </project>

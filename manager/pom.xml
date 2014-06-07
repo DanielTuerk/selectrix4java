@@ -3,26 +3,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>net.wbz.selecttrix4java</groupId>
-        <artifactId>selecttrix4java</artifactId>
+        <groupId>net.wbz.selectrix4java</groupId>
+        <artifactId>selectrix4java</artifactId>
         <version>0.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>selecttrix4java-manager</artifactId>
-    <name>Selecttrix4Java - Manager</name>
+    <artifactId>selectrix4java-manager</artifactId>
+    <name>Selectrix4Java - Manager</name>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>net.wbz.selecttrix4java</groupId>
-            <artifactId>selecttrix4java-api</artifactId>
+            <groupId>net.wbz.selectrix4java</groupId>
+            <artifactId>selectrix4java-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>net.wbz.selecttrix4java</groupId>
-            <artifactId>selecttrix4java-serial</artifactId>
+            <groupId>net.wbz.selectrix4java</groupId>
+            <artifactId>selectrix4java-serial</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

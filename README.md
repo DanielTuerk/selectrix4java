@@ -1,7 +1,7 @@
-selecttrix4java
+selectrix4java
 ===============
 
-####(Java library to communicate with an selecttrix bus system.)
+####(Java library to communicate with an selectrix bus system.)
 
 ###Supported Format: SX1
 
