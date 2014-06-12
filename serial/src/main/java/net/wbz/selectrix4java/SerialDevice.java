@@ -122,43 +122,4 @@ public class SerialDevice extends AbstractDevice {
         return outputStream != null && inputStream != null;
     }
 
-    /**
-     * Just a simple test to send data.
-     * <p/>
-     * <code>send <busNr> <address> <data></code>
-     *
-     * @param args unused
-     */
-    public static void main(String[] args) {
-        SerialDevice serialDevice = new SerialDevice("/dev/tty.usbserial-145", DEFAULT_BAUD_RATE_FCC);
-        try {
-            serialDevice.connect();
-            BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Geben Sie etwas ein: ");
-            String line;
-            boolean running = true;
-            while (running) {
-                line = console.readLine();
-                if (line.equals("exit")) {
-                    running = false;
-                } else if (line.equals("fcc 1")) {
-                    serialDevice.setRailVoltage(true);
-                } else if (line.equals("fcc 0")) {
-                    serialDevice.setRailVoltage(false);
-                } else if (line.startsWith("send ")) {
-                    String[] parts = line.split(" ");
-                    serialDevice.getBusAddress(Integer.parseInt(parts[1]),
-                            (byte) Integer.parseInt(parts[2])).sendData((byte) Integer.parseInt(parts[3]));
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                serialDevice.disconnect();
-            } catch (DeviceAccessException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

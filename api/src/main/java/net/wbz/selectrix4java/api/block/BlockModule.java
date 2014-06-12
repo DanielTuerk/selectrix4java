@@ -1,14 +1,14 @@
 package net.wbz.selectrix4java.api.block;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.api.Module;
 import net.wbz.selectrix4java.api.bus.BusAddress;
 import net.wbz.selectrix4java.api.bus.BusAddressListener;
-import net.wbz.selectrix4java.api.train.TrainDataDispatcher;
-import net.wbz.selectrix4java.api.train.TrainDataListener;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Retrieve the occupied state of the track blocks.
@@ -33,6 +33,11 @@ public class BlockModule implements Module {
     private final BlockModuleDataDispatcher<BlockListener> dispatcher = new BlockModuleDataDispatcher<>();
 
     /**
+     * Storage of the actual occupied states of this block.
+     */
+    private Map<Integer, Boolean> blockStates = Maps.newHashMap();
+
+    /**
      * Create a new module with the main address and additional function addresses.
      *
      * @param address             {@link net.wbz.selectrix4java.api.bus.BusAddress}
@@ -40,12 +45,25 @@ public class BlockModule implements Module {
      */
     public BlockModule(BusAddress address, BusAddress... additionalAddresses) {
         this.address = address;
-        this.additionalAddresses=Lists.newArrayList(additionalAddresses);
+        this.additionalAddresses = Lists.newArrayList(additionalAddresses);
+
         address.addListener(new BusAddressListener() {
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
-                // block occupied state
-                // TODO fire
+                // block (1-8) occupied state
+                for (int i = 1; i < 9; i++) {
+                    boolean state = BigInteger.valueOf(newValue).testBit(i);
+                    if (blockStates.containsKey(i)) {
+                        if (blockStates.get(i) != state) {
+                            // state change
+                            dispatcher.fireBlockState(i, state);
+                        }
+                    } else {
+                        // first state received
+                        dispatcher.fireBlockState(i, state);
+                    }
+                    blockStates.put(i, state);
+                }
             }
         });
     }
@@ -57,7 +75,6 @@ public class BlockModule implements Module {
     public void removeBlockListener(BlockListener listener) {
         dispatcher.removeListener(listener);
     }
-
 
     public BusAddress getAddress() {
         return address;

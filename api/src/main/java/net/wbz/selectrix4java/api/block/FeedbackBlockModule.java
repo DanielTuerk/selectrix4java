@@ -8,10 +8,27 @@ import net.wbz.selectrix4java.api.train.TrainModule;
 import java.util.Map;
 
 /**
+ * Block which use the feedback address to receive the train address on the block.
+ * <p/>
+ * Control the block to update the speed of each entering or exiting train on the block.
+ * <p/>
+ * <h2>Supported Devices:</h2>
+ * <ul>
+ * <li>D&H Belegtmelder 8i</li>
+ * </ul>
+ * <p/>
+ * TODO
+ * -Train still on block
+ * -new train enter
+ * -existing train exit
+ *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class FeedbackBlockModule extends BlockModule {
 
+    /**
+     * TODO: need all trains + block + speed - Mapping of the train address with speed on block number.
+     */
     private final Map<Integer, Integer> blockSpeedMapping = Maps.newConcurrentMap();
 
     public FeedbackBlockModule(final Map<BusAddress, TrainModule> trainModules, BusAddress address,
@@ -20,6 +37,11 @@ public class FeedbackBlockModule extends BlockModule {
         feedbackAddress.addListener(new BusAddressListener() {
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
+
+                // train on block
+
+                // train entering
+
 
                 //TODO
                 byte trainAddress = 0;
@@ -34,21 +56,36 @@ public class FeedbackBlockModule extends BlockModule {
         });
     }
 
-    public FeedbackBlockModule setDriving(int blockNumber, int targetSpeed) {
+    /**
+     * Set the target speed for trains which are on the block with the given number.
+     *
+     * @param blockNumber number of the block
+     * @param targetSpeed speed for the trains on the block
+     * @return {@link net.wbz.selectrix4java.api.block.FeedbackBlockModule}
+     */
+    public FeedbackBlockModule setBlockDrivingSpeed(int blockNumber, int targetSpeed) {
         return apply(blockNumber, targetSpeed);
     }
 
+    /**
+     * Set the target speed to zero for trains which are on the block with the given number.
+     *
+     * @param blockNumber number of the block
+     * @return {@link net.wbz.selectrix4java.api.block.FeedbackBlockModule}
+     */
     public FeedbackBlockModule setStop(int blockNumber) {
         return apply(blockNumber, 0);
     }
 
-    public FeedbackBlockModule setBraking(int blockNumber, int targetSpeed) {
-        return apply(blockNumber, targetSpeed);
-    }
-
+    /**
+     * Apply data for trains which will entering block or still on the block.
+     *
+     * @param blockNumber number of the block
+     * @param targetSpeed speed for the trains on the block
+     * @return {@link net.wbz.selectrix4java.api.block.FeedbackBlockModule}
+     */
     private FeedbackBlockModule apply(int blockNumber, int targetSpeed) {
         blockSpeedMapping.put(blockNumber, targetSpeed);
-        getAddress().send();
         return this;
     }
 

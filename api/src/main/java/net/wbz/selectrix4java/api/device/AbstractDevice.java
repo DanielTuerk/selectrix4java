@@ -153,6 +153,7 @@ public abstract class AbstractDevice implements Device {
      * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
      * @throws DeviceAccessException
      */
+    @Override
     public BusAddress getBusAddress(int bus, byte address) throws DeviceAccessException {
         checkConnected();
 
@@ -180,6 +181,7 @@ public abstract class AbstractDevice implements Device {
      * @return {@link net.wbz.selectrix4java.api.train.TrainModule}
      * @throws DeviceAccessException
      */
+    @Override
     public synchronized TrainModule getTrainModule(byte... addresses) throws DeviceAccessException {
         BusAddress busAddress = getBusAddress(0, addresses[0]);
         if (!trainModules.containsKey(busAddress)) {
@@ -190,6 +192,7 @@ public abstract class AbstractDevice implements Device {
         return trainModules.get(busAddress);
     }
 
+    @Override
     public synchronized BlockModule getBlockModule(byte... addresses) throws DeviceAccessException {
         BusAddress busAddress = getBusAddress(0, addresses[0]);
         if (!blockModules.containsKey(busAddress)) {

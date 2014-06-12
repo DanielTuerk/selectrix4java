@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java.api.device;
 
+import net.wbz.selectrix4java.api.block.BlockModule;
 import net.wbz.selectrix4java.api.bus.BusAddress;
 import net.wbz.selectrix4java.api.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.api.train.TrainModule;
@@ -31,6 +32,8 @@ public interface Device extends Serializable {
      * @return actual state
      */
     public boolean isConnected();
+
+    BlockModule getBlockModule(byte... addresses) throws DeviceAccessException;
 
     public boolean getRailVoltage() throws DeviceAccessException;
 

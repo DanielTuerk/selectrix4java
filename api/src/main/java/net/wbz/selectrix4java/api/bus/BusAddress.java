@@ -8,6 +8,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
+ * Address of an bus. Wrap the data value and send state change events.
+ *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class BusAddress {
@@ -16,7 +18,6 @@ public class BusAddress {
     private final byte address;
     private byte data;
     private final BusDataChannel busDataChannel;
-
 
     private final BusDataConsumer busDataConsumer;
 
@@ -39,34 +40,72 @@ public class BusAddress {
         };
     }
 
+    /**
+     * Actual data of the address.
+     *
+     * @return data
+     */
     public byte getData() {
         return data;
     }
 
+    /**
+     * Update data of the address and send to bus.
+     *
+     * @param data new data
+     */
     public void sendData(byte data) {
         this.data = data;
         send();
     }
 
+    /**
+     * Send the actual data of this address to the bus.
+     */
     public void send() {
         //TODO: check -> BusData object needed?
         busDataChannel.send(new BusData(bus, address, data));
     }
 
+    /**
+     * Turn bit on.
+     *
+     * @param bit number of bit (1-8)
+     * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
+     */
     public BusAddress setBit(int bit) {
         data = BigInteger.valueOf(data).setBit(bit).byteValue();
         return this;
     }
 
+    /**
+     * Turn bit off.
+     *
+     * @param bit number of bit (1-8)
+     * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
+     */
     public BusAddress clearBit(int bit) {
         data = BigInteger.valueOf(data).clearBit(bit).byteValue();
         return this;
     }
 
+    /**
+     * Add listener to receive data changes.
+     * After call of this method the listener will immediately receive the
+     * actual data from the {@link net.wbz.selectrix4java.api.bus.BusAddress}.
+     *
+     * @param listener {@link net.wbz.selectrix4java.api.bus.BusAddressListener}
+     */
     public void addListener(BusAddressListener listener) {
         listeners.add(listener);
+        listener.dataChanged((byte) 0, data);
     }
 
+    /**
+     * Remove the given listener.
+     *
+     * @param listener {@link net.wbz.selectrix4java.api.bus.BusAddressListener}
+     */
     public void removeListener(BusAddressListener listener) {
         listeners.remove(listener);
     }
