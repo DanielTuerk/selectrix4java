@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * This module is an wrapper for {@link net.wbz.selectrix4java.api.bus.BusAddress}s
  * from an function decoder of an train.
- *
+ * <p/>
  * The train can have several addresses for multiple decoders.
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
@@ -83,7 +83,7 @@ public class TrainModule implements Module {
                         && wrappedOldValue.testBit(2) != wrappedNewValue.testBit(2)
                         && wrappedOldValue.testBit(3) != wrappedNewValue.testBit(3)
                         && wrappedOldValue.testBit(4) != wrappedNewValue.testBit(4)) {
-                    //use bit 1-5 of copy as the driving level
+                    //use bit 1-5 of copy as the driving level int value
                     dispatcher.fireDrivingLevelChanged(wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue());
                 }
             }
@@ -93,11 +93,10 @@ public class TrainModule implements Module {
             additionalAddress.addListener(new BusAddressListener() {
                 @Override
                 public void dataChanged(byte oldValue, byte newValue) {
-                    //TODO
-                    int functionBit = 1;
-                    //oldValue & newValue
-                    boolean functionState = true;
-                    dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), functionBit, functionState);
+                    for (int i = 1; i < 9; i++) {
+                        boolean functionState = BigInteger.valueOf(oldValue).testBit(i) != BigInteger.valueOf(newValue).testBit(i);
+                        dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i, functionState);
+                    }
                 }
             });
         }
