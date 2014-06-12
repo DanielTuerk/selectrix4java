@@ -10,13 +10,25 @@ import java.io.OutputStream;
 import java.util.Arrays;
 
 /**
+ * This task read the bus 0 and 1 the hole time and delegate the result
+ * to an {@link net.wbz.selectrix4java.api.bus.BusDataReceiver}.
+ *
+ * As {@link net.wbz.selectrix4java.api.data.AbstractSerialAccessTask} it will
+ * be used by the {@link net.wbz.selectrix4java.api.data.BusDataChannel}
+ *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
-    private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
 
     private final BusDataReceiver receiver;
 
+    /**
+     * Create new task.
+     *
+     * @param inputStream open {@link java.io.InputStream}
+     * @param outputStream open {@link java.io.OutputStream}
+     * @param receiver {@link net.wbz.selectrix4java.api.bus.BusDataReceiver} as callback
+     */
     public ReadBlockTask(InputStream inputStream, OutputStream outputStream, BusDataReceiver receiver) {
         super(inputStream, outputStream);
         this.receiver = receiver;
@@ -34,7 +46,6 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
     }
 
     private void readBlock(int address, int data, byte[] reply) throws IOException {
-
         getOutputStream().write(new byte[]{(byte) address, (byte) data});
         getOutputStream().flush();
 

@@ -1,6 +1,8 @@
 package net.wbz.selectrix4java.api.device;
 
 import com.google.common.collect.Maps;
+import net.wbz.selectrix4java.api.block.BlockModule;
+import net.wbz.selectrix4java.api.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.api.bus.BusAddress;
 import net.wbz.selectrix4java.api.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.api.data.BusDataChannel;
@@ -29,6 +31,12 @@ public abstract class AbstractDevice implements Device {
      * Single instance of each module to prevent event-traffic.
      */
     private Map<BusAddress, TrainModule> trainModules = Maps.newHashMap();
+
+    /**
+     * Used {@link net.wbz.selectrix4java.api.block.BlockModule}s by main {@link net.wbz.selectrix4java.api.bus.BusAddress}.
+     * Single instance of each module to prevent event-traffic.
+     */
+    private Map<BusAddress, BlockModule> blockModules = Maps.newHashMap();
 
     /**
      * Used {@link net.wbz.selectrix4java.api.bus.BusAddress}s with descriptor as {@link java.lang.String}
@@ -180,6 +188,33 @@ public abstract class AbstractDevice implements Device {
             trainModules.put(busAddress, module);
         }
         return trainModules.get(busAddress);
+    }
+
+    public synchronized BlockModule getBlockModule(byte... addresses) throws DeviceAccessException {
+        BusAddress busAddress = getBusAddress(0, addresses[0]);
+        if (!blockModules.containsKey(busAddress)) {
+            // TODO: additional addresses
+            BlockModule module = new BlockModule(busAddress);
+            blockModules.put(busAddress, module);
+        }
+        return blockModules.get(busAddress);
+    }
+
+
+    public synchronized FeedbackBlockModule getFeedbackBlockModule(byte address, byte feedbackAddress, byte... additionalAddresses) throws DeviceAccessException {
+        BusAddress busAddress = getBusAddress(0, address);
+        if (!blockModules.containsKey(busAddress)) {
+            // TODO: additional addresses
+            FeedbackBlockModule module = new FeedbackBlockModule(trainModules, busAddress,
+                    getBusAddress(0, feedbackAddress), getBusAddress(0, feedbackAddress));
+            blockModules.put(busAddress, module);
+        }
+        BlockModule blockModule = blockModules.get(busAddress);
+        if (blockModule instanceof FeedbackBlockModule) {
+            return (FeedbackBlockModule) blockModule;
+        } else {
+            throw new DeviceAccessException(String.format("query %s but found %s for address %s", FeedbackBlockModule.class.getSimpleName(), BlockModule.class.getSimpleName(), address));
+        }
     }
 
     /**

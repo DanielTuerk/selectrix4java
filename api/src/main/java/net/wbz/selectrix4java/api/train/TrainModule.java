@@ -1,6 +1,7 @@
 package net.wbz.selectrix4java.api.train;
 
 import com.google.common.collect.Lists;
+import net.wbz.selectrix4java.api.Module;
 import net.wbz.selectrix4java.api.bus.BusAddress;
 import net.wbz.selectrix4java.api.bus.BusAddressListener;
 
@@ -8,9 +9,14 @@ import java.math.BigInteger;
 import java.util.List;
 
 /**
+ * This module is an wrapper for {@link net.wbz.selectrix4java.api.bus.BusAddress}s
+ * from an function decoder of an train.
+ *
+ * The train can have several addresses for multiple decoders.
+ *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-public class TrainModule {
+public class TrainModule implements Module {
 
     /**
      * Light of the train: bit 6
@@ -69,9 +75,8 @@ public class TrainModule {
                 // horn
                 if (wrappedOldValue.testBit(BIT_HORN)
                         != wrappedNewValue.testBit(BIT_HORN)) {
-                    dispatcher.fireLightStateChanged(wrappedNewValue.testBit(BIT_HORN));
+                    dispatcher.fireHornStateChanged(wrappedNewValue.testBit(BIT_HORN));
                 }
-
                 // speed: check for changes in bit 1-5
                 if (wrappedOldValue.testBit(0) != wrappedNewValue.testBit(0)
                         && wrappedOldValue.testBit(1) != wrappedNewValue.testBit(1)
@@ -81,7 +86,6 @@ public class TrainModule {
                     //use bit 1-5 of copy as the driving level
                     dispatcher.fireDrivingLevelChanged(wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue());
                 }
-
             }
         });
         this.additionalAddresses = Lists.newArrayList(additionalAddresses);
@@ -99,6 +103,12 @@ public class TrainModule {
         }
     }
 
+    /**
+     * Change the driving level.
+     *
+     * @param level target
+     * @return {@link net.wbz.selectrix4java.api.train.TrainModule}
+     */
     public TrainModule setDrivingLevel(int level) {
         if (level >= 0 && level <= 63) {
             // bit 1-5
@@ -109,6 +119,12 @@ public class TrainModule {
 
     public enum DRIVING_DIRECTION {FORWARD, BACKWARD}
 
+    /**
+     * Change the driving direction.
+     *
+     * @param direction {@link net.wbz.selectrix4java.api.train.TrainModule.DRIVING_DIRECTION}
+     * @return {@link net.wbz.selectrix4java.api.train.TrainModule}
+     */
     public TrainModule setDirection(DRIVING_DIRECTION direction) {
         switch (direction) {
             case FORWARD:
@@ -122,6 +138,12 @@ public class TrainModule {
         return this;
     }
 
+    /**
+     * Turn light on or off.
+     *
+     * @param state light state
+     * @return {@link net.wbz.selectrix4java.api.train.TrainModule}
+     */
     public TrainModule setLight(boolean state) {
         if (state) {
             address.setBit(BIT_LIGHT);
@@ -132,6 +154,12 @@ public class TrainModule {
         return this;
     }
 
+    /**
+     * Turn horn on or off.
+     *
+     * @param state horn state
+     * @return {@link net.wbz.selectrix4java.api.train.TrainModule}
+     */
     public TrainModule setHorn(boolean state) {
         if (state) {
             address.setBit(BIT_HORN);
@@ -143,19 +171,39 @@ public class TrainModule {
     }
 
 
+    /**
+     * Add listener to receive state changes of the train.
+     *
+     * @param listener {@link net.wbz.selectrix4java.api.train.TrainDataListener}
+     */
     public void addTrainDataListener(TrainDataListener listener) {
-        dispatcher.addTrainDataListener(listener);
+        dispatcher.addListener(listener);
     }
 
+    /**
+     * Remove existing listener.
+     *
+     * @param listener {@link net.wbz.selectrix4java.api.train.TrainDataListener}
+     */
     public void removeTrainDataListener(TrainDataListener listener) {
-        dispatcher.removeTrainDataListener(listener);
+        dispatcher.removeListener(listener);
     }
 
 
+    /**
+     * Corresponding address of the train.
+     *
+     * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
+     */
     public BusAddress getAddress() {
         return address;
     }
 
+    /**
+     * Additional addresses of functions for the train.
+     *
+     * @return {@link List<net.wbz.selectrix4java.api.bus.BusAddress>}
+     */
     public List<BusAddress> getAdditionalAddresses() {
         return additionalAddresses;
     }
@@ -168,7 +216,6 @@ public class TrainModule {
         TrainModule that = (TrainModule) o;
 
         return address.equals(that.address);
-
     }
 
     @Override
