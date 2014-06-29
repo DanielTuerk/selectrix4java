@@ -194,7 +194,7 @@ public abstract class AbstractDevice implements Device {
 
     @Override
     public synchronized BlockModule getBlockModule(byte... addresses) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(0, addresses[0]);
+        BusAddress busAddress = getBusAddress(1, addresses[0]);
         if (!blockModules.containsKey(busAddress)) {
             // TODO: additional addresses
             BlockModule module = new BlockModule(busAddress);
@@ -205,7 +205,7 @@ public abstract class AbstractDevice implements Device {
 
 
     public synchronized FeedbackBlockModule getFeedbackBlockModule(byte address, byte feedbackAddress, byte... additionalAddresses) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(0, address);
+        BusAddress busAddress = getBusAddress(1, address);
         if (!blockModules.containsKey(busAddress)) {
             // TODO: additional addresses
             FeedbackBlockModule module = new FeedbackBlockModule(trainModules, busAddress,
@@ -239,9 +239,11 @@ public abstract class AbstractDevice implements Device {
     public void setRailVoltage(boolean state) throws DeviceAccessException {
         BusAddress busAddress = getBusAddress(1, (byte) 127);
         if (state) {
-            busAddress.setBit(6);
+//            busAddress.setBit(6);
+            busAddress.setBit(8);
         } else {
-            busAddress.clearBit(6);
+//            busAddress.clearBit(6);
+            busAddress.clearBit(8);
         }
         busAddress.send();
     }

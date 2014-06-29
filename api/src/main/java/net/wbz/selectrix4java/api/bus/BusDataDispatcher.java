@@ -16,7 +16,7 @@ import java.util.concurrent.ThreadFactory;
 /**
  * The dispatcher stores all values for each address of the SX bus channels.
  * To receive the values it implements {@link BusDataReceiver}.
- *
+ * <p/>
  * For each value which has changed, the registered {@link BusDataConsumer}s are informed.
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
@@ -54,9 +54,17 @@ public class BusDataDispatcher implements BusDataReceiver {
      */
     public void registerConsumer(BusDataConsumer consumer) {
         consumers.add(consumer);
-        //TODO check and use for allConsumers
-        if(busData.containsKey(consumer.getBus()) && busData.get(consumer.getBus()).length > consumer.getAddress()) {
-            consumer.valueChanged(busData.get(consumer.getBus())[consumer.getAddress()]);
+
+        if (consumer instanceof AllBusDataConsumer) {
+            for (int bus : busData.keySet()) {
+                for (int i = 0; i < busData.get(bus).length; i++) {
+                    ((AllBusDataConsumer) consumer).valueChanged(bus, i, busData.get(bus)[i]);
+                }
+            }
+        } else {
+            if (busData.containsKey(consumer.getBus()) && busData.get(consumer.getBus()).length > consumer.getAddress()) {
+                consumer.valueChanged(busData.get(consumer.getBus())[consumer.getAddress()]);
+            }
         }
     }
 
@@ -67,6 +75,7 @@ public class BusDataDispatcher implements BusDataReceiver {
     public void unregisterConsumer(BusDataConsumer consumer) {
         consumers.remove(consumer);
     }
+
     public void unregisterConsumers(List<BusDataConsumer> consumers) {
         this.consumers.removeAll(consumers);
     }
@@ -76,7 +85,7 @@ public class BusDataDispatcher implements BusDataReceiver {
         if (busData.containsKey(busNr)) {
             byte[] oldData = busData.get(busNr);
             for (int i = 0; i < data.length; i++) {
-                if (Byte.compare(data[i],oldData[i])!=0) {
+                if (Byte.compare(data[i], oldData[i]) != 0) {
                     fireChange(busNr, i, data[i]);
                 }
             }
@@ -92,7 +101,7 @@ public class BusDataDispatcher implements BusDataReceiver {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        ((AllBusDataConsumer)consumer).valueChanged(busNr,address,data);
+                        ((AllBusDataConsumer) consumer).valueChanged(busNr, address, data);
                     }
                 });
             } else if (consumer.getAddress() == address && consumer.getBus() == busNr) {

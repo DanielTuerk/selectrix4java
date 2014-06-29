@@ -30,9 +30,9 @@ public class BlockModuleDataDispatcher<T extends BlockListener> extends Abstract
 
     public void fireBlockState(int blockNr, boolean state) {
         if(state) {
-            fireBlockFreed(blockNr);
-        } else {
             fireBlockOccupied(blockNr);
+        } else {
+            fireBlockFreed(blockNr);
         }
     }
 

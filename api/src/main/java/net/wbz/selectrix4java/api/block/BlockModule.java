@@ -52,7 +52,7 @@ public class BlockModule implements Module {
             public void dataChanged(byte oldValue, byte newValue) {
                 // block (1-8) occupied state
                 for (int i = 1; i < 9; i++) {
-                    boolean state = BigInteger.valueOf(newValue).testBit(i);
+                    boolean state = BigInteger.valueOf(newValue).testBit(i - 1);
                     if (blockStates.containsKey(i)) {
                         if (blockStates.get(i) != state) {
                             // state change
@@ -68,18 +68,30 @@ public class BlockModule implements Module {
         });
     }
 
+    /**
+     * Add {@link net.wbz.selectrix4java.api.block.BlockListener} to receive the occupied events.
+     *
+     * @param listener {@link net.wbz.selectrix4java.api.block.BlockListener}
+     */
     public void addBlockListener(BlockListener listener) {
         dispatcher.addListener(listener);
     }
 
+    /**
+     * Remove an existing listener.
+     *
+     * @param listener {@link net.wbz.selectrix4java.api.block.BlockListener}
+     */
     public void removeBlockListener(BlockListener listener) {
         dispatcher.removeListener(listener);
     }
 
+    @Override
     public BusAddress getAddress() {
         return address;
     }
 
+    @Override
     public List<BusAddress> getAdditionalAddresses() {
         return additionalAddresses;
     }
@@ -92,7 +104,6 @@ public class BlockModule implements Module {
         BlockModule that = (BlockModule) o;
 
         return address.equals(that.address);
-
     }
 
     @Override

@@ -2,7 +2,9 @@ package net.wbz.selectrix4java;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
+import net.wbz.selectrix4java.api.bus.AllBusDataConsumer;
 import net.wbz.selectrix4java.api.bus.BusDataDispatcher;
+import net.wbz.selectrix4java.api.data.BusData;
 import net.wbz.selectrix4java.api.data.BusDataChannel;
 import net.wbz.selectrix4java.api.device.AbstractDevice;
 import net.wbz.selectrix4java.api.device.DeviceAccessException;
@@ -122,4 +124,42 @@ public class SerialDevice extends AbstractDevice {
         return outputStream != null && inputStream != null;
     }
 
+
+    public static void main(String[] args) {
+        SerialDevice serialDevice = new SerialDevice("/dev/tty.usbserial-145", SerialDevice.DEFAULT_BAUD_RATE_FCC);
+        try {
+            serialDevice.connect();
+
+            BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Geben Sie etwas ein: ");
+            String line;
+            try {
+                boolean running = true;
+                while (running) {
+                    line = console.readLine();
+                    if (line.equals("exit")) {
+                        running = false;
+                    } else if (line.equals("fcc 1")) {
+                        serialDevice.setRailVoltage(true);
+                    } else if (line.equals("fcc 0")) {
+                        serialDevice.setRailVoltage(false);
+                    } else {
+                        String[] parts = line.split(" ");
+                        serialDevice.getBusAddress(Integer.parseInt(parts[0]),
+                                (byte) Integer.parseInt(parts[1]))
+                                .sendData((byte) Integer.parseInt(parts[2]));
+                    }
+                }
+                serialDevice.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (DeviceAccessException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+    }
 }

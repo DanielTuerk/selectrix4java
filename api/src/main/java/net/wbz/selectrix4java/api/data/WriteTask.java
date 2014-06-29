@@ -33,7 +33,8 @@ public class WriteTask extends AbstractSerialAccessTask<Boolean> {
     @Override
     public Boolean call() throws Exception {
         byte address;
-        address = BigInteger.valueOf(busData.getAddress()).setBit(8).byteValue();
+//        address = (byte) ((byte) busData.getAddress() & 127);
+        address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
         getOutputStream().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
         getOutputStream().flush();
         log.debug("write reply: " + getInputStream().read());

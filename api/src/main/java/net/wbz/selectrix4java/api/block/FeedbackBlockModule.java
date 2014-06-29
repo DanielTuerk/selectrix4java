@@ -6,6 +6,7 @@ import net.wbz.selectrix4java.api.bus.BusAddressListener;
 import net.wbz.selectrix4java.api.train.TrainModule;
 
 import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Block which use the feedback address to receive the train address on the block.
@@ -30,6 +31,7 @@ public class FeedbackBlockModule extends BlockModule {
      * TODO: need all trains + block + speed - Mapping of the train address with speed on block number.
      */
     private final Map<Integer, Integer> blockSpeedMapping = Maps.newConcurrentMap();
+    private final Map<TrainModule, Integer> currentSpeedOfTrainOnBlock = new WeakHashMap<>();
 
     public FeedbackBlockModule(final Map<BusAddress, TrainModule> trainModules, BusAddress address,
                                BusAddress feedbackAddress, BusAddress additionalAddresses) {
@@ -38,19 +40,25 @@ public class FeedbackBlockModule extends BlockModule {
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
 
-                // train on block
-
-                // train entering
-
-
-                //TODO
-                byte trainAddress = 0;
-                int blockNumber = 0;
-
-                if (blockSpeedMapping.containsKey(blockNumber)) {
-                    TrainModule trainModule = trainModules.get(trainAddress);
-                    trainModule.setDrivingLevel(blockSpeedMapping.get(blockNumber));
-                }
+//                byte trainAddress = 0;
+//                TrainModule trainModule = trainModules.get(trainAddress);
+//
+//                // existing train switch block
+//
+//                // train entering
+//
+//                currentSpeedOfTrainOnBlock.put(trainModule, speed);
+//
+//                // train leave
+//                currentSpeedOfTrainOnBlock.remove(trainModule);
+//
+//                //TODO
+//                int blockNumber = 0;
+//
+//                if (blockSpeedMapping.containsKey(blockNumber)) {
+//                    TrainModule trainModule = trainModules.get(trainAddress);
+//                    trainModule.setDrivingLevel(blockSpeedMapping.get(blockNumber));
+//                }
 
             }
         });
@@ -86,8 +94,10 @@ public class FeedbackBlockModule extends BlockModule {
      */
     private FeedbackBlockModule apply(int blockNumber, int targetSpeed) {
         blockSpeedMapping.put(blockNumber, targetSpeed);
+
+        //TODO: update train on block
+
         return this;
     }
-
 
 }

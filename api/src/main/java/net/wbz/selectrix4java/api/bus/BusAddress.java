@@ -74,7 +74,7 @@ public class BusAddress {
      * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
      */
     public BusAddress setBit(int bit) {
-        data = BigInteger.valueOf(data).setBit(bit).byteValue();
+        data = BigInteger.valueOf(data).setBit(bit-1).byteValue();
         return this;
     }
 
@@ -85,7 +85,7 @@ public class BusAddress {
      * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
      */
     public BusAddress clearBit(int bit) {
-        data = BigInteger.valueOf(data).clearBit(bit).byteValue();
+        data = BigInteger.valueOf(data).clearBit(bit-1).byteValue();
         return this;
     }
 
