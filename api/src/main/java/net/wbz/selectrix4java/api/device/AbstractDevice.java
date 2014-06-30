@@ -227,7 +227,7 @@ public abstract class AbstractDevice implements Device {
      * @throws DeviceAccessException
      */
     public boolean getRailVoltage() throws DeviceAccessException {
-        return BigInteger.valueOf(getBusAddress(1, (byte) 127).getData()).testBit(6);
+        return BigInteger.valueOf(getBusAddress(1, (byte) 109).getData()).testBit(8);
     }
 
     /**
