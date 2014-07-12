@@ -74,7 +74,7 @@ public class BusAddress {
      * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
      */
     public BusAddress setBit(int bit) {
-        data = BigInteger.valueOf(data).setBit(bit-1).byteValue();
+        data = BigInteger.valueOf(data).setBit(bit - 1).byteValue();
         return this;
     }
 
@@ -85,8 +85,18 @@ public class BusAddress {
      * @return {@link net.wbz.selectrix4java.api.bus.BusAddress}
      */
     public BusAddress clearBit(int bit) {
-        data = BigInteger.valueOf(data).clearBit(bit-1).byteValue();
+        data = BigInteger.valueOf(data).clearBit(bit - 1).byteValue();
         return this;
+    }
+
+    /**
+     * State of the given bit in the data byte.
+     *
+     * @param bit 1-8
+     * @return state
+     */
+    public boolean getBitState(int bit) {
+        return BigInteger.valueOf(data).testBit(bit - 1);
     }
 
     /**
@@ -110,10 +120,20 @@ public class BusAddress {
         listeners.remove(listener);
     }
 
+    /**
+     * Address on the bus.
+     *
+     * @return byte
+     */
     public byte getAddress() {
         return address;
     }
 
+    /**
+     * Consumer for this {@link net.wbz.selectrix4java.api.bus.BusAddress} to refresh the data value.
+     *
+     * @return {@link net.wbz.selectrix4java.api.bus.BusDataConsumer}
+     */
     public BusDataConsumer getConsumer() {
         return busDataConsumer;
     }
