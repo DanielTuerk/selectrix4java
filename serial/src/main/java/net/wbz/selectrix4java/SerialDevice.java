@@ -2,9 +2,7 @@ package net.wbz.selectrix4java;
 
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
-import net.wbz.selectrix4java.api.bus.AllBusDataConsumer;
 import net.wbz.selectrix4java.api.bus.BusDataDispatcher;
-import net.wbz.selectrix4java.api.data.BusData;
 import net.wbz.selectrix4java.api.data.BusDataChannel;
 import net.wbz.selectrix4java.api.device.AbstractDevice;
 import net.wbz.selectrix4java.api.device.DeviceAccessException;
@@ -124,7 +122,11 @@ public class SerialDevice extends AbstractDevice {
         return outputStream != null && inputStream != null;
     }
 
-
+    /**
+     * Test main method to send commands by console and print the output.
+     *
+     * @param args ignored
+     */
     public static void main(String[] args) {
         SerialDevice serialDevice = new SerialDevice("/dev/tty.usbserial-145", SerialDevice.DEFAULT_BAUD_RATE_FCC);
         try {
@@ -157,9 +159,5 @@ public class SerialDevice extends AbstractDevice {
         } catch (DeviceAccessException e) {
             e.printStackTrace();
         }
-
-
-
-
     }
 }

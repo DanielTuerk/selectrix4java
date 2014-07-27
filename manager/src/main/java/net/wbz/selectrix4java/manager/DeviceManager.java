@@ -6,12 +6,16 @@ import net.wbz.selectrix4java.SerialDevice;
 import net.wbz.selectrix4java.api.device.Device;
 import net.wbz.selectrix4java.api.device.DeviceAccessException;
 import net.wbz.selectrix4java.api.device.DeviceConnectionListener;
+import net.wbz.selectrix4java.test.TestDevice;
+import org.reflections.Reflections;
 
+import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * TODO: refactor
+ * TODO: refactor for multiple device types
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
@@ -19,7 +23,25 @@ public class DeviceManager {
 
     private final Map<String, Device> devices = Maps.newHashMap();
 
-    public enum DEVICE_TYPE {COM1}
+    private final List<DeviceConnectionListener> listeners = Lists.newArrayList();
+
+    public enum DEVICE_TYPE {SERIAL, TEST}
+
+
+
+//    public DeviceManager() {
+//
+//        Reflections reflections = new Reflections("net.wbz.selectrix4java");
+//        Set<Class<? extends Device>> subTypes = reflections.getSubTypesOf(Device.class);
+//
+//        for (Class<? extends Device> deviceClazz : subTypes) {
+//                if(!Modifier.isAbstract(deviceClazz.getModifiers())) {
+//
+//
+//                }
+//        }
+//
+//    }
 
     public Device registerDevice(DEVICE_TYPE type, String deviceId, int baudRate) {
         if (!devices.containsKey(deviceId)) {
@@ -34,8 +56,10 @@ public class DeviceManager {
 
     private Device createDevice(DEVICE_TYPE type, String deviceId, int baudRate) {
         switch (type) {
-            case COM1:
+            case SERIAL:
                 return new SerialDevice(deviceId, baudRate);
+            case TEST:
+                return new TestDevice();
             default:
                 throw new RuntimeException("no device found for type " + type.name());
         }
@@ -83,7 +107,6 @@ public class DeviceManager {
         throw new RuntimeException("no device found to delete");
     }
 
-    private final List<DeviceConnectionListener> listeners = Lists.newArrayList();
 
     public void addDeviceConnectionListener(DeviceConnectionListener listener) {
         listeners.add(listener);

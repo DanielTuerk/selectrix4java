@@ -141,8 +141,6 @@ public abstract class AbstractDevice implements Device {
      */
     abstract public void doDisconnect() throws DeviceAccessException;
 
-//    abstract public boolean isConnected();
-
     /**
      * Get {@link net.wbz.selectrix4java.api.bus.BusAddress} to read the data value or send new values.
      * <p/>
@@ -203,7 +201,6 @@ public abstract class AbstractDevice implements Device {
         return blockModules.get(busAddress);
     }
 
-
     public synchronized FeedbackBlockModule getFeedbackBlockModule(byte address, byte feedbackAddress, byte... additionalAddresses) throws DeviceAccessException {
         BusAddress busAddress = getBusAddress(1, address);
         if (!blockModules.containsKey(busAddress)) {
@@ -239,10 +236,8 @@ public abstract class AbstractDevice implements Device {
     public void setRailVoltage(boolean state) throws DeviceAccessException {
         BusAddress busAddress = getBusAddress(1, (byte) 127);
         if (state) {
-//            busAddress.setBit(6);
             busAddress.setBit(8);
         } else {
-//            busAddress.clearBit(6);
             busAddress.clearBit(8);
         }
         busAddress.send();

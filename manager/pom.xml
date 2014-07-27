@@ -25,6 +25,17 @@
             <artifactId>selectrix4java-serial</artifactId>
             <version>${project.version}</version>
         </dependency>
+  <dependency>
+            <groupId>net.wbz.selectrix4java</groupId>
+            <artifactId>selectrix4java-test</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.9-RC1</version>
+        </dependency>
     </dependencies>
 
     <build>

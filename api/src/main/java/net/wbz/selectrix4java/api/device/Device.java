@@ -12,9 +12,9 @@ import java.io.Serializable;
  */
 public interface Device extends Serializable {
 
-    void addDeviceConnectionListener(DeviceConnectionListener listener);
+    public void addDeviceConnectionListener(DeviceConnectionListener listener);
 
-    void removeDeviceConnectionListener(DeviceConnectionListener listener);
+    public void removeDeviceConnectionListener(DeviceConnectionListener listener);
 
     /**
      * Create connection of the device.
@@ -33,7 +33,7 @@ public interface Device extends Serializable {
      */
     public boolean isConnected();
 
-    BlockModule getBlockModule(byte... addresses) throws DeviceAccessException;
+    public BlockModule getBlockModule(byte... addresses) throws DeviceAccessException;
 
     public boolean getRailVoltage() throws DeviceAccessException;
 
