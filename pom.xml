@@ -22,6 +22,7 @@
         <module>api</module>
         <module>manager</module>
         <module>serial</module>
+        <module>test</module>
     </modules>
 
     <build>
