@@ -6,6 +6,9 @@ import net.wbz.selectrix4java.api.device.AbstractDevice;
 import net.wbz.selectrix4java.api.device.DeviceAccessException;
 
 /**
+ * Simple test device which mock an connection.
+ * The bus is simulated by the {@link net.wbz.selectrix4java.test.TestBus} for read and write operations.
+ *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class TestDevice extends AbstractDevice {
@@ -21,7 +24,7 @@ public class TestDevice extends AbstractDevice {
 
     @Override
     public BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException {
-        if (connected) {
+        if (isConnected()) {
             throw new DeviceAccessException("already connected");
         }
         connected = true;

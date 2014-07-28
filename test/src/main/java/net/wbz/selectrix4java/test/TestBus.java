@@ -5,10 +5,17 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * Test implementation which stores the written values into an byte array and read the byte array.
+ *
+ * Simulates a SX1 bus.
+ *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class TestBus {
 
+    /**
+     * Container for the bus 0 and bus 1 for 113 addresses.
+     */
     private byte[] busData = new byte[226];
 
     private final InputStream inputStream;
