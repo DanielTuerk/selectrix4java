@@ -24,8 +24,8 @@ import java.util.concurrent.*;
  */
 public class BusDataChannel {
     private static final Logger log = LoggerFactory.getLogger(BusDataChannel.class);
-//    private static final long DELAY = 55L;
-    private static final long DELAY = 500L;
+    private static final long DELAY = 55L;
+//    private static final long DELAY = 500L;
 
     private final Deque<AbstractSerialAccessTask> queue = new LinkedBlockingDeque<>();
     private final ScheduledExecutorService scheduledExecutorService;
