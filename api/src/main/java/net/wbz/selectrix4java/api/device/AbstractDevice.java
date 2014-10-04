@@ -86,6 +86,7 @@ public abstract class AbstractDevice implements Device {
                 }
             }).run();
         }
+        busDataChannel.start();
     }
 
     /**

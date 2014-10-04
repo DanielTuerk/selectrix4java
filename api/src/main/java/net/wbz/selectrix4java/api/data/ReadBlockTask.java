@@ -1,8 +1,6 @@
 package net.wbz.selectrix4java.api.data;
 
 import net.wbz.selectrix4java.api.bus.BusDataReceiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +10,7 @@ import java.util.Arrays;
 /**
  * This task read the bus 0 and 1 the hole time and delegate the result
  * to an {@link net.wbz.selectrix4java.api.bus.BusDataReceiver}.
- *
+ * <p/>
  * As {@link net.wbz.selectrix4java.api.data.AbstractSerialAccessTask} it will
  * be used by the {@link net.wbz.selectrix4java.api.data.BusDataChannel}
  *
@@ -22,12 +20,14 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
     private final BusDataReceiver receiver;
 
+    private byte[] reply = new byte[226];
+
     /**
      * Create new task.
      *
-     * @param inputStream open {@link java.io.InputStream}
+     * @param inputStream  open {@link java.io.InputStream}
      * @param outputStream open {@link java.io.OutputStream}
-     * @param receiver {@link net.wbz.selectrix4java.api.bus.BusDataReceiver} as callback
+     * @param receiver     {@link net.wbz.selectrix4java.api.bus.BusDataReceiver} as callback
      */
     public ReadBlockTask(InputStream inputStream, OutputStream outputStream, BusDataReceiver receiver) {
         super(inputStream, outputStream);
@@ -36,12 +36,11 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
     @Override
     public Void call() throws Exception {
-        byte[] replyBus0 = new byte[226];
-        readBlock(120, 3, replyBus0);
+        readBlock(120, 3, reply);
         // bus 0
-        receiver.received(0, Arrays.copyOfRange(replyBus0, 0, 112));
+        receiver.received(0, Arrays.copyOfRange(reply, 0, 112));
         // bus 1
-        receiver.received(1, Arrays.copyOfRange(replyBus0, 113, 225));
+        receiver.received(1, Arrays.copyOfRange(reply, 113, 225));
         return null;
     }
 
@@ -51,7 +50,7 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
         int length = getInputStream().read(reply);
         if (length != reply.length) {
-            throw new RuntimeException("block length invalid ("+length+")");
+            throw new RuntimeException("block length invalid (" + length + ")");
         }
 
     }

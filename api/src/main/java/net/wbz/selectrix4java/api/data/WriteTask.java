@@ -33,11 +33,23 @@ public class WriteTask extends AbstractSerialAccessTask<Boolean> {
     @Override
     public Boolean call() throws Exception {
         byte address;
-//        address = (byte) ((byte) busData.getAddress() & 127);
         address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
         getOutputStream().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
         getOutputStream().flush();
         log.debug("write reply: " + getInputStream().read());
+
+        // TODO: fix this bullshit: do the fake read to avoid invalid reply
+        Thread.sleep(BusDataChannel.DELAY);
+
+        getOutputStream().write(new byte[]{(byte) 120, (byte) 3});
+        getOutputStream().flush();
+
+        byte[] busReadReply = new byte[226];
+        int length = getInputStream().read(busReadReply);
+        if (length != busReadReply.length) {
+            log.error("block length invalid (" + length + ")");
+        }
+
         return null;
     }
 }

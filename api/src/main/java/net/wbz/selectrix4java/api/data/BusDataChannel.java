@@ -24,8 +24,8 @@ import java.util.concurrent.*;
  */
 public class BusDataChannel {
     private static final Logger log = LoggerFactory.getLogger(BusDataChannel.class);
-    private static final long DELAY = 55L;
-//    private static final long DELAY = 500L;
+    public static final long DELAY = 55L;
+//    public static final long DELAY = 500L;
 
     private final Deque<AbstractSerialAccessTask> queue = new LinkedBlockingDeque<>();
     private final ScheduledExecutorService scheduledExecutorService;
@@ -51,10 +51,10 @@ public class BusDataChannel {
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("serial-io-executor-%d").build();
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
         serialTaskExecutor = Executors.newSingleThreadExecutor(namedThreadFactory);
-        start();
     }
 
-    private void start() {
+    public void start() {
+        final ReadBlockTask readBlockTask = new ReadBlockTask(inputStream, outputStream, receiver);
         // poll the queue
         scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
@@ -65,7 +65,7 @@ public class BusDataChannel {
                     task = queue.poll();
                 } else {
                     // as default: execute the read task
-                    task = new ReadBlockTask(inputStream, outputStream, receiver);
+                    task = readBlockTask;
                 }
                 try {
                     serialTaskExecutor.submit(task).get();

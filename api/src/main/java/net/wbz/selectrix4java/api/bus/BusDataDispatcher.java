@@ -82,10 +82,11 @@ public class BusDataDispatcher implements BusDataReceiver {
 
     @Override
     public void received(int busNr, byte[] data) {
+        boolean firstTimeDataReceived = !busData.containsKey(busNr);
         if (busData.containsKey(busNr)) {
             byte[] oldData = busData.get(busNr);
             for (int i = 0; i < data.length; i++) {
-                if (Byte.compare(data[i], oldData[i]) != 0) {
+                if (firstTimeDataReceived || Byte.compare(data[i], oldData[i]) != 0) {
                     fireChange(busNr, i, data[i]);
                 }
             }
@@ -94,8 +95,7 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     private void fireChange(final int busNr, final int address, final int data) {
-
-        //TODO
+        //TODO: async consumer calls?
         for (final BusDataConsumer consumer : consumers) {
             if (consumer instanceof AllBusDataConsumer) {
                 executorService.submit(new Runnable() {
