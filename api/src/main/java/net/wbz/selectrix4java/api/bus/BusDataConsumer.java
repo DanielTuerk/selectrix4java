@@ -31,7 +31,7 @@ abstract public class BusDataConsumer {
         return address;
     }
 
-    abstract public void valueChanged(int value);
+    abstract public void valueChanged(int oldValue, int newValue);
 
     @Override
     public boolean equals(Object o) {

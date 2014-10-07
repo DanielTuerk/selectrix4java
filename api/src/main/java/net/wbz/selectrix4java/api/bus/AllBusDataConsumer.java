@@ -12,8 +12,8 @@ abstract public class AllBusDataConsumer extends BusDataConsumer {
     }
 
     @Override
-    public void valueChanged(int value) {
+    public void valueChanged(int oldValue, int newValue) {
     }
 
-    abstract public void valueChanged(int bus,int address, int value);
+    abstract public void valueChanged(int bus,int address, int oldValue, int newValue);
 }

@@ -16,7 +16,7 @@ public class BusAddress {
 
     private final int bus;
     private final byte address;
-    private byte data=0;
+    private byte data = 0;
     private final BusDataChannel busDataChannel;
 
     private final BusDataConsumer busDataConsumer;
@@ -30,12 +30,10 @@ public class BusAddress {
 
         busDataConsumer = new BusDataConsumer(bus, address) {
             @Override
-            public void valueChanged(int value) {
+            public void valueChanged(int oldValue, int newValue) {
                 //TODO async?
-                byte oldValue = data;
-                data = (byte) value;
                 for (BusAddressListener listener : listeners) {
-                    listener.dataChanged(oldValue, data);
+                    listener.dataChanged((byte) oldValue, (byte) newValue);
                 }
             }
         };

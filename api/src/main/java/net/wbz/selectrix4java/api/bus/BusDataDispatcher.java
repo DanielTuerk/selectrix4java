@@ -58,12 +58,12 @@ public class BusDataDispatcher implements BusDataReceiver {
         if (consumer instanceof AllBusDataConsumer) {
             for (int bus : busData.keySet()) {
                 for (int i = 0; i < busData.get(bus).length; i++) {
-                    ((AllBusDataConsumer) consumer).valueChanged(bus, i, busData.get(bus)[i]);
+                    ((AllBusDataConsumer) consumer).valueChanged(bus, i, 0, busData.get(bus)[i]);
                 }
             }
         } else {
             if (busData.containsKey(consumer.getBus()) && busData.get(consumer.getBus()).length > consumer.getAddress()) {
-                consumer.valueChanged(busData.get(consumer.getBus())[consumer.getAddress()]);
+                consumer.valueChanged(0, busData.get(consumer.getBus())[consumer.getAddress()]);
             }
         }
     }
@@ -87,28 +87,28 @@ public class BusDataDispatcher implements BusDataReceiver {
             byte[] oldData = busData.get(busNr);
             for (int i = 0; i < data.length; i++) {
                 if (firstTimeDataReceived || Byte.compare(data[i], oldData[i]) != 0) {
-                    fireChange(busNr, i, data[i]);
+                    fireChange(busNr, i, oldData[i], data[i]);
                 }
             }
         }
         busData.put(busNr, data);
     }
 
-    private void fireChange(final int busNr, final int address, final int data) {
+    private void fireChange(final int busNr, final int address, final int oldData, final int newData) {
         //TODO: async consumer calls?
         for (final BusDataConsumer consumer : consumers) {
             if (consumer instanceof AllBusDataConsumer) {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        ((AllBusDataConsumer) consumer).valueChanged(busNr, address, data);
+                        ((AllBusDataConsumer) consumer).valueChanged(busNr, address, oldData, newData);
                     }
                 });
             } else if (consumer.getAddress() == address && consumer.getBus() == busNr) {
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
-                        consumer.valueChanged(data);
+                        consumer.valueChanged(oldData, newData);
                     }
                 });
             }

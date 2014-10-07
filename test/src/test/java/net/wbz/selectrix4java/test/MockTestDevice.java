@@ -21,11 +21,11 @@ public class MockTestDevice {
         Device device = new TestDevice();
         device.getBusDataDispatcher().registerConsumer(new AllBusDataConsumer() {
             @Override
-            public void valueChanged(int bus, int address, int value) {
-                System.out.printf("%d: %d=%d%n", bus, address, value);
+            public void valueChanged(int bus, int address, int oldValue, int newValue) {
+                System.out.printf("%d: %d=%d%n", bus, address, newValue);
                 Assert.assertEquals(busUnderTest, bus);
                 Assert.assertEquals(addressUnderTest, address);
-                Assert.assertEquals(valueUnderTest, value);
+                Assert.assertEquals(valueUnderTest, newValue);
                 callbackReceived=true;
             }
         });
