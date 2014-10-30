@@ -69,7 +69,9 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     public void registerConsumers(List<BusDataConsumer> consumers) {
-        this.consumers.addAll(consumers);
+        for (BusDataConsumer consumer : consumers) {
+            registerConsumer(consumer);
+        }
     }
 
     public void unregisterConsumer(BusDataConsumer consumer) {
@@ -78,6 +80,14 @@ public class BusDataDispatcher implements BusDataReceiver {
 
     public void unregisterConsumers(List<BusDataConsumer> consumers) {
         this.consumers.removeAll(consumers);
+    }
+
+    /**
+     * Perform an update by calling all registered consumers with the current data of the bus addresses.
+     * Each consumer will be called for an value change.
+     */
+    public void requestConsumersDataUpdate() {
+
     }
 
     @Override
