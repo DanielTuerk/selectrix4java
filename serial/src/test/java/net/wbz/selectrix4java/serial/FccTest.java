@@ -43,8 +43,8 @@ public class FccTest
 //        Assert.assertFalse(device.getRailVoltage());
   }
 
-  //    @Ignore
-  @Test
+      @Ignore
+//  @Test
   public void testTrain()
       throws DeviceAccessException, InterruptedException, IOException
   {
