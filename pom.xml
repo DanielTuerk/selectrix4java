@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <groupId>net.wbz.selectrix4java</groupId>
-    <version>0.2-SNAPSHOT</version>
+    <version>${selectrix.version}</version>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>selectrix4java</artifactId>
@@ -118,6 +118,9 @@
     </dependencies>
 
     <properties>
+
+        <selectrix.version>0.2</selectrix.version>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <logback.version>0.9.15</logback.version>
