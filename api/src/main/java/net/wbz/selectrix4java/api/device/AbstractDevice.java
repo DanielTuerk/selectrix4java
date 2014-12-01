@@ -25,6 +25,7 @@ import java.util.concurrent.FutureTask;
 public abstract class AbstractDevice implements Device {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractDevice.class);
+    public static final int RAILVOLTAGE_ADDRESS = 127;
 
     /**
      * Used {@link net.wbz.selectrix4java.api.train.TrainModule}s by main {@link net.wbz.selectrix4java.api.bus.BusAddress}.
@@ -225,7 +226,7 @@ public abstract class AbstractDevice implements Device {
      * @throws DeviceAccessException
      */
     public boolean getRailVoltage() throws DeviceAccessException {
-        return BigInteger.valueOf(getBusAddress(1, (byte) 109).getData()).testBit(8);
+        return BigInteger.valueOf(getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS).getData()).testBit(8);
     }
 
     /**
@@ -235,7 +236,7 @@ public abstract class AbstractDevice implements Device {
      * @throws DeviceAccessException
      */
     public void setRailVoltage(boolean state) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(1, (byte) 127);
+        BusAddress busAddress = getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS);
         if (state) {
             busAddress.setBit(8);
         } else {
