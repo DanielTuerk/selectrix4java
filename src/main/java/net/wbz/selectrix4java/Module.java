@@ -19,7 +19,7 @@ public interface Module {
     /**
      * Optional addresses of the module.
      *
-     * @return {@link java.util.List< net.wbz.selectrix4java.bus.BusAddress>}
+     * @return {@link java.util.List<net.wbz.selectrix4java.bus.BusAddress>}
      */
     public List<BusAddress> getAdditionalAddresses();
 }

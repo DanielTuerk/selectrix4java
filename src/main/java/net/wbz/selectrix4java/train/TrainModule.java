@@ -249,7 +249,7 @@ public class TrainModule implements Module
   /**
    * Additional addresses of functions for the train.
    *
-   * @return {@link List< net.wbz.selectrix4java.bus.BusAddress>}
+   * @return {@link List<net.wbz.selectrix4java.bus.BusAddress>}
    */
   public List<BusAddress> getAdditionalAddresses()
   {

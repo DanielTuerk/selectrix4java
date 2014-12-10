@@ -232,7 +232,7 @@ public abstract class AbstractDevice implements Device {
     /**
      * Change rail voltage.
      *
-     * @param state {@link boolean} state
+     * @param state {@link java.lang.Boolean} state
      * @throws DeviceAccessException
      */
     public void setRailVoltage(boolean state) throws DeviceAccessException {

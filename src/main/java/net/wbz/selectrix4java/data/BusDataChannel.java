@@ -13,7 +13,7 @@ import java.util.concurrent.*;
 /**
  * The channel communicate with the device to execute read and write operations.
  * Each operation is an {@link net.wbz.selectrix4java.data.AbstractSerialAccessTask}.
- * The tasks can be put into the queue to execute by calling {@see send()}.
+ * The tasks can be put into the queue to execute by calling {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}.
  * <p/>
  * The queue is polled each time to execute an task. If no task is present in the queue, the channel send the
  * {@link ReadBlockTask} to read the actual values from the SX bus.
