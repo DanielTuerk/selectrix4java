@@ -87,17 +87,9 @@ public class TrainModule implements Module
           dispatcher.fireHornStateChanged(wrappedNewValue.testBit(BIT_HORN - 1));
         }
         // speed: check for changes in bit 1-5
-        int oldDrivingLevel = wrappedOldValue.clearBit(5).clearBit(6).clearBit(7).intValue();
-        int newDrivingLevel = wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue();
-
-        if (oldDrivingLevel != newDrivingLevel
-//                    wrappedOldValue.testBit(0) != wrappedNewValue.testBit(0)
-//                        && wrappedOldValue.testBit(1) != wrappedNewValue.testBit(1)
-//                        && wrappedOldValue.testBit(2) != wrappedNewValue.testBit(2)
-//                        && wrappedOldValue.testBit(3) != wrappedNewValue.testBit(3) //&& wrappedOldValue.testBit(4) != wrappedNewValue.testBit(4)
-            )
-        {
-          //use bit 1-5 of copy as the driving level int value
+        int oldDrivingLevel = wrappedOldValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
+        int newDrivingLevel = wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
+        if (oldDrivingLevel != newDrivingLevel) {
           dispatcher.fireDrivingLevelChanged(newDrivingLevel);
         }
       }
