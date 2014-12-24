@@ -137,7 +137,7 @@ public class TrainModule implements Module
           getAddress().clearBit(i + 1);
         }
       }
-      address.sendData((byte) (address.getData() | level));
+      getAddress().send();
     }
     return this;
   }
