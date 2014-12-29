@@ -82,30 +82,25 @@ public class BusDataDispatcher implements BusDataReceiver {
         this.consumers.removeAll(consumers);
     }
 
-    /**
-     * Perform an update by calling all registered consumers with the current data of the bus addresses.
-     * Each consumer will be called for an value change.
-     */
-    public void requestConsumersDataUpdate() {
-
-    }
-
     @Override
     public void received(int busNr, byte[] data) {
-        boolean firstTimeDataReceived = !busData.containsKey(busNr);
         if (busData.containsKey(busNr)) {
             byte[] oldData = busData.get(busNr);
             for (int i = 0; i < data.length; i++) {
-                if (firstTimeDataReceived || Byte.compare(data[i], oldData[i]) != 0) {
+                if (Byte.compare(data[i], oldData[i]) != 0) {
                     fireChange(busNr, i, oldData[i], data[i]);
                 }
+            }
+        } else {
+            // first time received data of the bus nr; fire initial states for each address
+            for (int i = 0; i < data.length; i++) {
+                fireChange(busNr, i, 0, data[i]);
             }
         }
         busData.put(busNr, data);
     }
 
     private void fireChange(final int busNr, final int address, final int oldData, final int newData) {
-        //TODO: async consumer calls?
         for (final BusDataConsumer consumer : consumers) {
             if (consumer instanceof AllBusDataConsumer) {
                 executorService.submit(new Runnable() {
