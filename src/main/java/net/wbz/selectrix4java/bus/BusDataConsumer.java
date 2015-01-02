@@ -9,10 +9,19 @@ abstract public class BusDataConsumer {
 
     private  int bus;
     private int address;
+    private boolean called=false;
 
     protected BusDataConsumer(int bus, int address) {
         this.bus = bus;
         this.address = address;
+    }
+
+    public boolean isCalled() {
+        return called;
+    }
+
+    public void setCalled(boolean called) {
+        this.called = called;
     }
 
     public void setBus(int bus) {

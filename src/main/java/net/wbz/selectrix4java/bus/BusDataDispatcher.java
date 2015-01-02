@@ -64,23 +64,26 @@ public class BusDataDispatcher implements BusDataReceiver {
                 }
             }
         } else {
-            final byte addressValue = busData.get(consumer.getBus())[consumer.getAddress()];
-            if (consumer instanceof BusBitConsumer) {
-                // fire bit state from the actual bus data for the registered bit state
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        consumer.valueChanged(0, BigInteger.valueOf(addressValue).testBit(((BusBitConsumer) consumer).getBit() - 1) ? 1 : 0);
-                    }
-                });
-            } else if (busData.containsKey(consumer.getBus()) && busData.get(consumer.getBus()).length > consumer.getAddress()) {
-                // fire value of the address from the actual bus data
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        consumer.valueChanged(0, addressValue);
-                    }
-                });
+            // check for valid consumer
+            if (busData.containsKey(consumer.getBus()) && busData.get(consumer.getBus()).length > consumer.getAddress()) {
+                final byte addressValue = busData.get(consumer.getBus())[consumer.getAddress()];
+                if (consumer instanceof BusBitConsumer) {
+                    // fire bit state from the actual bus data for the registered bit state
+                    executorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            consumer.valueChanged(0, BigInteger.valueOf(addressValue).testBit(((BusBitConsumer) consumer).getBit() - 1) ? 1 : 0);
+                        }
+                    });
+                } else {
+                    // fire value of the address from the actual bus data
+                    executorService.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            consumer.valueChanged(0, addressValue);
+                        }
+                    });
+                }
             }
         }
     }
@@ -124,17 +127,19 @@ public class BusDataDispatcher implements BusDataReceiver {
                     @Override
                     public void run() {
                         ((AllBusDataConsumer) consumer).valueChanged(busNr, address, oldData, newData);
+                        consumer.setCalled(true);
                     }
                 });
             } else if (consumer instanceof BusBitConsumer) {
                 if (consumer.getAddress() == address && consumer.getBus() == busNr) {
                     final boolean oldBitState = BigInteger.valueOf(oldData).testBit(((BusBitConsumer) consumer).getBit() - 1);
                     final boolean newBitState = BigInteger.valueOf(newData).testBit(((BusBitConsumer) consumer).getBit() - 1);
-                    if (oldBitState != newBitState) {
+                    if (!consumer.isCalled() || oldBitState != newBitState) {
                         executorService.submit(new Runnable() {
                             @Override
                             public void run() {
                                 consumer.valueChanged(oldBitState ? 1 : 0, newBitState ? 1 : 0);
+                                consumer.setCalled(true);
                             }
                         });
                     }
@@ -144,6 +149,7 @@ public class BusDataDispatcher implements BusDataReceiver {
                     @Override
                     public void run() {
                         consumer.valueChanged(oldData, newData);
+                        consumer.setCalled(true);
                     }
                 });
             }
