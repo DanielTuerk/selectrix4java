@@ -5,6 +5,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -52,9 +53,10 @@ public class BusDataDispatcher implements BusDataReceiver {
      *
      * @param consumer {@link BusDataConsumer}
      */
-    public void registerConsumer(BusDataConsumer consumer) {
+    public void registerConsumer(final BusDataConsumer consumer) {
         consumers.add(consumer);
 
+        // fire current value for the consumer
         if (consumer instanceof AllBusDataConsumer) {
             for (int bus : busData.keySet()) {
                 for (int i = 0; i < busData.get(bus).length; i++) {
@@ -62,8 +64,23 @@ public class BusDataDispatcher implements BusDataReceiver {
                 }
             }
         } else {
-            if (busData.containsKey(consumer.getBus()) && busData.get(consumer.getBus()).length > consumer.getAddress()) {
-                consumer.valueChanged(0, busData.get(consumer.getBus())[consumer.getAddress()]);
+            final byte addressValue = busData.get(consumer.getBus())[consumer.getAddress()];
+            if (consumer instanceof BusBitConsumer) {
+                // fire bit state from the actual bus data for the registered bit state
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        consumer.valueChanged(0, BigInteger.valueOf(addressValue).testBit(((BusBitConsumer) consumer).getBit() - 1) ? 1 : 0);
+                    }
+                });
+            } else if (busData.containsKey(consumer.getBus()) && busData.get(consumer.getBus()).length > consumer.getAddress()) {
+                // fire value of the address from the actual bus data
+                executorService.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        consumer.valueChanged(0, addressValue);
+                    }
+                });
             }
         }
     }
@@ -109,6 +126,19 @@ public class BusDataDispatcher implements BusDataReceiver {
                         ((AllBusDataConsumer) consumer).valueChanged(busNr, address, oldData, newData);
                     }
                 });
+            } else if (consumer instanceof BusBitConsumer) {
+                if (consumer.getAddress() == address && consumer.getBus() == busNr) {
+                    final boolean oldBitState = BigInteger.valueOf(oldData).testBit(((BusBitConsumer) consumer).getBit() - 1);
+                    final boolean newBitState = BigInteger.valueOf(newData).testBit(((BusBitConsumer) consumer).getBit() - 1);
+                    if (oldBitState != newBitState) {
+                        executorService.submit(new Runnable() {
+                            @Override
+                            public void run() {
+                                consumer.valueChanged(oldBitState ? 1 : 0, newBitState ? 1 : 0);
+                            }
+                        });
+                    }
+                }
             } else if (consumer.getAddress() == address && consumer.getBus() == busNr) {
                 executorService.submit(new Runnable() {
                     @Override
