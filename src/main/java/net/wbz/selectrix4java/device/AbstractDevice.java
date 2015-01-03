@@ -76,8 +76,8 @@ public abstract class AbstractDevice implements Device {
         } catch (Exception e) {
             throw new DeviceAccessException("can't connect", e);
         }
-        log.info("device connected");
 
+        log.info("device connected");
         for (final DeviceConnectionListener listener : listeners) {
             new FutureTask<>(new Callable<Void>() {
                 @Override
@@ -87,6 +87,23 @@ public abstract class AbstractDevice implements Device {
                 }
             }).run();
         }
+
+        busDataChannel.setCallback(new BusDataChannel.ChannelStateCallback() {
+            @Override
+            public void channelClosed() {
+                log.info("device connection lost");
+                for (final DeviceConnectionListener listener : listeners) {
+                    new FutureTask<>(new Callable<Void>() {
+                        @Override
+                        public Void call() throws Exception {
+                            listener.disconnected(AbstractDevice.this);
+                            return null;
+                        }
+                    }).run();
+                }
+            }
+        });
+
         busDataChannel.start();
     }
 

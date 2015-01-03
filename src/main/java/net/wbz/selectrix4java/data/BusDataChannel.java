@@ -36,6 +36,8 @@ public class BusDataChannel {
 
     private final BusDataReceiver receiver;
 
+    private ChannelStateCallback callback;
+
     /**
      * Create an new channel for the given IO streams of the connected device.
      *
@@ -73,6 +75,7 @@ public class BusDataChannel {
                     log.error("serial access interrupted", e);
                 } catch (ExecutionException e) {
                     log.error("execution error of serial access", e);
+                    shutdownNow(e);
                 }
             }
         }, 0L, DELAY, TimeUnit.MILLISECONDS);
@@ -94,5 +97,20 @@ public class BusDataChannel {
     public void shutdownNow() {
         serialTaskExecutor.shutdownNow();
         scheduledExecutorService.shutdownNow();
+    }
+
+    private void shutdownNow(Exception e) {
+        shutdownNow();
+        if (callback != null) {
+            callback.channelClosed();
+        }
+    }
+
+    public void setCallback(ChannelStateCallback callback) {
+        this.callback = callback;
+    }
+
+    public interface ChannelStateCallback {
+        public void channelClosed();
     }
 }

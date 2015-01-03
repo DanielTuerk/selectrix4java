@@ -1,6 +1,8 @@
 package net.wbz.selectrix4java.data;
 
 import net.wbz.selectrix4java.bus.BusDataReceiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +19,8 @@ import java.util.Arrays;
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
+
+    private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
 
     private final BusDataReceiver receiver;
 
@@ -36,7 +40,12 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
     @Override
     public Void call() throws Exception {
-        readBlock(120, 3, reply);
+        try {
+            readBlock(120, 3, reply);
+        } catch (IOException e) {
+            log.error("can't read block", e);
+            return null;
+        }
         // bus 0
         receiver.received(0, Arrays.copyOfRange(reply, 0, 112));
         // bus 1
@@ -45,12 +54,16 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
     }
 
     private void readBlock(int address, int data, byte[] reply) throws IOException {
-        getOutputStream().write(new byte[]{(byte) address, (byte) data});
-        getOutputStream().flush();
+        try {
+            getOutputStream().write(new byte[]{(byte) address, (byte) data});
+            getOutputStream().flush();
+        } catch (IOException e) {
+            throw new RuntimeException("can't write to output", e);
+        }
 
         int length = getInputStream().read(reply);
         if (length != reply.length) {
-            throw new RuntimeException("block length invalid (" + length + ")");
+            throw new IOException("block length invalid (" + length + ")");
         }
 
     }
