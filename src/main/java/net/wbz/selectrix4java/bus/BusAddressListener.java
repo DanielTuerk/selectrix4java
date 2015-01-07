@@ -5,7 +5,7 @@ package net.wbz.selectrix4java.bus;
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-public interface BusAddressListener {
+public interface BusAddressListener extends BusListener {
 
     /**
      * Data of the {@link net.wbz.selectrix4java.bus.BusAddress} changed.

@@ -4,6 +4,7 @@ import net.wbz.selectrix4java.data.BusData;
 import net.wbz.selectrix4java.data.BusDataChannel;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -21,7 +22,7 @@ public class BusAddress {
 
     private final BusDataConsumer busDataConsumer;
 
-    private final Queue<BusAddressListener> listeners = new ConcurrentLinkedQueue<>();
+    private final Queue<BusListener> listeners = new ConcurrentLinkedQueue<>();
 
     public BusAddress(final int bus, final byte address, BusDataChannel busDataChannel) {
         this.bus = bus;
@@ -31,12 +32,32 @@ public class BusAddress {
         busDataConsumer = new BusDataConsumer(bus, address) {
             @Override
             public void valueChanged(int oldValue, int newValue) {
+                data = (byte) newValue;
                 //TODO async?
-                for (BusAddressListener listener : listeners) {
-                    listener.dataChanged((byte) oldValue, (byte) newValue);
-                }
+                fireDataChanged(oldValue, newValue);
             }
         };
+    }
+
+    private void fireDataChanged(int oldValue, int newValue) {
+        for (BusListener listener : listeners) {
+            if (listener instanceof BusAddressListener) {
+                ((BusAddressListener) listener).dataChanged((byte) oldValue, (byte) newValue);
+            } else if (listener instanceof BusAddressBitListener) {
+
+                BusAddressBitListener busAddressBitListener = (BusAddressBitListener) listener;
+                boolean oldBitValue = BigInteger.valueOf(oldValue).testBit(busAddressBitListener.getBitNr() - 1);
+                boolean newBitValue = BigInteger.valueOf(newValue).testBit(busAddressBitListener.getBitNr() - 1);
+
+                if (!busAddressBitListener.isCalled() || oldBitValue != newBitValue) {
+                    busAddressBitListener.bitChanged(oldBitValue, newBitValue);
+                    busAddressBitListener.setCalled(true);
+                }
+
+            } else {
+                throw new RuntimeException("unknown bus listener instance: " + listener.getClass().getName());
+            }
+        }
     }
 
     /**
@@ -103,20 +124,33 @@ public class BusAddress {
      * After call of this method the listener will immediately receive the
      * actual data from the {@link net.wbz.selectrix4java.bus.BusAddress}.
      *
-     * @param listener {@link net.wbz.selectrix4java.bus.BusAddressListener}
+     * @param listener {@link net.wbz.selectrix4java.bus.BusListener}
      */
-    public void addListener(BusAddressListener listener) {
-        listeners.add(listener);
-        listener.dataChanged((byte) 0, data);
+    public void addListener(BusListener listener) {
+        this.listeners.add(listener);
+        fireDataChanged(0, data);
     }
 
     /**
      * Remove the given listener.
      *
-     * @param listener {@link net.wbz.selectrix4java.bus.BusAddressListener}
+     * @param listener {@link net.wbz.selectrix4java.bus.BusListener}
      */
-    public void removeListener(BusAddressListener listener) {
-        listeners.remove(listener);
+    public void removeListener(BusListener listener) {
+        this.listeners.remove(listener);
+    }
+
+    public void addListeners(List<BusListener> listeners) {
+        for (BusListener listener : listeners) {
+            addListener(listener);
+        }
+    }
+
+
+    public void removeListeners(List<BusListener> listeners) {
+        for (BusListener listener : listeners) {
+            removeListener(listener);
+        }
     }
 
     /**
