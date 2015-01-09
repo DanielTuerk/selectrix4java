@@ -115,7 +115,7 @@ public abstract class AbstractDevice implements Device {
      * @return {@link net.wbz.selectrix4java.data.BusDataChannel}
      * @throws DeviceAccessException
      */
-    abstract public BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException;
+    abstract protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException;
 
     /**
      * Close the active connection of the device and clear all caches.
