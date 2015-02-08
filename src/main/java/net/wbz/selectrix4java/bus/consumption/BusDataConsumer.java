@@ -1,4 +1,4 @@
-package net.wbz.selectrix4java.bus;
+package net.wbz.selectrix4java.bus.consumption;
 
 /**
  * Consumers are informed by state changes of the configured bus and address.
@@ -7,13 +7,11 @@ package net.wbz.selectrix4java.bus;
  */
 abstract public class BusDataConsumer {
 
-    private  int bus;
-    private int address;
-    private boolean called=false;
+    private int bus;
+    private boolean called = false;
 
-    protected BusDataConsumer(int bus, int address) {
+    protected BusDataConsumer(int bus) {
         this.bus = bus;
-        this.address = address;
     }
 
     public boolean isCalled() {
@@ -24,23 +22,9 @@ abstract public class BusDataConsumer {
         this.called = called;
     }
 
-    public void setBus(int bus) {
-        this.bus = bus;
-    }
-
-    public void setAddress(int address) {
-        this.address = address;
-    }
-
     public int getBus() {
         return bus;
     }
-
-    public int getAddress() {
-        return address;
-    }
-
-    abstract public void valueChanged(int oldValue, int newValue);
 
     @Override
     public boolean equals(Object o) {
@@ -53,9 +37,6 @@ abstract public class BusDataConsumer {
 
         BusDataConsumer that = (BusDataConsumer) o;
 
-        if (address != that.address) {
-            return false;
-        }
         if (bus != that.bus) {
             return false;
         }
@@ -66,7 +47,8 @@ abstract public class BusDataConsumer {
     @Override
     public int hashCode() {
         int result = bus;
-        result = 31 * result + address;
+        result = 31 * result;
         return result;
     }
+
 }

@@ -17,6 +17,20 @@ public class WriteTask extends AbstractSerialAccessTask<Boolean> {
     private static final Logger log = LoggerFactory.getLogger(WriteTask.class);
 
     private final BusData busData;
+    private final byte[] data;
+
+    /**
+     * Create new task for an execution
+     *
+     * @param inputStream  {@link java.io.InputStream}
+     * @param outputStream {@link java.io.OutputStream}
+     * @param data         bytes to send
+     */
+    public WriteTask(InputStream inputStream, OutputStream outputStream, byte[] data) {
+        super(inputStream, outputStream);
+        this.busData = null;
+        this.data = data;
+    }
 
     /**
      * Create new task for an execution
@@ -28,15 +42,26 @@ public class WriteTask extends AbstractSerialAccessTask<Boolean> {
     public WriteTask(InputStream inputStream, OutputStream outputStream, BusData busData) {
         super(inputStream, outputStream);
         this.busData = busData;
+        this.data = null;
     }
 
     @Override
     public Boolean call() throws Exception {
-        byte address;
-        address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
-        getOutputStream().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
-        getOutputStream().flush();
-        log.debug("write reply: " + getInputStream().read());
+        if (data == null && busData != null) {
+            byte address;
+            address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
+            getOutputStream().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
+            getOutputStream().flush();
+            log.debug("write reply: " + getInputStream().read());
+        } else if (data != null && busData == null) {
+            getOutputStream().write(data);
+            getOutputStream().flush();
+            // read reply which is variable by the count of the sent bytes
+            log.debug("native write reply: " + getInputStream().read(new byte[data.length - 2]));
+        } else {
+            throw new RuntimeException("invalid data to send! Only byte array or BusData are valid!");
+        }
+
 
         // TODO: fix this bullshit: do the fake read to avoid invalid reply
         Thread.sleep(BusDataChannel.DELAY);

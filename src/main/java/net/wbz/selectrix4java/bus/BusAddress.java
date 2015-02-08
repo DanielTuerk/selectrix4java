@@ -1,5 +1,7 @@
 package net.wbz.selectrix4java.bus;
 
+import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
 import net.wbz.selectrix4java.data.BusData;
 import net.wbz.selectrix4java.data.BusDataChannel;
 
@@ -29,7 +31,7 @@ public class BusAddress {
         this.address = address;
         this.busDataChannel = busDataChannel;
 
-        busDataConsumer = new BusDataConsumer(bus, address) {
+        busDataConsumer = new BusAddressDataConsumer(bus, address) {
             @Override
             public void valueChanged(int oldValue, int newValue) {
                 data = (byte) newValue;
@@ -165,7 +167,7 @@ public class BusAddress {
     /**
      * Consumer for this {@link net.wbz.selectrix4java.bus.BusAddress} to refresh the data value.
      *
-     * @return {@link net.wbz.selectrix4java.bus.BusDataConsumer}
+     * @return {@link net.wbz.selectrix4java.bus.consumption.BusDataConsumer}
      */
     public BusDataConsumer getConsumer() {
         return busDataConsumer;

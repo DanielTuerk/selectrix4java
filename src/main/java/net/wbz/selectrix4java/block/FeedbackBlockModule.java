@@ -1,10 +1,12 @@
 package net.wbz.selectrix4java.block;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.train.TrainModule;
 
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -32,14 +34,16 @@ public class FeedbackBlockModule extends BlockModule {
      */
     private final Map<Integer, Integer> blockSpeedMapping = Maps.newConcurrentMap();
     private final Map<TrainModule, Integer> currentSpeedOfTrainOnBlock = new WeakHashMap<>();
+    private final FeedbackBlockModuleDataDispatcher dispatcher = new FeedbackBlockModuleDataDispatcher();
 
     public FeedbackBlockModule(final Map<BusAddress, TrainModule> trainModules, BusAddress address,
-                               BusAddress feedbackAddress, BusAddress additionalAddresses) {
+                               BusAddress feedbackAddress, BusAddress... additionalAddresses) {
         super(address, additionalAddresses);
         feedbackAddress.addListener(new BusAddressListener() {
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
 
+                dispatcher.fireTrainEnterBlock(-1,-1,newValue);
 //                byte trainAddress = 0;
 //                TrainModule trainModule = trainModules.get(trainAddress);
 //
@@ -62,6 +66,24 @@ public class FeedbackBlockModule extends BlockModule {
 
             }
         });
+    }
+
+    /**
+     * Add the given {@link net.wbz.selectrix4java.block.FeedbackBlockListener} to receive state changes of the block.
+     *
+     * @param listener {@link net.wbz.selectrix4java.block.FeedbackBlockListener}
+     */
+    public void addFeedbackBlockListener(FeedbackBlockListener listener) {
+        dispatcher.addListener(listener);
+    }
+
+    /**
+     * Remove existing listener.
+     *
+     * @param listener {@link net.wbz.selectrix4java.block.FeedbackBlockListener}
+     */
+    public void removeFeedbackBlockListener(FeedbackBlockListener listener) {
+        dispatcher.removeListener(listener);
     }
 
     /**

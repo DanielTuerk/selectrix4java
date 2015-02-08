@@ -96,6 +96,17 @@ public class BlockModule implements Module {
         return additionalAddresses;
     }
 
+    /**
+     * Last received state for the given block number.
+     *
+     * @param blockNr number of the block (1-8)
+     * @return {@code true} if the block is occupied otherwise it's free
+     */
+    public boolean getLastReceivedBlockState(int blockNr) {
+        assert blockNr >=1 && blockNr <=8;
+        return blockStates.get(blockNr);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

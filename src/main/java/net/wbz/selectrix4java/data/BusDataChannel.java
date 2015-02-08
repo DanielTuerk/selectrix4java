@@ -7,7 +7,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.*;
 
 /**
@@ -15,7 +18,7 @@ import java.util.concurrent.*;
  * Each operation is an {@link net.wbz.selectrix4java.data.AbstractSerialAccessTask}.
  * The tasks can be put into the queue to execute by calling {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}.
  * <p/>
- * The queue is polled each time to execute an task. If no task is present in the queue, the channel send the
+ * The queue is polled each timestamp to execute an task. If no task is present in the queue, the channel send the
  * {@link ReadBlockTask} to read the actual values from the SX bus.
  * <p/>
  * State changes of the values are published to the given {@link net.wbz.selectrix4java.bus.BusDataReceiver}.
@@ -37,6 +40,8 @@ public class BusDataChannel {
     private final BusDataReceiver receiver;
 
     private ChannelStateCallback callback;
+
+    private List<BusDataReceiver> receivers = Collections.synchronizedList(new LinkedList<BusDataReceiver>());
 
     /**
      * Create an new channel for the given IO streams of the connected device.
@@ -92,6 +97,16 @@ public class BusDataChannel {
     }
 
     /**
+     * Send the given byte array to the output of the device.
+     * This call is asynchronously executed from the queue.
+     *
+     * @param data bytes to send
+     */
+    public void send(byte[] data) {
+        queue.push(new WriteTask(inputStream, outputStream, data));
+    }
+
+    /**
      * Stop the asnyc executions.
      */
     public void shutdownNow() {
@@ -99,6 +114,11 @@ public class BusDataChannel {
         scheduledExecutorService.shutdownNow();
     }
 
+    /**
+     * TODO: remove or usage for any calls {@see #shutdownNow}
+     *
+     * @param e
+     */
     private void shutdownNow(Exception e) {
         shutdownNow();
         if (callback != null) {
@@ -108,6 +128,18 @@ public class BusDataChannel {
 
     public void setCallback(ChannelStateCallback callback) {
         this.callback = callback;
+    }
+
+    public void addBusDataReceiver(BusDataRecorder busDataRecorder) {
+        receivers.add(busDataRecorder);
+    }
+
+    public void removeBusDataReceiver(BusDataRecorder busDataRecorder) {
+        receivers.remove(busDataRecorder);
+    }
+
+    public boolean containsBusDataReceiver(BusDataRecorder busDataRecorder) {
+        return receivers.contains(busDataRecorder);
     }
 
     public interface ChannelStateCallback {
