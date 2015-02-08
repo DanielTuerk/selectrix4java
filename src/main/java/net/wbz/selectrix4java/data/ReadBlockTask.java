@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java.data;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.wbz.selectrix4java.bus.BusDataReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,10 +9,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
- * This task read the bus 0 and 1 the hole time and delegate the result
- * to an {@link net.wbz.selectrix4java.bus.BusDataReceiver}.
+ * This task read the bus 0 and 1 the hole timestamp and delegate the result
+ * to the {@link net.wbz.selectrix4java.bus.BusDataReceiver}s.
  * <p/>
  * As {@link net.wbz.selectrix4java.data.AbstractSerialAccessTask} it will
  * be used by the {@link net.wbz.selectrix4java.data.BusDataChannel}
@@ -22,20 +26,21 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
     private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
 
-    private final BusDataReceiver receiver;
-
     private byte[] reply = new byte[226];
+
+    private final ExecutorService executorService;
 
     /**
      * Create new task.
      *
      * @param inputStream  open {@link java.io.InputStream}
      * @param outputStream open {@link java.io.OutputStream}
-     * @param receiver     {@link net.wbz.selectrix4java.bus.BusDataReceiver} as callback
      */
-    public ReadBlockTask(InputStream inputStream, OutputStream outputStream, BusDataReceiver receiver) {
+    public ReadBlockTask(InputStream inputStream, OutputStream outputStream) {
         super(inputStream, outputStream);
-        this.receiver = receiver;
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("ReadBlockTask-%d").build();
+        // TODO: cached are the right joice?
+        executorService = Executors.newCachedThreadPool(namedThreadFactory);
     }
 
     @Override
@@ -46,10 +51,18 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
             log.error("can't read block", e);
             return null;
         }
-        // bus 0
-        receiver.received(0, Arrays.copyOfRange(reply, 0, 112));
-        // bus 1
-        receiver.received(1, Arrays.copyOfRange(reply, 113, 225));
+        for (final BusDataReceiver receiver : getReceivers()) {
+            final byte[] tempData = Arrays.copyOf(reply,reply.length);
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    // bus 0
+                    receiver.received(0, Arrays.copyOfRange(tempData, 0, 112));
+                    // bus 1
+                    receiver.received(1, Arrays.copyOfRange(tempData, 113, 225));
+                }
+            });
+        }
         return null;
     }
 

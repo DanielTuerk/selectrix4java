@@ -152,30 +152,11 @@ public class ConsumerTest extends BaseTest {
         sendTestData(testDataSet);
     }
 
-    private void sendTestData(TestDataSet testDataSet) throws InterruptedException, DeviceAccessException {
+    protected void sendTestData(TestDataSet testDataSet) throws InterruptedException, DeviceAccessException {
         getDevice().getBusAddress(testDataSet.getSendBus(), (byte) testDataSet.getSendAddress()).sendData((byte) testDataSet.getSendValue());
         Thread.sleep(800L);
     }
 
-    private void assertEventReceived(TestDataSet testDataSet) {
-        assertEventReceived(testDataSet, -1);
-    }
 
-    private void assertEventReceived(TestDataSet testDataSet, int expectedResultCount) {
-        if (expectedResultCount == -1) {
-            Assert.assertTrue("no event received", testDataSet.getResultCallCount() > 0);
-        } else {
-            Assert.assertEquals("amount of events wrong", expectedResultCount, testDataSet.getResultCallCount());
-        }
-        assertTestData(testDataSet.getSendBus(), testDataSet.getReceivedBus(),
-                testDataSet.getSendAddress(), testDataSet.getReceivedAddress(),
-                testDataSet.getSendValue(), testDataSet.getReceivedValue());
-    }
-
-    private void assertTestData(int expectedBus, int receivedBus, int expectedAddress, int receivedAddress, int expectedValue, int receivedValue) {
-        Assert.assertEquals(expectedBus, receivedBus);
-        Assert.assertEquals(expectedAddress, receivedAddress);
-        Assert.assertEquals(expectedValue, receivedValue);
-    }
 
 }

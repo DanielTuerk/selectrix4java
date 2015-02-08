@@ -1,7 +1,10 @@
 package net.wbz.selectrix4java.data;
 
+import net.wbz.selectrix4java.bus.BusDataReceiver;
+
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -11,6 +14,7 @@ abstract public class AbstractSerialAccessTask<T> implements Callable<T> {
 
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private List<BusDataReceiver> receivers;
 
     public AbstractSerialAccessTask(InputStream inputStream, OutputStream outputStream) {
         this.inputStream = inputStream;
@@ -23,5 +27,13 @@ abstract public class AbstractSerialAccessTask<T> implements Callable<T> {
 
     protected OutputStream getOutputStream() {
         return outputStream;
+    }
+
+    public void setReceivers(List<BusDataReceiver> receivers) {
+        this.receivers = receivers;
+    }
+
+    protected List<BusDataReceiver> getReceivers() {
+        return receivers;
     }
 }

@@ -18,6 +18,7 @@ import java.io.IOException;
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
+@Ignore
 public class FccTest extends BaseTest {
 
 

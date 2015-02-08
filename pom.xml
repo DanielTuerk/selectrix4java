@@ -165,6 +165,12 @@
             <version>0.9.9-RC1</version>
         </dependency>
 
+        <!-- Player/Recorder -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3.1</version>
+        </dependency>
 
     </dependencies>
 

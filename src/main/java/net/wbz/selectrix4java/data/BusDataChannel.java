@@ -2,6 +2,7 @@ package net.wbz.selectrix4java.data;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import net.wbz.selectrix4java.bus.BusDataReceiver;
+import net.wbz.selectrix4java.data.recording.BusDataRecorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,21 +31,37 @@ public class BusDataChannel {
     public static final long DELAY = 55L;
 //    public static final long DELAY = 500L;
 
+    /**
+     * Queue to execute the tasks as FIFO.
+     */
     private final Deque<AbstractSerialAccessTask> queue = new LinkedBlockingDeque<>();
     private final ScheduledExecutorService scheduledExecutorService;
     private final ExecutorService serialTaskExecutor;
 
+    /**
+     * Output stream of the connected device to write data.
+     */
     private final OutputStream outputStream;
+
+    /**
+     * Input stream of the connected device to read the data.
+     */
     private final InputStream inputStream;
 
-    private final BusDataReceiver receiver;
-
+    /**
+     * Callback for the state of the channel to open and close the channel.
+     */
     private ChannelStateCallback callback;
 
+    /**
+     * Receivers which are called by reading the input stream of the device by the {@link net.wbz.selectrix4java.data.ReadBlockTask}.
+     */
     private List<BusDataReceiver> receivers = Collections.synchronizedList(new LinkedList<BusDataReceiver>());
 
     /**
      * Create an new channel for the given IO streams of the connected device.
+     * Default {@link net.wbz.selectrix4java.bus.BusDataReceiver} must be set.
+     * Additional receivers can be added at runtime. {@see #addBusDataReceiver}
      *
      * @param inputStream  opened {@link java.io.InputStream}
      * @param outputStream opened {@link java.io.OutputStream}
@@ -53,15 +70,19 @@ public class BusDataChannel {
     public BusDataChannel(InputStream inputStream, OutputStream outputStream, BusDataReceiver receiver) {
         this.outputStream = outputStream;
         this.inputStream = inputStream;
-        this.receiver = receiver;
+        this.receivers.add(receiver);
 
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("serial-io-executor-%d").build();
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
         serialTaskExecutor = Executors.newSingleThreadExecutor(namedThreadFactory);
     }
 
+    /**
+     * Start the channel to schedule to read the stream with the {@see #DELAY}.
+     * Or execute an queued send operation.
+     */
     public void start() {
-        final ReadBlockTask readBlockTask = new ReadBlockTask(inputStream, outputStream, receiver);
+        final ReadBlockTask readBlockTask = new ReadBlockTask(inputStream, outputStream);
         // poll the queue
         scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
@@ -73,6 +94,7 @@ public class BusDataChannel {
                 } else {
                     // as default: execute the read task
                     task = readBlockTask;
+                    task.setReceivers(receivers);
                 }
                 try {
                     serialTaskExecutor.submit(task).get();
