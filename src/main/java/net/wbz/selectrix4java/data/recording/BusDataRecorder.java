@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 
 /**
  * Recorder to save the bus data during the recording session and save the recording to the output file. This file can
- * be played back by the {@link net.wbz.selectrix4java.device.test.BusDataPlayer}.
+ * be played back by the {@link BusDataPlayer}.
  * <p/>
  * TODO: write immediately by recording with an puffer to avoid {@link java.lang.OutOfMemoryError} for bigger recording sessions
  *

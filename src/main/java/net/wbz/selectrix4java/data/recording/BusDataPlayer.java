@@ -1,11 +1,8 @@
-package net.wbz.selectrix4java.device.test;
+package net.wbz.selectrix4java.data.recording;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import net.wbz.selectrix4java.bus.BusDataReceiver;
-import net.wbz.selectrix4java.data.recording.BusDataRecord;
-import net.wbz.selectrix4java.data.recording.BusDataRecordEntry;
-import net.wbz.selectrix4java.data.recording.RecordingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

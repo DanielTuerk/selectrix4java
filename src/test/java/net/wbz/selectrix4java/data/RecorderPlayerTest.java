@@ -10,7 +10,7 @@ import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.DeviceManager;
 import net.wbz.selectrix4java.device.serial.BaseTest;
 import net.wbz.selectrix4java.device.serial.Connection;
-import net.wbz.selectrix4java.device.test.BusDataPlayer;
+import net.wbz.selectrix4java.data.recording.BusDataPlayer;
 import org.junit.Test;
 
 import java.io.IOException;

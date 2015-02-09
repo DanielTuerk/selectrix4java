@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Container for an recording session of the {@link BusDataRecorder} which can be played
- * back by the {@link net.wbz.selectrix4java.device.test.BusDataPlayer}.
+ * back by the {@link BusDataPlayer}.
  *
  * Each single entry representing an bus value change of the buses.
  *

@@ -2,7 +2,7 @@ package net.wbz.selectrix4java.data.recording;
 
 /**
  * Model to store the bus data which is recorded by the {@link BusDataRecorder}
- * and played by {@link net.wbz.selectrix4java.device.test.BusDataPlayer}.
+ * and played by {@link BusDataPlayer}.
  *
  * @author Daniel Tuerk
  */
