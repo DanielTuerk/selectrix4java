@@ -20,6 +20,7 @@ import java.util.concurrent.*;
  * @author Daniel Tuerk
  */
 public class BusDataPlayer {
+
     private static final Logger log = LoggerFactory.getLogger(BusDataPlayer.class);
 
     /**

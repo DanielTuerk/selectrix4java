@@ -139,17 +139,22 @@ public class SerialDevice extends AbstractDevice {
                 boolean running = true;
                 while (running) {
                     line = console.readLine();
-                    if (line.equals("exit")) {
-                        running = false;
-                    } else if (line.equals("fcc 1")) {
-                        serialDevice.setRailVoltage(true);
-                    } else if (line.equals("fcc 0")) {
-                        serialDevice.setRailVoltage(false);
-                    } else {
-                        String[] parts = line.split(" ");
-                        serialDevice.getBusAddress(Integer.parseInt(parts[0]),
-                                (byte) Integer.parseInt(parts[1]))
-                                .sendData((byte) Integer.parseInt(parts[2]));
+                    switch (line) {
+                        case "exit":
+                            running = false;
+                            break;
+                        case "fcc 1":
+                            serialDevice.setRailVoltage(true);
+                            break;
+                        case "fcc 0":
+                            serialDevice.setRailVoltage(false);
+                            break;
+                        default:
+                            String[] parts = line.split(" ");
+                            serialDevice.getBusAddress(Integer.parseInt(parts[0]),
+                                    (byte) Integer.parseInt(parts[1]))
+                                    .sendData((byte) Integer.parseInt(parts[2]));
+                            break;
                     }
                 }
                 serialDevice.disconnect();

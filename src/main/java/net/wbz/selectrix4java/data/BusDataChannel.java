@@ -107,7 +107,7 @@ public class BusDataChannel {
                         log.error("serial access interrupted", e);
                     } catch (ExecutionException e) {
                         log.error("execution error of serial access", e);
-                        shutdownNow(e);
+                        shutdownNow();
                     }
                 }
             }
@@ -161,15 +161,6 @@ public class BusDataChannel {
     public void shutdownNow() {
         serialTaskExecutor.shutdownNow();
         scheduledExecutorService.shutdownNow();
-    }
-
-    /**
-     * TODO: remove or usage for any calls {@see #shutdownNow}
-     *
-     * @param e
-     */
-    private void shutdownNow(Exception e) {
-        shutdownNow();
         if (callback != null) {
             callback.channelClosed();
         }

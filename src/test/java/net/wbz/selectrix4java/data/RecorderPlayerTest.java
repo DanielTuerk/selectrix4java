@@ -59,12 +59,9 @@ public class RecorderPlayerTest extends BaseTest {
         super.tearDown();
         super.setup();
 
-        // TODO: player only for offline devices -> sonst schlägt der readtask noch mit dazwischen -> busdatachannel darf nicht gestartet werden!
-
         // init and start player
         BusDataPlayer busDataPlayer = new BusDataPlayer(getDevice().getBusDataDispatcher(), getDevice().getBusDataChannel());
         final boolean[] running = {false};
-        // TODO during add we get last values
         for (final TestDataSet testDataSet : testDataSets) {
             getDevice().getBusDataDispatcher().registerConsumer(new BusAddressDataConsumer(testDataSet.getSendBus(), testDataSet.getSendAddress()) {
                 @Override
