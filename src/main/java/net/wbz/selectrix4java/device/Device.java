@@ -4,6 +4,7 @@ import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
+import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.train.TrainModule;
 
 import java.io.Serializable;
@@ -132,6 +133,13 @@ public interface Device extends Serializable {
      */
     @Deprecated
     public BusDataDispatcher getBusDataDispatcher();
+
+    /**
+     * Running channel for communication or {@code null} if not connected.
+     *
+     * @return {@link net.wbz.selectrix4java.data.BusDataChannel} or {@code null}
+     */
+    public BusDataChannel getBusDataChannel();
 
     public BusAddress getBusAddress(int bus, byte address) throws DeviceAccessException;
 

@@ -16,13 +16,9 @@ import java.nio.file.Path;
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-public class TestDevice extends AbstractDevice implements IsRecordable {
+public class TestDevice extends AbstractDevice {
 
     private boolean connected = false;
-
-    private final TestBus testBus = new TestBus();
-
-    private final BusDataRecorder busDataRecorder =new BusDataRecorder();
 
     @Override
     public boolean isConnected() {
@@ -35,6 +31,7 @@ public class TestDevice extends AbstractDevice implements IsRecordable {
             throw new DeviceAccessException("already connected");
         }
         connected = true;
+        TestBus testBus = new TestBus();
         return new BusDataChannel(testBus.getInputStream(), testBus.getOutputStream(), busDataDispatcher);
     }
 
@@ -43,30 +40,5 @@ public class TestDevice extends AbstractDevice implements IsRecordable {
         connected = false;
     }
 
-    @Override
-    public void startRecording(Path destinationFolder) throws DeviceAccessException {
-        if(isConnected()) {
-            try {
-                busDataRecorder.start(destinationFolder);
-            getBusDataChannel().addBusDataReceiver(busDataRecorder);
-            } catch (RecordingException e) {
-                throw new DeviceAccessException("no recrding possible",e);
-            }
-        }
-    }
 
-
-    public Path stopRecording() throws DeviceAccessException {
-        if(isRecording()) {
-            getBusDataChannel().removeBusDataReceiver(busDataRecorder);
-            busDataRecorder.stop();
-            return busDataRecorder.getRecordOutput();
-        }
-        throw new DeviceAccessException("device isn't recording");
-    }
-
-    @Override
-    public boolean isRecording() {
-        return busDataRecorder.isRunning();
-    }
 }

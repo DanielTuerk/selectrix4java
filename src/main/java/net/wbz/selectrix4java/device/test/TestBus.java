@@ -16,7 +16,7 @@ public class TestBus {
     /**
      * Container for the bus 0 and bus 1 for 113 addresses.
      */
-    private byte[] busData = new byte[226];
+    private transient byte[] busData = new byte[226];
 
     private final InputStream inputStream;
     private final OutputStream outputStream;

@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java.bus;
 
+import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
 import net.wbz.selectrix4java.data.BusData;
@@ -7,8 +8,11 @@ import net.wbz.selectrix4java.data.BusDataChannel;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.FutureTask;
 
 /**
  * Address of an bus. Wrap the data value and send state change events.
@@ -17,9 +21,26 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class BusAddress {
 
+    /**
+     * Bus number for the address.
+     */
     private final int bus;
+
+    /**
+     * Number of the address in the bus.
+     */
     private final byte address;
+
+    /**
+     * Current data for the bus address received from device.
+     */
     private byte data = 0;
+
+    /**
+     * Bit state to toggle by next {#send} call. Set the state of bit by {#setBit} and {#clearBit}.
+     */
+    private Map<Integer, Boolean> bitsToUpdate = Maps.newConcurrentMap();
+
     private final BusDataChannel busDataChannel;
 
     private final BusDataConsumer busDataConsumer;
@@ -34,31 +55,45 @@ public class BusAddress {
         busDataConsumer = new BusAddressDataConsumer(bus, address) {
             @Override
             public void valueChanged(int oldValue, int newValue) {
-                data = (byte) newValue;
-                //TODO async?
-                fireDataChanged(oldValue, newValue);
+                if ((byte) newValue != data) {
+                    data = (byte) newValue;
+                    // only fire changes, initial data changed call for the current value is done by addListener
+                    fireDataChanged(oldValue, newValue);
+                }
             }
         };
     }
 
-    private void fireDataChanged(int oldValue, int newValue) {
-        for (BusListener listener : listeners) {
-            if (listener instanceof BusAddressListener) {
-                ((BusAddressListener) listener).dataChanged((byte) oldValue, (byte) newValue);
-            } else if (listener instanceof BusAddressBitListener) {
+    /**
+     * Call the registered listeners for value change of the bus address.
+     *
+     * @param oldValue old data value
+     * @param newValue new data value
+     */
+    private void fireDataChanged(final int oldValue, final int newValue) {
+        for (final BusListener listener : listeners) {
+            new FutureTask<>(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
 
-                BusAddressBitListener busAddressBitListener = (BusAddressBitListener) listener;
-                boolean oldBitValue = BigInteger.valueOf(oldValue).testBit(busAddressBitListener.getBitNr() - 1);
-                boolean newBitValue = BigInteger.valueOf(newValue).testBit(busAddressBitListener.getBitNr() - 1);
+                    if (listener instanceof BusAddressListener) {
+                        ((BusAddressListener) listener).dataChanged((byte) oldValue, (byte) newValue);
+                    } else if (listener instanceof BusAddressBitListener) {
+                        BusAddressBitListener busAddressBitListener = (BusAddressBitListener) listener;
+                        boolean oldBitValue = BigInteger.valueOf(oldValue).testBit(busAddressBitListener.getBitNr() - 1);
+                        boolean newBitValue = BigInteger.valueOf(newValue).testBit(busAddressBitListener.getBitNr() - 1);
 
-                if (!busAddressBitListener.isCalled() || oldBitValue != newBitValue) {
-                    busAddressBitListener.bitChanged(oldBitValue, newBitValue);
-                    busAddressBitListener.setCalled(true);
+                        if (!busAddressBitListener.isCalled() || oldBitValue != newBitValue) {
+                            busAddressBitListener.bitChanged(oldBitValue, newBitValue);
+                            busAddressBitListener.setCalled(true);
+                        }
+                    } else {
+                        throw new RuntimeException("unknown bus listener instance: " + listener.getClass().getName());
+                    }
+
+                    return null;
                 }
-
-            } else {
-                throw new RuntimeException("unknown bus listener instance: " + listener.getClass().getName());
-            }
+            }).run();
         }
     }
 
@@ -76,17 +111,28 @@ public class BusAddress {
      *
      * @param data new data
      */
-    public void sendData(byte data) {
-        this.data = data;
-        send();
+    public synchronized void sendData(byte data) {
+        // send new data value to channel; actual data value is updated async by consumer
+        busDataChannel.send(new BusData(bus, address, data));
     }
 
     /**
      * Send the actual data of this address to the bus.
      */
-    public void send() {
-        //TODO: check -> BusData object needed?
-        busDataChannel.send(new BusData(bus, address, data));
+    public synchronized void send() {
+        BigInteger dataToSend = BigInteger.valueOf(data);
+        // check for bit manipulation to send for current data value
+        if (!bitsToUpdate.isEmpty()) {
+            for (Map.Entry<Integer, Boolean> entry : bitsToUpdate.entrySet()) {
+                if (entry.getValue()) {
+                    dataToSend = dataToSend.setBit(entry.getKey());
+                } else {
+                    dataToSend = dataToSend.clearBit(entry.getKey());
+                }
+            }
+            bitsToUpdate.clear();
+        }
+        busDataChannel.send(new BusData(bus, address, dataToSend.byteValue()));
     }
 
     /**
@@ -96,7 +142,7 @@ public class BusAddress {
      * @return {@link net.wbz.selectrix4java.bus.BusAddress}
      */
     public BusAddress setBit(int bit) {
-        data = BigInteger.valueOf(data).setBit(bit - 1).byteValue();
+        bitsToUpdate.put(bit, true);
         return this;
     }
 
@@ -107,7 +153,7 @@ public class BusAddress {
      * @return {@link net.wbz.selectrix4java.bus.BusAddress}
      */
     public BusAddress clearBit(int bit) {
-        data = BigInteger.valueOf(data).clearBit(bit - 1).byteValue();
+        bitsToUpdate.put(bit, false);
         return this;
     }
 
@@ -118,6 +164,11 @@ public class BusAddress {
      * @return state
      */
     public boolean getBitState(int bit) {
+        // check first bits in update session to update the data value during next send call
+        if (bitsToUpdate.containsKey(bit)) {
+            return bitsToUpdate.get(bit);
+        }
+        // check bit state of actual data value
         return BigInteger.valueOf(data).testBit(bit - 1);
     }
 
@@ -147,7 +198,6 @@ public class BusAddress {
             addListener(listener);
         }
     }
-
 
     public void removeListeners(List<BusListener> listeners) {
         for (BusListener listener : listeners) {

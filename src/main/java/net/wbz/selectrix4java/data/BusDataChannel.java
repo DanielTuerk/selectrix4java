@@ -29,7 +29,6 @@ import java.util.concurrent.*;
 public class BusDataChannel {
     private static final Logger log = LoggerFactory.getLogger(BusDataChannel.class);
     public static final long DELAY = 55L;
-//    public static final long DELAY = 500L;
 
     /**
      * Queue to execute the tasks as FIFO.
@@ -57,6 +56,11 @@ public class BusDataChannel {
      * Receivers which are called by reading the input stream of the device by the {@link net.wbz.selectrix4java.data.ReadBlockTask}.
      */
     private List<BusDataReceiver> receivers = Collections.synchronizedList(new LinkedList<BusDataReceiver>());
+
+    /**
+     * Flag to pause the channel.
+     */
+    private transient boolean paused = false;
 
     /**
      * Create an new channel for the given IO streams of the connected device.
@@ -87,25 +91,48 @@ public class BusDataChannel {
         scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                AbstractSerialAccessTask task;
-                // check for the next task to execute
-                if (!queue.isEmpty()) {
-                    task = queue.poll();
-                } else {
-                    // as default: execute the read task
-                    task = readBlockTask;
-                    task.setReceivers(receivers);
-                }
-                try {
-                    serialTaskExecutor.submit(task).get();
-                } catch (InterruptedException e) {
-                    log.error("serial access interrupted", e);
-                } catch (ExecutionException e) {
-                    log.error("execution error of serial access", e);
-                    shutdownNow(e);
+                if (!paused) {
+                    AbstractSerialAccessTask task;
+                    // check for the next task to execute
+                    if (!queue.isEmpty()) {
+                        task = queue.poll();
+                    } else {
+                        // as default: execute the read task
+                        task = readBlockTask;
+                        task.setReceivers(receivers);
+                    }
+                    try {
+                        serialTaskExecutor.submit(task).get();
+                    } catch (InterruptedException e) {
+                        log.error("serial access interrupted", e);
+                    } catch (ExecutionException e) {
+                        log.error("execution error of serial access", e);
+                        shutdownNow(e);
+                    }
                 }
             }
         }, 0L, DELAY, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Pause the running channel.
+     */
+    public void pause() {
+        paused = true;
+        log.info("bus data channel paused");
+    }
+
+    /**
+     * Resume the paused channel.
+     */
+    public void resume() {
+        if (paused) {
+
+            paused = false;
+            log.info("bus data channel resumed");
+        } else {
+            log.warn("can't resume bus data channel, it's not paused!");
+        }
     }
 
     /**

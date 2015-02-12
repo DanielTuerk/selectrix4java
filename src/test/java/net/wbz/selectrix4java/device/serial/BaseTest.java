@@ -48,6 +48,9 @@ public class BaseTest {
     public static void printData(int oldValue, int newValue, int bus, int address) {
         System.out.printf("%d/%d = old: %s - new: %s%n", bus, address, toUnsignedInt((byte) oldValue), toUnsignedInt((byte) newValue));
     }
+    public static void printData(String msg,int oldValue, int newValue, int bus, int address) {
+        System.out.printf("%s - %d/%d = old: %s - new: %s%n", msg,bus, address, toUnsignedInt((byte) oldValue), toUnsignedInt((byte) newValue));
+    }
 
     protected static int toUnsignedInt(byte b) {
         return ((int) b) & 0xFF;

@@ -1,17 +1,18 @@
 package net.wbz.selectrix4java.data.recording;
 
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import net.wbz.selectrix4java.bus.BusDataReceiver;
+import net.wbz.selectrix4java.data.BusDataChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Player to playback an record to an {@link net.wbz.selectrix4java.bus.BusDataReceiver}.
@@ -26,17 +27,22 @@ public class BusDataPlayer {
      */
     private final BusDataReceiver receiver;
 
+    private final BusDataChannel busDataChannel;
+
     private final ExecutorService executorService;
 
     private transient boolean running = false;
+
+    private final List<BusDataPlayerListener> listeners = Lists.newArrayList();
 
     /**
      * Creating new player to call the given {@link net.wbz.selectrix4java.bus.BusDataReceiver} by playing an record.
      *
      * @param receiver {@link net.wbz.selectrix4java.bus.BusDataReceiver}
      */
-    public BusDataPlayer(BusDataReceiver receiver) {
+    public BusDataPlayer(BusDataReceiver receiver, BusDataChannel busDataChannel) {
         this.receiver = receiver;
+        this.busDataChannel=busDataChannel;
 
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("bus-data-player-%d").build();
         executorService = Executors.newSingleThreadExecutor(namedThreadFactory);
@@ -67,6 +73,9 @@ public class BusDataPlayer {
      */
     public void start(final BusDataRecord record) {
         if (!record.getEntries().isEmpty()) {
+            running = true;
+            busDataChannel.pause();
+            fireStartEvent();
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -77,8 +86,9 @@ public class BusDataPlayer {
                             break;
                         }
                         // simulate delay of recorded data by sleeping for the timestamp difference between record
+                        long durationInMs = TimeUnit.NANOSECONDS.toMillis(recordEntry.getTimestamp() - lastReceivedTime);
                         try {
-                            Thread.sleep(lastReceivedTime - recordEntry.getTimestamp());
+                            Thread.sleep(durationInMs);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -87,9 +97,11 @@ public class BusDataPlayer {
                         // handle data
                         receiver.received(recordEntry.getBus(), recordEntry.getData());
                     }
+                    stop();
                 }
             });
         } else {
+            stop();
             throw new RuntimeException("record to play is empty!");
         }
     }
@@ -101,9 +113,44 @@ public class BusDataPlayer {
         if (running) {
             running = false;
             executorService.shutdown();
+            fireStopEvent();
+            busDataChannel.resume();
         } else {
             log.warn("stop called for non running player");
         }
+    }
+
+    private void fireStartEvent() {
+        for (final BusDataPlayerListener listener : listeners) {
+            new FutureTask<Void>(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    listener.playbackStarted();
+                    return null;
+                }
+            }).run();
+        }
+    }
+
+
+    private void fireStopEvent() {
+        for (final BusDataPlayerListener listener : listeners) {
+            new FutureTask<>(new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    listener.playbackStopped();
+                    return null;
+                }
+            }).run();
+        }
+    }
+
+    public void addListener(BusDataPlayerListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(BusDataPlayerListener listener) {
+        listeners.remove(listener);
     }
 
 }

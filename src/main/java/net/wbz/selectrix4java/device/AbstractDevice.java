@@ -8,11 +8,15 @@ import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.data.BusDataChannel;
+import net.wbz.selectrix4java.data.recording.BusDataRecorder;
+import net.wbz.selectrix4java.data.recording.IsRecordable;
+import net.wbz.selectrix4java.data.recording.RecordingException;
 import net.wbz.selectrix4java.train.TrainModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -30,7 +34,7 @@ import java.util.concurrent.FutureTask;
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-public abstract class AbstractDevice implements Device {
+public abstract class AbstractDevice implements Device, IsRecordable {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractDevice.class);
 
@@ -75,6 +79,11 @@ public abstract class AbstractDevice implements Device {
      * Usage of {@link java.util.Queue} for synchronization to remove listener while event handling is in progress.
      */
     private Queue<DeviceConnectionListener> listeners = new ConcurrentLinkedQueue<>();
+
+    /**
+     * Recorder to implement {@link net.wbz.selectrix4java.data.recording.IsRecordable}.
+     */
+    private final BusDataRecorder busDataRecorder =new BusDataRecorder();
 
     /**
      * Open the connection for the device.
@@ -363,12 +372,8 @@ public abstract class AbstractDevice implements Device {
         return convertSystemFormat(wrappedData.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff);
     }
 
-    /**
-     * Running channel for communication or {@code null} if not connected.
-     *
-     * @return {@link net.wbz.selectrix4java.data.BusDataChannel} or {@code null}
-     */
-    protected BusDataChannel getBusDataChannel() {
+    @Override
+    public BusDataChannel getBusDataChannel() {
         return busDataChannel;
     }
 
@@ -414,5 +419,33 @@ public abstract class AbstractDevice implements Device {
     @Override
     public void removeDeviceListener(DeviceListener listener) {
         removeDeviceConnectionListener(listener);
+    }
+
+    @Override
+    public void startRecording(Path destinationFolder) throws DeviceAccessException {
+        if(isConnected()) {
+            try {
+                busDataRecorder.start(destinationFolder);
+                getBusDataChannel().addBusDataReceiver(busDataRecorder);
+            } catch (RecordingException e) {
+                throw new DeviceAccessException("no recrding possible",e);
+            }
+        }
+    }
+
+
+    @Override
+    public Path stopRecording() throws DeviceAccessException {
+        if(isRecording()) {
+            getBusDataChannel().removeBusDataReceiver(busDataRecorder);
+            busDataRecorder.stop();
+            return busDataRecorder.getRecordOutput();
+        }
+        throw new DeviceAccessException("device isn't recording");
+    }
+
+    @Override
+    public boolean isRecording() {
+        return busDataRecorder.isRunning();
     }
 }
