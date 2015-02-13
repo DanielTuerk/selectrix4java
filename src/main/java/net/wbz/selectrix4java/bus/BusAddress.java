@@ -125,9 +125,9 @@ public class BusAddress {
         if (!bitsToUpdate.isEmpty()) {
             for (Map.Entry<Integer, Boolean> entry : bitsToUpdate.entrySet()) {
                 if (entry.getValue()) {
-                    dataToSend = dataToSend.setBit(entry.getKey());
+                    dataToSend = dataToSend.setBit(entry.getKey() - 1);
                 } else {
-                    dataToSend = dataToSend.clearBit(entry.getKey());
+                    dataToSend = dataToSend.clearBit(entry.getKey() - 1);
                 }
             }
             bitsToUpdate.clear();
