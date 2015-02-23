@@ -7,19 +7,20 @@ package net.wbz.selectrix4java.block;
  */
 public class FeedbackBlockModuleDataDispatcher extends BlockModuleDataDispatcher<FeedbackBlockListener> {
 
-    public void fireTrainEnterBlock(final int blockNumber, final int speed, final byte trainAddress){
+    public void fireTrainEnterBlock(final int blockNumber, final int trainAddress, final boolean drivingDirection) {
         fire(new ListenerRunnable() {
             @Override
             public void run() {
-                getListener().trainEnterBlock(blockNumber, speed, trainAddress);
+                getListener().trainEnterBlock(blockNumber, trainAddress, drivingDirection);
             }
         });
     }
-    public void fireTrainLeaveBlock(final int blockNumber, final int speed, final byte trainAddress){
+
+    public void fireTrainLeaveBlock(final int blockNumber, final int trainAddress, final boolean drivingDirection) {
         fire(new ListenerRunnable() {
             @Override
             public void run() {
-                getListener().trainLeaveBlock(blockNumber, speed, trainAddress);
+                getListener().trainLeaveBlock(blockNumber, trainAddress, drivingDirection);
             }
         });
     }

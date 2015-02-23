@@ -2,6 +2,7 @@ package net.wbz.selectrix4java.device;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
@@ -44,17 +45,25 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      */
     public static final int RAILVOLTAGE_ADDRESS = 127;
 
-    /**
-     * Used {@link net.wbz.selectrix4java.train.TrainModule}s by main {@link net.wbz.selectrix4java.bus.BusAddress}.
-     * Single instance of each module to prevent event-traffic.
-     */
-    private Map<BusAddress, TrainModule> trainModules = Maps.newHashMap();
+//    /**
+//     * Used {@link net.wbz.selectrix4java.train.TrainModule}s by main {@link net.wbz.selectrix4java.bus.BusAddress}.
+//     * Single instance of each module to prevent event-traffic.
+//     */
+//    private Map<BusAddress, TrainModule> trainModules = Maps.newHashMap();
+//
+//    /**
+//     * Used {@link net.wbz.selectrix4java.block.BlockModule}s by main {@link net.wbz.selectrix4java.bus.BusAddress}.
+//     * Single instance of each module to prevent event-traffic.
+//     */
+//    private Map<BusAddress, BlockModule> blockModules = Maps.newHashMap();
 
     /**
-     * Used {@link net.wbz.selectrix4java.block.BlockModule}s by main {@link net.wbz.selectrix4java.bus.BusAddress}.
-     * Single instance of each module to prevent event-traffic.
+     * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String}
+     * in the format 'bus:address'.
+     * <p/>
+     * Single instance of each address to prevent event-traffic.
      */
-    private Map<BusAddress, BlockModule> blockModules = Maps.newHashMap();
+    private Map<String, BusAddress> busAddresses = Maps.newHashMap();
 
     /**
      * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String}
@@ -62,7 +71,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * <p/>
      * Single instance of each module to prevent event-traffic.
      */
-    private Map<String, BusAddress> busAddresses = Maps.newHashMap();
+    private Map<String, Module> modules = Maps.newHashMap();
 
     /**
      * Channel to send signals to the connected bus.
@@ -83,7 +92,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     /**
      * Recorder to implement {@link net.wbz.selectrix4java.data.recording.IsRecordable}.
      */
-    private final BusDataRecorder busDataRecorder =new BusDataRecorder();
+    private final BusDataRecorder busDataRecorder = new BusDataRecorder();
 
     /**
      * Open the connection for the device.
@@ -235,7 +244,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
             }
 
         } finally {
-            trainModules.clear();
+            modules.clear();
             // address after train because the train map has the address as key
             busAddresses.clear();
         }
@@ -259,10 +268,10 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * @throws DeviceAccessException
      */
     @Override
-    public BusAddress getBusAddress(int bus, byte address) throws DeviceAccessException {
+    public BusAddress getBusAddress(int bus, int address) throws DeviceAccessException {
         checkConnected();
 
-        String busAddressIdentifier = bus + ":" + address;
+        String busAddressIdentifier = createIdentifier(bus, address, null);
         if (!busAddresses.containsKey(String.valueOf(busAddressIdentifier))) {
             BusAddress busAddress = new BusAddress(bus, address, busDataChannel);
             busDataDispatcher.registerConsumer(busAddress.getConsumer());
@@ -277,56 +286,58 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         }
     }
 
+    private String createIdentifier(int bus, int address, Class<? extends Module> moduleClass) {
+        return String.format("%d:%d:%s", bus, address, moduleClass != null ? moduleClass.getName() : "");
+    }
+
     /**
      * Get {@link net.wbz.selectrix4java.train.TrainModule} with actual data for the address.
      * <p/>
      * Module is created by the first access and cached for future access.
      *
-     * @param addresses addresses of the train
+     * @param address             address of the train
+     * @param additionalAddresses additional function address
      * @return {@link net.wbz.selectrix4java.train.TrainModule}
      * @throws DeviceAccessException
      */
     @Override
-    public synchronized TrainModule getTrainModule(byte... addresses) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(0, addresses[0]);
-        if (!trainModules.containsKey(busAddress)) {
-            // TODO: additional addresses
-            TrainModule module = new TrainModule(busAddress);
-            trainModules.put(busAddress, module);
-        }
-        return trainModules.get(busAddress);
-    }
-
-    @Override
-    public synchronized BlockModule getBlockModule(byte... addresses) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(1, addresses[0]);
-        if (!blockModules.containsKey(busAddress)) {
-            // TODO: additional addresses
-            BlockModule module = new BlockModule(busAddress);
-            blockModules.put(busAddress, module);
-        }
-        return blockModules.get(busAddress);
-    }
-
-    @Override
-    public synchronized FeedbackBlockModule getFeedbackBlockModule(byte address, byte feedbackAddress, byte... additionalAddresses) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(1, address);
-        if (!blockModules.containsKey(busAddress) || !(blockModules.get(busAddress) instanceof FeedbackBlockModule)) {
+    public synchronized TrainModule getTrainModule(int address, int... additionalAddresses) throws DeviceAccessException {
+        final int bus = 0;
+        String busAddressIdentifier = createIdentifier(bus, address, TrainModule.class);
+        if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
             List<BusAddress> additionalBusAddresses = Lists.newArrayList();
-            for (byte additionalAddress : additionalAddresses) {
-                additionalBusAddresses.add(getBusAddress(1, additionalAddress));
+            for (int additionalAddress : additionalAddresses) {
+                additionalBusAddresses.add(getBusAddress(bus, additionalAddress));
             }
-            FeedbackBlockModule module = new FeedbackBlockModule(trainModules, busAddress,
-                    getBusAddress(1, feedbackAddress), additionalBusAddresses.toArray(new BusAddress[additionalBusAddresses.size()]));
-            blockModules.put(busAddress, module);
+            TrainModule blockModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(new BusAddress[additionalBusAddresses.size()]));
+//            busDataDispatcher.registerConsumer(blockModule.getConsumer()); TODO; after refactoring of no BusAddress usage
+            modules.put(busAddressIdentifier, blockModule);
         }
-        BlockModule blockModule = blockModules.get(busAddress);
-        if (blockModule instanceof FeedbackBlockModule) {
-            return (FeedbackBlockModule) blockModule;
-        } else {
-            throw new DeviceAccessException(String.format("query %s but found %s for address %s",
-                    FeedbackBlockModule.class.getSimpleName(), BlockModule.class.getSimpleName(), address));
+        return (TrainModule) modules.get(busAddressIdentifier);
+    }
+
+    @Override
+    public synchronized BlockModule getBlockModule(int address) throws DeviceAccessException {
+        int bus = 1;
+        String busAddressIdentifier = createIdentifier(bus, address, BlockModule.class);
+        if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
+            BlockModule blockModule = new BlockModule(bus, address);
+            busDataDispatcher.registerConsumer(blockModule.getConsumer());
+            modules.put(busAddressIdentifier, blockModule);
         }
+        return (BlockModule) modules.get(busAddressIdentifier);
+    }
+
+    @Override
+    public synchronized FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException {
+        int bus = 1;
+        String busAddressIdentifier = createIdentifier(bus, address, FeedbackBlockModule.class);
+        if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
+            FeedbackBlockModule blockModule = new FeedbackBlockModule(bus, address, feedbackAddress, additionalAddress);
+            busDataDispatcher.registerConsumer(blockModule.getConsumer());
+            modules.put(busAddressIdentifier, blockModule);
+        }
+        return (FeedbackBlockModule) modules.get(busAddressIdentifier);
     }
 
     /**
@@ -423,12 +434,12 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     @Override
     public void startRecording(Path destinationFolder) throws DeviceAccessException {
-        if(isConnected()) {
+        if (isConnected()) {
             try {
                 busDataRecorder.start(destinationFolder);
                 getBusDataChannel().addBusDataReceiver(busDataRecorder);
             } catch (RecordingException e) {
-                throw new DeviceAccessException("no recrding possible",e);
+                throw new DeviceAccessException("no recording possible", e);
             }
         }
     }
@@ -436,7 +447,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     @Override
     public Path stopRecording() throws DeviceAccessException {
-        if(isRecording()) {
+        if (isRecording()) {
             getBusDataChannel().removeBusDataReceiver(busDataRecorder);
             busDataRecorder.stop();
             return busDataRecorder.getRecordOutput();

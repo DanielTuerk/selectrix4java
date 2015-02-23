@@ -29,7 +29,7 @@ public class BusAddress {
     /**
      * Number of the address in the bus.
      */
-    private final byte address;
+    private final int address;
 
     /**
      * Current data for the bus address received from device.
@@ -47,7 +47,7 @@ public class BusAddress {
 
     private final Queue<BusListener> listeners = new ConcurrentLinkedQueue<>();
 
-    public BusAddress(final int bus, final byte address, BusDataChannel busDataChannel) {
+    public BusAddress(final int bus, final int address, BusDataChannel busDataChannel) {
         this.bus = bus;
         this.address = address;
         this.busDataChannel = busDataChannel;
@@ -205,12 +205,16 @@ public class BusAddress {
         }
     }
 
+    public int getBus() {
+        return bus;
+    }
+
     /**
      * Address on the bus.
      *
      * @return byte
      */
-    public byte getAddress() {
+    public int getAddress() {
         return address;
     }
 

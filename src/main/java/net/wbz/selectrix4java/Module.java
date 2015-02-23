@@ -1,6 +1,7 @@
 package net.wbz.selectrix4java;
 
 import net.wbz.selectrix4java.bus.BusAddress;
+import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
 
 import java.util.List;
 
@@ -9,17 +10,9 @@ import java.util.List;
  */
 public interface Module {
 
-    /**
-     * Address of the module.
-     *
-     * @return {@link net.wbz.selectrix4java.bus.BusAddress}
-     */
-    public BusAddress getAddress();
+    public int getBus();
 
-    /**
-     * Optional addresses of the module.
-     *
-     * @return {@link java.util.List<net.wbz.selectrix4java.bus.BusAddress>}
-     */
-    public List<BusAddress> getAdditionalAddresses();
+    public int getAddress();
+
+    public BusDataConsumer getConsumer();
 }

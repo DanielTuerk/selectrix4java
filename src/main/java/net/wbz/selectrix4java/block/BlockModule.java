@@ -5,6 +5,8 @@ import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
+import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -17,15 +19,18 @@ import java.util.Map;
  */
 public class BlockModule implements Module {
 
-    /**
-     * Main address of the block.
-     */
-    private final BusAddress address;
+//    /**
+//     * Main address of the block.
+//     */
+//    private final BusAddress address;
 
-    /**
-     * Additional function addresses of the block.
-     */
-    private final List<BusAddress> additionalAddresses;
+//    /**
+//     * Additional function addresses of the block.
+//     */
+//    private final List<BusAddress> additionalAddresses;
+
+    private final int bus;
+    private final int address;
 
     /**
      * Dispatcher to fire asynchronous the train events to the listeners.
@@ -37,20 +42,28 @@ public class BlockModule implements Module {
      */
     private Map<Integer, Boolean> blockStates = Maps.newHashMap();
 
+    private final BusDataConsumer consumer;
     /**
      * Create a new module with the main address and additional function addresses.
      *
      * @param address             {@link net.wbz.selectrix4java.bus.BusAddress}
-     * @param additionalAddresses additional addresses (e.g. function decoder)
      */
-    public BlockModule(BusAddress address, BusAddress... additionalAddresses) {
-        this.address = address;
-        this.additionalAddresses = Lists.newArrayList(additionalAddresses);
+    public BlockModule(int bus, int address) {
+        this.bus=bus;
+        this.address=address;
+//        this.additionalAddresses = Lists.newArrayList(additionalAddresses);
 
-        address.addListener(new BusAddressListener() {
+//        address.addListener(new BusAddressListener() {
+//            @Override
+//            public void dataChanged(byte oldValue, byte newValue) {
+//                // block (1-8) occupied state
+//
+//            }
+//        });
+
+        consumer=new BusAddressDataConsumer(bus,address) {
             @Override
-            public void dataChanged(byte oldValue, byte newValue) {
-                // block (1-8) occupied state
+            public void valueChanged(int oldValue, int newValue) {
                 for (int i = 1; i < 9; i++) {
                     boolean state = BigInteger.valueOf(newValue).testBit(i - 1);
                     if (blockStates.containsKey(i)) {
@@ -65,7 +78,7 @@ public class BlockModule implements Module {
                     blockStates.put(i, state);
                 }
             }
-        });
+        };
     }
 
     /**
@@ -86,15 +99,28 @@ public class BlockModule implements Module {
         dispatcher.removeListener(listener);
     }
 
+//    @Override
+//    public BusAddress getAddress() {
+//        return address;
+//    }
+
+
     @Override
-    public BusAddress getAddress() {
-        return address;
+    public int getBus() {
+        return bus;
     }
 
     @Override
-    public List<BusAddress> getAdditionalAddresses() {
-        return additionalAddresses;
+    public int getAddress() {
+        return address;
     }
+
+
+    @Override
+    public BusDataConsumer getConsumer() {
+        return consumer;
+    }
+
 
     /**
      * Last received state for the given block number.
@@ -114,11 +140,16 @@ public class BlockModule implements Module {
 
         BlockModule that = (BlockModule) o;
 
-        return address.equals(that.address);
+        if (address != that.address) return false;
+        if (bus != that.bus) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        return address.hashCode();
+        int result = bus;
+        result = 31 * result + (int) address;
+        return result;
     }
 }

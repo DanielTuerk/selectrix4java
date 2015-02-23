@@ -35,15 +35,30 @@ public class BusDataPlayer {
     private transient boolean running = false;
 
     private final List<BusDataPlayerListener> listeners = Lists.newArrayList();
+    private final int playbackSpeedMultiplication;
 
     /**
      * Creating new player to call the given {@link net.wbz.selectrix4java.bus.BusDataReceiver} by playing an record.
      *
-     * @param receiver {@link net.wbz.selectrix4java.bus.BusDataReceiver}
+     * @param receiver       {@link net.wbz.selectrix4java.bus.BusDataReceiver}
+     * @param busDataChannel {@link net.wbz.selectrix4java.data.BusDataChannel}
      */
     public BusDataPlayer(BusDataReceiver receiver, BusDataChannel busDataChannel) {
+        this(receiver, busDataChannel, 1);
+    }
+
+    /**
+     * Creating new player to call the given {@link net.wbz.selectrix4java.bus.BusDataReceiver} by playing an record.
+     *
+     * @param receiver                    {@link net.wbz.selectrix4java.bus.BusDataReceiver}
+     * @param busDataChannel              {@link net.wbz.selectrix4java.data.BusDataChannel}
+     * @param playbackSpeedMultiplication multiplication of playback speed (1 is normal speed; 2 double speed)
+     */
+    public BusDataPlayer(BusDataReceiver receiver, BusDataChannel busDataChannel, int playbackSpeedMultiplication) {
         this.receiver = receiver;
-        this.busDataChannel=busDataChannel;
+        this.busDataChannel = busDataChannel;
+        assert playbackSpeedMultiplication >= 0;
+        this.playbackSpeedMultiplication = playbackSpeedMultiplication;
 
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("bus-data-player-%d").build();
         executorService = Executors.newSingleThreadExecutor(namedThreadFactory);
@@ -88,10 +103,14 @@ public class BusDataPlayer {
                         }
                         // simulate delay of recorded data by sleeping for the timestamp difference between record
                         long durationInMs = TimeUnit.NANOSECONDS.toMillis(recordEntry.getTimestamp() - lastReceivedTime);
-                        try {
-                            Thread.sleep(durationInMs);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                        durationInMs = durationInMs / playbackSpeedMultiplication;
+
+                        if (durationInMs > 0) {
+                            try {
+                                Thread.sleep(durationInMs);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                         lastReceivedTime = recordEntry.getTimestamp();
 

@@ -1,12 +1,14 @@
 package net.wbz.selectrix4java.block;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
-import net.wbz.selectrix4java.bus.BusAddressListener;
+import net.wbz.selectrix4java.bus.consumption.BusAddressData;
+import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 import net.wbz.selectrix4java.train.TrainModule;
 
-import java.util.List;
+import java.math.BigInteger;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -20,52 +22,94 @@ import java.util.WeakHashMap;
  * <li>D&H Belegtmelder 8i</li>
  * </ul>
  * <p/>
- * TODO
- * -Train still on block
- * -new train enter
- * -existing train exit
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-public class FeedbackBlockModule extends BlockModule {
+public class FeedbackBlockModule implements Module {
 
-    /**
-     * TODO: need all trains + block + speed - Mapping of the train address with speed on block number.
-     */
-    private final Map<Integer, Integer> blockSpeedMapping = Maps.newConcurrentMap();
-    private final Map<TrainModule, Integer> currentSpeedOfTrainOnBlock = new WeakHashMap<>();
     private final FeedbackBlockModuleDataDispatcher dispatcher = new FeedbackBlockModuleDataDispatcher();
 
-    public FeedbackBlockModule(final Map<BusAddress, TrainModule> trainModules, BusAddress address,
-                               BusAddress feedbackAddress, BusAddress... additionalAddresses) {
-        super(address, additionalAddresses);
-        feedbackAddress.addListener(new BusAddressListener() {
+    private final BusDataConsumer consumer;
+    private final int bus;
+    private final int address;
+
+    private final Map<Integer, Block> blockStates = Maps.newConcurrentMap();
+
+    public FeedbackBlockModule(int bus, final int address,
+                               final int feedbackAddress, final int additionalAddress) {
+
+        this.bus = bus;
+        this.address = address;
+
+        // init blocks
+        for (int i = 1; i <= 8; i++) {
+            blockStates.put(i, new Block(i));
+        }
+
+        consumer = new BusMultiAddressDataConsumer(bus, new int[]{address, feedbackAddress, additionalAddress}) {
+
+            /**
+             * Flag to indicate the first call for throwing the events for the initial state of all blocks.
+             */
+            private boolean initial = true;
+
+            /**
+             * Last sequence number which was used to throw an event.
+             * Only the first unique number could be used to indicate the train state at the block.
+             */
+            private int lastSequenceNr = -1;
+
             @Override
-            public void dataChanged(byte oldValue, byte newValue) {
+            public void valueChanged(BusAddressData[] data) {
 
-                dispatcher.fireTrainEnterBlock(-1,-1,newValue);
-//                byte trainAddress = 0;
-//                TrainModule trainModule = trainModules.get(trainAddress);
-//
-//                // existing train switch block
-//
-//                // train entering
-//
-//                currentSpeedOfTrainOnBlock.put(trainModule, speed);
-//
-//                // train leave
-//                currentSpeedOfTrainOnBlock.remove(trainModule);
-//
-//                //TODO
-//                int blockNumber = 0;
-//
-//                if (blockSpeedMapping.containsKey(blockNumber)) {
-//                    TrainModule trainModule = trainModules.get(trainAddress);
-//                    trainModule.setDrivingLevel(blockSpeedMapping.get(blockNumber));
-//                }
+                int train = -1;
 
+                // check train address
+                for (BusAddressData addressData : data) {
+                    if (addressData.getAddress() == feedbackAddress) {
+                        train = addressData.getNewDataValue();
+                    }
+                }
+
+                // check block state
+                for (BusAddressData addressData : data) {
+                    if (addressData.getAddress() == address) {
+                        for (int blockNr = 1; blockNr < 9; blockNr++) {
+                            boolean newState = BigInteger.valueOf(addressData.getNewDataValue()).testBit(blockNr - 1);
+                            boolean oldState = BigInteger.valueOf(addressData.getOldDataValue()).testBit(blockNr - 1);
+                            if (initial || newState != oldState) {
+                                dispatcher.fireBlockState(blockNr, newState);
+                            }
+                        }
+                    }
+
+                    // check train state on block number
+                    if (addressData.getAddress() == additionalAddress && train > 0) {
+
+                        // only first unique sequence number throw an event, next data of same sequence number could be corrupt
+                        int sequenceNr = addressData.getNewDataValue() & 0x60;
+                        if (sequenceNr != lastSequenceNr) {
+
+                            int blockNr = (addressData.getNewDataValue() & 0x7) + 1;
+
+                            BigInteger wrappedAddress = BigInteger.valueOf(addressData.getNewDataValue());
+                            boolean enter = wrappedAddress.testBit(3);
+                            boolean forward = wrappedAddress.testBit(4);
+
+                            if (enter) {
+                                blockStates.get(blockNr).trainEnter(train, forward);
+                            } else {
+                                blockStates.get(blockNr).trainExit(train, forward);
+                            }
+
+                            lastSequenceNr = sequenceNr;
+                        }
+                    }
+                }
+
+                initial = false;
             }
-        });
+        };
     }
 
     /**
@@ -86,40 +130,47 @@ public class FeedbackBlockModule extends BlockModule {
         dispatcher.removeListener(listener);
     }
 
-    /**
-     * Set the target speed for trains which are on the block with the given number.
-     *
-     * @param blockNumber number of the block
-     * @param targetSpeed speed for the trains on the block
-     * @return {@link net.wbz.selectrix4java.block.FeedbackBlockModule}
-     */
-    public FeedbackBlockModule setBlockDrivingSpeed(int blockNumber, int targetSpeed) {
-        return apply(blockNumber, targetSpeed);
+    @Override
+    public int getBus() {
+        return bus;
+    }
+
+    @Override
+    public int getAddress() {
+        return address;
+    }
+
+    @Override
+    public BusDataConsumer getConsumer() {
+        return consumer;
     }
 
     /**
-     * Set the target speed to zero for trains which are on the block with the given number.
-     *
-     * @param blockNumber number of the block
-     * @return {@link net.wbz.selectrix4java.block.FeedbackBlockModule}
+     * Model of one singe block to store the trains enter and exit the the block.
+     * For each state change an event will be thrown by the
+     * {@link net.wbz.selectrix4java.block.FeedbackBlockModuleDataDispatcher}.
      */
-    public FeedbackBlockModule setStop(int blockNumber) {
-        return apply(blockNumber, 0);
+    private class Block {
+
+        private int blockNr;
+        private final Map<Integer, Boolean> trainBlockStateMap = Maps.newConcurrentMap();
+
+        public Block(int blockNr) {
+            this.blockNr = blockNr;
+        }
+
+        public void trainEnter(int train, boolean direction) {
+            if (!trainBlockStateMap.containsKey(train)) {
+                trainBlockStateMap.put(train, direction);
+                dispatcher.fireTrainEnterBlock(blockNr, train, direction);
+            }
+        }
+
+        public void trainExit(int train, boolean direction) {
+            if (trainBlockStateMap.containsKey(train)) {
+                trainBlockStateMap.remove(train);
+                dispatcher.fireTrainLeaveBlock(blockNr, train, direction);
+            }
+        }
     }
-
-    /**
-     * Apply data for trains which will entering block or still on the block.
-     *
-     * @param blockNumber number of the block
-     * @param targetSpeed speed for the trains on the block
-     * @return {@link net.wbz.selectrix4java.block.FeedbackBlockModule}
-     */
-    private FeedbackBlockModule apply(int blockNumber, int targetSpeed) {
-        blockSpeedMapping.put(blockNumber, targetSpeed);
-
-        //TODO: update train on block
-
-        return this;
-    }
-
 }

@@ -7,7 +7,8 @@ package net.wbz.selectrix4java.block;
  */
 public interface FeedbackBlockListener extends BlockListener {
 
-    public void trainEnterBlock(int blockNumber, int speed, byte trainAddress);
-    public void trainLeaveBlock(int blockNumber, int speed, byte trainAddress);
+    public void trainEnterBlock(int blockNumber, int trainAddress, boolean drivingDirection);
+
+    public void trainLeaveBlock(int blockNumber, int trainAddress, boolean drivingDirection);
 
 }

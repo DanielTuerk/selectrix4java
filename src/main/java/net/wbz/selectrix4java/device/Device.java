@@ -70,22 +70,23 @@ public interface Device extends Serializable {
     /**
      * Access to the {@link net.wbz.selectrix4java.block.BlockModule} for the given address or multi addresses.
      *
-     * @param addresses address of the block module
+     * @param bus number of bus
+     * @param address address of the block module
      * @return {@link net.wbz.selectrix4java.block.BlockModule}
      * @throws DeviceAccessException
      */
-    public BlockModule getBlockModule(byte... addresses) throws DeviceAccessException;
+    public BlockModule getBlockModule(int address) throws DeviceAccessException;
 
     /**
      * TODO
      *
      * @param address
      * @param feedbackAddress
-     * @param additionalAddresses
+     * @param additionalAddress
      * @return {@link net.wbz.selectrix4java.block.FeedbackBlockModule}
      * @throws DeviceAccessException
      */
-    public FeedbackBlockModule getFeedbackBlockModule(byte address, byte feedbackAddress, byte... additionalAddresses) throws DeviceAccessException;
+    public FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException;
 
     /**
      * State of the rail voltage.
@@ -141,8 +142,22 @@ public interface Device extends Serializable {
      */
     public BusDataChannel getBusDataChannel();
 
-    public BusAddress getBusAddress(int bus, byte address) throws DeviceAccessException;
+    /**
+     * Get or create the {@link net.wbz.selectrix4java.bus.BusAddress}.
+     *
+     * @param bus number of bus
+     * @param address address
+     * @return {@link net.wbz.selectrix4java.bus.BusAddress}
+     * @throws DeviceAccessException
+     */
+    public BusAddress getBusAddress(int bus, int address) throws DeviceAccessException;
 
-    public TrainModule getTrainModule(byte... address) throws DeviceAccessException;
+    /**
+     * TODO
+     * @param address
+     * @return
+     * @throws DeviceAccessException
+     */
+    public TrainModule getTrainModule(int address, int... additionalAddresses) throws DeviceAccessException;
 
 }

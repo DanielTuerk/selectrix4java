@@ -28,7 +28,7 @@ import java.util.List;
 public class RecorderPlayerTest extends BaseTest {
 
     private final static Path RECORD_PATH_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "selectrix-test");
-    public static final long PLAYER_TIMEOUT = 10000L;
+    private static final long PLAYER_TIMEOUT = 10000L;
     private Path recordDestination;
 
     /**

@@ -8,6 +8,9 @@ import net.wbz.selectrix4java.device.DeviceAccessException;
 import org.junit.After;
 import org.junit.Before;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @author Daniel Tuerk
  */
@@ -57,7 +60,7 @@ public class BaseTest {
     }
 
     public static void print(String msg, Object... args) {
-        System.out.println(String.format(msg, args));
+        System.out.println(new SimpleDateFormat("hh:mm").format(new Date(System.currentTimeMillis())) + " " +String.format(msg, args));
     }
 
 

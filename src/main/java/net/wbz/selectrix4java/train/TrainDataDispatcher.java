@@ -27,7 +27,7 @@ public class TrainDataDispatcher extends AbstractModuleDataDispatcher<TrainDataL
         });
     }
 
-    public void fireFunctionStateChanged(byte address, int functionBit, boolean state) {
+    public void fireFunctionStateChanged(int address, int functionBit, boolean state) {
         //TODO
         throw new RuntimeException();
     }
