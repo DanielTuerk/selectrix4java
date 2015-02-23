@@ -34,7 +34,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class FeedbackBlockMultiTrainTest extends BaseRecordingTest {
 
     public FeedbackBlockMultiTrainTest() {
-        super("records/feedback_module_58-train_7_13", 1);
+        super("records/feedback_module_58-train_7_13", 5);
     }
 
     @Test
