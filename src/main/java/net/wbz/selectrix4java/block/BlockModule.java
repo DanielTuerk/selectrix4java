@@ -19,16 +19,6 @@ import java.util.Map;
  */
 public class BlockModule implements Module {
 
-//    /**
-//     * Main address of the block.
-//     */
-//    private final BusAddress address;
-
-//    /**
-//     * Additional function addresses of the block.
-//     */
-//    private final List<BusAddress> additionalAddresses;
-
     private final int bus;
     private final int address;
 
@@ -51,15 +41,6 @@ public class BlockModule implements Module {
     public BlockModule(int bus, int address) {
         this.bus=bus;
         this.address=address;
-//        this.additionalAddresses = Lists.newArrayList(additionalAddresses);
-
-//        address.addListener(new BusAddressListener() {
-//            @Override
-//            public void dataChanged(byte oldValue, byte newValue) {
-//                // block (1-8) occupied state
-//
-//            }
-//        });
 
         consumer=new BusAddressDataConsumer(bus,address) {
             @Override
@@ -99,12 +80,6 @@ public class BlockModule implements Module {
         dispatcher.removeListener(listener);
     }
 
-//    @Override
-//    public BusAddress getAddress() {
-//        return address;
-//    }
-
-
     @Override
     public int getBus() {
         return bus;
@@ -115,12 +90,10 @@ public class BlockModule implements Module {
         return address;
     }
 
-
     @Override
     public BusDataConsumer getConsumer() {
         return consumer;
     }
-
 
     /**
      * Last received state for the given block number.
