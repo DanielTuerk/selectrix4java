@@ -14,6 +14,6 @@ Setup project: ```mvn clean verify```
 
 The goal "verify" is required to install the shipped RXTX JAR from the "lib" folder to your local maven repository.
 
-Afterwards you can simply use ```mvn clean compile```.
+Afterwards you can simply use ```mvn clean validate```.
 
 ####Take a look into the wiki for usage instructions.
