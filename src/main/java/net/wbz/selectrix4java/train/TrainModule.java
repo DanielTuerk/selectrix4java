@@ -199,6 +199,13 @@ public class TrainModule implements Module {
         dispatcher.removeListener(listener);
     }
 
+    /**
+     * Remove all existing listeners.
+     */
+    public void removeAllTrainDataListeners() {
+        dispatcher.removeAllListeners();
+    }
+
     @Override
     public int getBus() {
         return address.getBus();

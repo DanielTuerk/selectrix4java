@@ -302,18 +302,21 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      */
     @Override
     public synchronized TrainModule getTrainModule(int address, int... additionalAddresses) throws DeviceAccessException {
-        final int bus = 0;
-        String busAddressIdentifier = createIdentifier(bus, address, TrainModule.class);
-        if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
-            List<BusAddress> additionalBusAddresses = Lists.newArrayList();
-            for (int additionalAddress : additionalAddresses) {
-                additionalBusAddresses.add(getBusAddress(bus, additionalAddress));
-            }
-            TrainModule blockModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(new BusAddress[additionalBusAddresses.size()]));
+        if (address >= 0) {
+            final int bus = 0;
+            String busAddressIdentifier = createIdentifier(bus, address, TrainModule.class);
+            if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
+                List<BusAddress> additionalBusAddresses = Lists.newArrayList();
+                for (int additionalAddress : additionalAddresses) {
+                    additionalBusAddresses.add(getBusAddress(bus, additionalAddress));
+                }
+                TrainModule blockModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(new BusAddress[additionalBusAddresses.size()]));
 //            busDataDispatcher.registerConsumer(blockModule.getConsumer()); TODO; after refactoring of no BusAddress usage
-            modules.put(busAddressIdentifier, blockModule);
+                modules.put(busAddressIdentifier, blockModule);
+            }
+            return (TrainModule) modules.get(busAddressIdentifier);
         }
-        return (TrainModule) modules.get(busAddressIdentifier);
+        throw new DeviceAccessException("train with id lower than zero is invalid!");
     }
 
     @Override

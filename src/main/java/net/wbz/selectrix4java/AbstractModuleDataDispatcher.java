@@ -32,6 +32,10 @@ public class AbstractModuleDataDispatcher<T> {
         listeners.remove(listener);
     }
 
+    public void removeAllListeners() {
+        listeners.clear();
+    }
+
     /**
      * TODO: multi usage of one runnable possible?
      *
