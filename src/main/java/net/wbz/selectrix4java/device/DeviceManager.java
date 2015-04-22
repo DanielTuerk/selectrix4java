@@ -75,6 +75,15 @@ public class DeviceManager {
         throw new DeviceAccessException("no device connected");
     }
 
+    public boolean isConnected() {
+        try {
+            getConnectedDevice();
+            return true;
+        } catch (DeviceAccessException e) {
+            return false;
+        }
+    }
+
     public void removeDevice(Device device) {
         for (Map.Entry<String, Device> entry : devices.entrySet()) {
             if (entry.getValue() == device) {
