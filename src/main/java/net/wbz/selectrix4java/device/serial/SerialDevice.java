@@ -85,7 +85,7 @@ public class SerialDevice extends AbstractDevice {
                         SerialPort.STOPBITS_1,
                         SerialPort.PARITY_NONE);
             } catch (Exception e) {
-                throw new DeviceAccessException(String.format("can't connect to device for id %s", deviceId));
+                throw new DeviceAccessException(String.format("can't connect to device for id %s", deviceId),e);
             }
             return new BusDataChannel(inputStream, outputStream, busDataDispatcher);
         }
