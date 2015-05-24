@@ -80,6 +80,7 @@ public class SerialDevice extends AbstractDevice {
                 outputStream = serialPort.getOutputStream();
                 inputStream = serialPort.getInputStream();
                 serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
+                serialPort.enableReceiveTimeout(1000);
                 serialPort.setSerialPortParams(baudRate,
                         SerialPort.DATABITS_8,
                         SerialPort.STOPBITS_1,

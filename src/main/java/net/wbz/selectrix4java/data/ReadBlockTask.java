@@ -52,7 +52,7 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
             return null;
         }
         for (final BusDataReceiver receiver : getReceivers()) {
-            final byte[] tempData = Arrays.copyOf(reply,reply.length);
+            final byte[] tempData = Arrays.copyOf(reply, reply.length);
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -73,11 +73,14 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
         } catch (IOException e) {
             throw new RuntimeException("can't write to output", e);
         }
-
-        int length = getInputStream().read(reply);
-        if (length != reply.length) {
-            throw new IOException("block length invalid (" + length + ")");
+        int available = getInputStream().available();
+        if (available != 0) {
+            int length = getInputStream().read(reply);
+            if (length != reply.length) {
+                throw new IOException("block length invalid (" + length + ")");
+            }
+        } else {
+            throw new IOException("input not available  (" + available + ")");
         }
-
     }
 }
