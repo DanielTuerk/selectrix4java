@@ -33,6 +33,11 @@ public class TestBus {
                 System.arraycopy(busData, 0, b, 0, busData.length);
                 return b.length;
             }
+
+            @Override
+            public int available() throws IOException {
+                return busData.length;
+            }
         };
         outputStream = new OutputStream() {
             @Override
@@ -42,10 +47,10 @@ public class TestBus {
 
             @Override
             public void write(byte[] b) throws IOException {
-                if (b.length == 3) {
+                if (b.length == 2) {
                     //write address value
-                    int address = (toUnsignedInt(b[0]) * 113) + (b[1] < 0 ? b[1] + 128 : b[1]);
-                    busData[address] = b[2];
+//                    int address = (toUnsignedInt(b[0]) * 113) + (b[1] < 0 ? b[1] + 128 : b[1]);
+                    busData[toUnsignedInt(b[0])] = b[1];
                 }
             }
         };
