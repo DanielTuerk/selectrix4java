@@ -10,10 +10,10 @@ selectrix4java
 **RXTX binaries of target OS are required(!) for serial access to COM and USB interfaces.**
 (http://www.jcontrol.org/download/readme_rxtx_en.html)
 
-Setup project: ```mvn clean verify```
+Setup project: ```mvn clean validate```
 
-The goal "verify" is required to install the shipped RXTX JAR from the "lib" folder to your local maven repository.
+The goal "validate" is required to install the shipped RXTX JAR from the "lib" folder to your local maven repository.
 
-Afterwards you can simply use ```mvn clean validate```.
+Afterwards you can simply use ```mvn clean compile```.
 
 ####Take a look into the wiki for usage instructions.
