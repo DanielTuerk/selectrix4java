@@ -1,15 +1,11 @@
 package net.wbz.selectrix4java.block;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.Module;
-import net.wbz.selectrix4java.bus.BusAddress;
-import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
-import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,7 +28,7 @@ public class BlockModule implements Module {
      */
     private Map<Integer, Boolean> blockStates = Maps.newHashMap();
 
-    private final BusDataConsumer consumer;
+    private final AbstractBusDataConsumer consumer;
     /**
      * Create a new module with the main address and additional function addresses.
      *
@@ -91,7 +87,7 @@ public class BlockModule implements Module {
     }
 
     @Override
-    public BusDataConsumer getConsumer() {
+    public AbstractBusDataConsumer getConsumer() {
         return consumer;
     }
 

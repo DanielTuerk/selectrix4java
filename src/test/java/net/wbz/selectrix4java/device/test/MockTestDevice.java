@@ -4,6 +4,7 @@ import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
 import net.wbz.selectrix4java.device.Device;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.DeviceConnectionListener;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,11 +12,13 @@ import org.junit.Test;
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class MockTestDevice {
-     boolean callbackReceived=false;
+
+    boolean callbackReceived = false;
+
     @Test
     public void test() throws DeviceAccessException, InterruptedException {
 
-        final byte valueUnderTest = (byte) 11;
+        final byte valueUnderTest = (byte) 50;
         final byte addressUnderTest = (byte) 10;
         final int busUnderTest = 1;
         Device device = new TestDevice();
@@ -23,10 +26,9 @@ public class MockTestDevice {
             @Override
             public void valueChanged(int bus, int address, int oldValue, int newValue) {
                 System.out.printf("%d: %d=%d%n", bus, address, newValue);
-                Assert.assertEquals(busUnderTest, bus);
-                Assert.assertEquals(addressUnderTest, address);
-                Assert.assertEquals(valueUnderTest, newValue);
-                callbackReceived=true;
+                if (bus == busUnderTest && address == addressUnderTest && newValue == valueUnderTest && oldValue == 0) {
+                    callbackReceived = true;
+                }
             }
         });
         device.addDeviceConnectionListener(new DeviceConnectionListener() {
@@ -49,7 +51,7 @@ public class MockTestDevice {
 
         device.connect();
 
-        Thread.sleep(2000L);
+        Thread.sleep(1000L);
 
         device.disconnect();
 

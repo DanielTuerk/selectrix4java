@@ -8,6 +8,7 @@ import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.data.recording.BusDataRecorder;
 import net.wbz.selectrix4java.data.recording.IsRecordable;
@@ -393,7 +394,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     /**
      * Dispatcher for the read and write operation of the device.
-     * Used to register {@link net.wbz.selectrix4java.bus.consumption.BusDataConsumer}s.
+     * Used to register {@link AbstractBusDataConsumer}s.
      * <p/>
      * Dispatcher is also available in offline mode and will inform all consumers after an connection is established.
      *

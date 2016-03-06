@@ -35,7 +35,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class FeedbackBlockSingleTrainTest extends BaseRecordingTest {
 
     public FeedbackBlockSingleTrainTest() {
-        super("records/feedback_module_58-train_7", 10);
+        super("records/feedback_module_58-train_7", DEFAULT_PLAYBACK_SPEED);
     }
 
     @Test

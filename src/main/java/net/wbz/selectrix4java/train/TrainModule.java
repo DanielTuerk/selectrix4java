@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
-import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 
 import java.math.BigInteger;
 import java.util.List;
@@ -221,7 +221,7 @@ public class TrainModule implements Module {
     }
 
     @Override
-    public BusDataConsumer getConsumer() {
+    public AbstractBusDataConsumer getConsumer() {
         return null;
     }
 

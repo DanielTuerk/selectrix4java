@@ -52,14 +52,13 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
             return null;
         }
         for (final BusDataReceiver receiver : getReceivers()) {
-            final byte[] tempData = Arrays.copyOf(reply, reply.length);
             executorService.submit(new Runnable() {
                 @Override
                 public void run() {
                     // bus 0
-                    receiver.received(0, Arrays.copyOfRange(tempData, 0, 112));
+                    receiver.received(0, Arrays.copyOfRange(reply, 0, 112));
                     // bus 1
-                    receiver.received(1, Arrays.copyOfRange(tempData, 113, 225));
+                    receiver.received(1, Arrays.copyOfRange(reply, 113, 225));
                 }
             });
         }

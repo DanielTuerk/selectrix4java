@@ -4,11 +4,11 @@ import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.train.TrainModule;
 
 import java.io.Serializable;
-import java.nio.file.Path;
 
 /**
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
@@ -127,7 +127,7 @@ public interface Device extends Serializable {
      * <p/>
      * Only internal usage recommended!
      * Use the {@link net.wbz.selectrix4java.bus.BusAddressListener}s for an
-     * {@link net.wbz.selectrix4java.bus.BusAddress} instead of the {@link net.wbz.selectrix4java.bus.consumption.BusDataConsumer}s
+     * {@link net.wbz.selectrix4java.bus.BusAddress} instead of the {@link AbstractBusDataConsumer}s
      * by the {@link net.wbz.selectrix4java.bus.BusDataDispatcher}!
      *
      * @return {@link net.wbz.selectrix4java.bus.BusDataDispatcher}

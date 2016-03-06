@@ -2,7 +2,7 @@ package net.wbz.selectrix4java.bus;
 
 import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
-import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.data.BusData;
 import net.wbz.selectrix4java.data.BusDataChannel;
 
@@ -43,7 +43,7 @@ public class BusAddress {
 
     private final BusDataChannel busDataChannel;
 
-    private final BusDataConsumer busDataConsumer;
+    private final AbstractBusDataConsumer busDataConsumer;
 
     private final Queue<BusListener> listeners = new ConcurrentLinkedQueue<>();
 
@@ -221,9 +221,9 @@ public class BusAddress {
     /**
      * Consumer for this {@link net.wbz.selectrix4java.bus.BusAddress} to refresh the data value.
      *
-     * @return {@link net.wbz.selectrix4java.bus.consumption.BusDataConsumer}
+     * @return {@link AbstractBusDataConsumer}
      */
-    public BusDataConsumer getConsumer() {
+    public AbstractBusDataConsumer getConsumer() {
         return busDataConsumer;
     }
 

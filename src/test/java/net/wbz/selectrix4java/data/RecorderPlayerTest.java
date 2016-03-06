@@ -31,13 +31,6 @@ public class RecorderPlayerTest extends BaseTest {
     private static final long PLAYER_TIMEOUT = 10000L;
     private Path recordDestination;
 
-    /**
-     * Use the connection of the {@link net.wbz.selectrix4java.device.test.TestDevice}.
-     */
-    public RecorderPlayerTest() {
-        super(new Connection(DEVICE_ID_TEST, DeviceManager.DEVICE_TYPE.TEST));
-    }
-
     @Test
     public void test1Recording() throws DeviceAccessException, InterruptedException, RecordingException, IOException {
         List<TestDataSet> testDataSets = Lists.newArrayList(new TestDataSet(0, 3, 2), new TestDataSet(1, 2, 4), new TestDataSet(1, 4, 8));

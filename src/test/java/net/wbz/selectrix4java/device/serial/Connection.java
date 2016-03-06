@@ -12,12 +12,17 @@ import java.util.concurrent.*;
  */
 public class Connection {
 
+    public final static String DEVICE_ID_TEST = "test";
     private static final int TIMEOUT = 5;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private Device device;
     private volatile boolean connectedCallbackResult;
+
+    public static Connection createTestDeviceConnection() {
+        return new Connection(DEVICE_ID_TEST, DeviceManager.DEVICE_TYPE.TEST);
+    }
 
     public Connection(String deviceId, DeviceManager.DEVICE_TYPE deviceType) {
         device = new DeviceManager().registerDevice(deviceType, deviceId, SerialDevice.DEFAULT_BAUD_RATE_FCC);

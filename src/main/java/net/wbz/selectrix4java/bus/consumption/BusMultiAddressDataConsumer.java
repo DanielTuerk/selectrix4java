@@ -7,7 +7,7 @@ import java.util.Arrays;
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-abstract public class BusMultiAddressDataConsumer extends BusDataConsumer {
+abstract public class BusMultiAddressDataConsumer extends AbstractMultiAddressBusDataConsumer {
 
     private int[] addresses;
 

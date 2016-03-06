@@ -11,6 +11,9 @@ import java.nio.file.Paths;
  */
 public class BaseRecordingTest extends BaseTest {
 
+    protected static final int DEFAULT_PLAYBACK_SPEED=10;
+    protected static final int NORMAL_PLAYBACK_SPEED=1;
+
     private final String recordFilePath;
 
     private BusDataPlayer busDataPlayer;
@@ -20,17 +23,16 @@ public class BaseRecordingTest extends BaseTest {
     private final int playbackSpeed;
 
     public BaseRecordingTest(String recordFilePath) {
-        this(recordFilePath, 1);
+        this(recordFilePath, NORMAL_PLAYBACK_SPEED);
     }
 
     public BaseRecordingTest(String recordFilePath, int playbackSpeed) {
-        super(new Connection(DEVICE_ID_TEST, DeviceManager.DEVICE_TYPE.TEST));
         this.recordFilePath = recordFilePath;
         this.playbackSpeed = playbackSpeed;
     }
 
     @Override
-    public void setup() {
+    public void setup() throws InterruptedException {
         super.setup();
 
         busDataPlayer = new BusDataPlayer(getDevice().getBusDataDispatcher(), getDevice().getBusDataChannel(), playbackSpeed);

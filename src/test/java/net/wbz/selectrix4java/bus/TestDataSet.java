@@ -15,7 +15,7 @@ public class TestDataSet {
     private int receivedAddress;
     private int receivedValue;
 
-    private int resultCallCount = 0;
+    private transient int resultCallCount = 0;
 
     public TestDataSet(int sendBus, int sendAddress, int sendValue) {
         this.sendBus = sendBus;

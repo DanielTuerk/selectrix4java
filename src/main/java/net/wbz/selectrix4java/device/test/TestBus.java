@@ -47,11 +47,18 @@ public class TestBus {
 
             @Override
             public void write(byte[] b) throws IOException {
-                if (b.length == 2) {
+
+                if (b.length == 3) {
                     //write address value
-//                    int address = (toUnsignedInt(b[0]) * 113) + (b[1] < 0 ? b[1] + 128 : b[1]);
-                    busData[toUnsignedInt(b[0])] = b[1];
+                    int address = (toUnsignedInt(b[0]) * 113) + (b[1] < 0 ? b[1] + 128 : b[1]);
+                    busData[address] = b[2];
                 }
+//                TODO
+//                if (b.length == 2) {
+//                    //write address value
+////                    int address = (toUnsignedInt(b[0]) * 113) + (b[1] < 0 ? b[1] + 128 : b[1]);
+//                    busData[toUnsignedInt(b[0])] = b[1];
+//                }
             }
         };
 

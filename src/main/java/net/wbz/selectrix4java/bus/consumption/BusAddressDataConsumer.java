@@ -3,7 +3,7 @@ package net.wbz.selectrix4java.bus.consumption;
 /**
  * @author Daniel Tuerk
  */
-abstract public class BusAddressDataConsumer extends BusDataConsumer {
+abstract public class BusAddressDataConsumer extends AbstractSingleAddressBusDataConsumer {
 
     private final int address;
 

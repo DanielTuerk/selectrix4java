@@ -2,15 +2,12 @@ package net.wbz.selectrix4java.block;
 
 import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.Module;
-import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
-import net.wbz.selectrix4java.bus.consumption.BusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
-import net.wbz.selectrix4java.train.TrainModule;
 
 import java.math.BigInteger;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * Block which use the feedback address to receive the train address on the block.
@@ -29,7 +26,7 @@ public class FeedbackBlockModule implements Module {
 
     private final FeedbackBlockModuleDataDispatcher dispatcher = new FeedbackBlockModuleDataDispatcher();
 
-    private final BusDataConsumer consumer;
+    private final AbstractBusDataConsumer consumer;
     private final int bus;
     private final int address;
 
@@ -141,7 +138,7 @@ public class FeedbackBlockModule implements Module {
     }
 
     @Override
-    public BusDataConsumer getConsumer() {
+    public AbstractBusDataConsumer getConsumer() {
         return consumer;
     }
 
