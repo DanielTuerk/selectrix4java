@@ -26,7 +26,9 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
     private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
 
-    private byte[] reply = new byte[226];
+    public static final int LENGTH_OF_DATA_REPLY = 226;
+
+    private byte[] reply = new byte[LENGTH_OF_DATA_REPLY];
 
     private final ExecutorService executorService;
 
@@ -56,9 +58,9 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
                 @Override
                 public void run() {
                     // bus 0
-                    receiver.received(0, Arrays.copyOfRange(reply, 0, 112));
+                    receiver.received(0, Arrays.copyOfRange(reply, 0, 113));
                     // bus 1
-                    receiver.received(1, Arrays.copyOfRange(reply, 113, 225));
+                    receiver.received(1, Arrays.copyOfRange(reply, 113, 226));
                 }
             });
         }

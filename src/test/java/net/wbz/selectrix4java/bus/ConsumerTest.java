@@ -3,10 +3,17 @@ package net.wbz.selectrix4java.bus;
 import java.math.BigInteger;
 import java.util.Arrays;
 
-import net.wbz.selectrix4java.bus.consumption.*;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusAddressData;
+import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusBitConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
+import net.wbz.selectrix4java.data.ReadBlockTask;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.serial.BaseTest;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -16,9 +23,7 @@ import com.google.common.primitives.Ints;
  * Test to check all {@link AbstractBusDataConsumer} implementations. Check
  * received values and number of calls. Consumers should be called at timestamp
  * of registration and for each changes of the corresponding data.
- *
  * TODO: test for double registration -> single "first call" events
- *
  *
  * @author Daniel Tuerk
  */
@@ -26,6 +31,7 @@ public class ConsumerTest extends BaseTest {
 
     @Test
     public void testAllBusDataConsumer() throws DeviceAccessException, InterruptedException {
+        final int[] amountOfOverallEvents = { 0 };
         final TestDataSet testDataSet = new TestDataSet(1, 2, 10);
         getDevice().getBusDataDispatcher().registerConsumer(new AllBusDataConsumer() {
             @Override
@@ -34,10 +40,15 @@ public class ConsumerTest extends BaseTest {
                 if (bus == testDataSet.getSendBus() && address == testDataSet.getSendAddress()) {
                     testDataSet.setResult(bus, address, newValue);
                 }
+                amountOfOverallEvents[0]++;
             }
         });
         sendAndAssertEventReceived(testDataSet);
-        assertEventReceived(testDataSet,2);
+        assertEventReceived(testDataSet, 2);
+
+        Thread.sleep(500L);
+        Assert.assertEquals("amount of overall event wrong", ReadBlockTask.LENGTH_OF_DATA_REPLY + 1,
+                amountOfOverallEvents[0]);
     }
 
     @Test
