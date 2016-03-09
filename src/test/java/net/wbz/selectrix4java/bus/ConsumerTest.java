@@ -1,7 +1,8 @@
 package net.wbz.selectrix4java.bus;
 
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
 
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
@@ -16,8 +17,7 @@ import net.wbz.selectrix4java.device.serial.BaseTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
+import com.google.common.collect.Iterables;
 
 /**
  * Test to check all {@link AbstractBusDataConsumer} implementations. Check
@@ -87,20 +87,24 @@ public class ConsumerTest extends BaseTest {
         final TestDataSet testDataSetAddress2 = new TestDataSet(1, 3, 11);
         final TestDataSet testDataSetAddress3 = new TestDataSet(1, 4, 12);
 
-        int[] addresses = Ints.toArray(Lists.newArrayList(testDataSetAddress1.getSendAddress(),
-                testDataSetAddress2.getSendAddress(), testDataSetAddress3.getSendAddress()));
-
         getDevice().getBusDataDispatcher()
-                .registerConsumer(new BusMultiAddressDataConsumer(testDataSetAddress1.getSendBus(), addresses) {
+                .registerConsumer(new BusMultiAddressDataConsumer(testDataSetAddress1.getSendBus(), testDataSetAddress1
+                        .getSendAddress(), testDataSetAddress2.getSendAddress(), testDataSetAddress3.getSendAddress()) {
                     @Override
-                    public void valueChanged(BusAddressData[] data) {
-                        print("multi data: " + Arrays.deepToString(data));
-                        testDataSetAddress1.setResult(data[0].getBus(), data[0].getAddress(),
-                                data[0].getNewDataValue());
-                        testDataSetAddress2.setResult(data[1].getBus(), data[1].getAddress(),
-                                data[1].getNewDataValue());
-                        testDataSetAddress3.setResult(data[2].getBus(), data[2].getAddress(),
-                                data[2].getNewDataValue());
+                    public void valueChanged(Collection<BusAddressData> data) {
+                        print("multi data: " + Iterables.toString(data));
+                        for (BusAddressData busAddressData : data) {
+                            if (busAddressData.getAddress() == testDataSetAddress1.getSendAddress()) {
+                                testDataSetAddress1.setResult(busAddressData.getBus(), busAddressData.getAddress(),
+                                        busAddressData.getNewDataValue());
+                            } else if (busAddressData.getAddress() == testDataSetAddress2.getSendAddress()) {
+                                testDataSetAddress2.setResult(busAddressData.getBus(), busAddressData.getAddress(),
+                                        busAddressData.getNewDataValue());
+                            } else if (busAddressData.getAddress() == testDataSetAddress3.getSendAddress()) {
+                                testDataSetAddress3.setResult(busAddressData.getBus(), busAddressData.getAddress(),
+                                        busAddressData.getNewDataValue());
+                            }
+                        }
                     }
                 });
         sendTestData(testDataSetAddress1);
@@ -109,7 +113,6 @@ public class ConsumerTest extends BaseTest {
         assertEventReceived(testDataSetAddress2, 3);
         sendTestData(testDataSetAddress3);
         assertEventReceived(testDataSetAddress3, 4);
-
     }
 
     @Test
@@ -148,12 +151,13 @@ public class ConsumerTest extends BaseTest {
                 });
         final TestDataSet busMultiAddressDataResult = testDataSet.getClone();
         getDevice().getBusDataDispatcher().registerConsumer(
-                new BusMultiAddressDataConsumer(testDataSet.getSendBus(), new int[] { testDataSet.getSendAddress() }) {
+                new BusMultiAddressDataConsumer(testDataSet.getSendBus(), testDataSet.getSendAddress()) {
                     @Override
-                    public void valueChanged(BusAddressData[] data) {
-                        print("multi data: " + Arrays.deepToString(data));
-                        busMultiAddressDataResult.setResult(data[0].getBus(), data[0].getAddress(),
-                                data[0].getNewDataValue());
+                    public void valueChanged(Collection<BusAddressData> data) {
+                        print("multi data: " + Iterables.toString(data));
+                        BusAddressData busAddressData = data.iterator().next();
+                        busMultiAddressDataResult.setResult(busAddressData.getBus(), busAddressData.getAddress(),
+                                busAddressData.getNewDataValue());
                     }
                 });
 

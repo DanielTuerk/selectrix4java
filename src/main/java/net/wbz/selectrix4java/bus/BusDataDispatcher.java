@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -23,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 /**
@@ -289,14 +291,14 @@ public class BusDataDispatcher implements BusDataReceiver {
             byte[] oldData, byte[] data, boolean initialCall) {
         boolean anyAddressDataChanged = false;
         if (busNr == multiAddressDataConsumer.getBus()) {
-            final BusAddressData[] busAddressData = new BusAddressData[multiAddressDataConsumer.getAddresses().length];
+            final Set<BusAddressData> busAddressData = Sets.newHashSet();
             for (int addressIndex = 0; addressIndex < multiAddressDataConsumer.getAddresses().length; addressIndex++) {
                 int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
                 if (Byte.compare(data[busAddress], oldData[busAddress]) != 0) {
                     anyAddressDataChanged = true;
                 }
-                busAddressData[addressIndex] = new BusAddressData(busNr, busAddress, oldData[busAddress],
-                        data[busAddress]);
+                busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress],
+                        data[busAddress]));
             }
             if (anyAddressDataChanged || initialCall) {
                 executorService.submit(new Runnable() {

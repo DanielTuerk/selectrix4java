@@ -1,22 +1,34 @@
 package net.wbz.selectrix4java.bus.consumption;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Consumers are informed by state changes of the configured bus and address.
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-abstract public class BusMultiAddressDataConsumer extends AbstractMultiAddressBusDataConsumer {
+abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsumer {
 
     private int[] addresses;
 
-    protected BusMultiAddressDataConsumer(int bus, int[] addresses) {
+    /**
+     * Create consumer for the given bus and addresses.
+     *
+     * @param bus number of bus
+     * @param addresses addresses of bus
+     */
+    protected BusMultiAddressDataConsumer(int bus, int... addresses) {
         super(bus);
         this.addresses = addresses;
     }
 
-    abstract public void valueChanged(BusAddressData[] data);
+    /**
+     * Data value of the addresses has changed. Each address with new data value is given by the {@link BusAddressData}.
+     *
+     * @param data collection of {@link BusAddressData}
+     */
+    abstract public void valueChanged(Collection<BusAddressData> data);
 
     public int[] getAddresses() {
         return addresses;
@@ -24,13 +36,17 @@ abstract public class BusMultiAddressDataConsumer extends AbstractMultiAddressBu
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
 
         BusMultiAddressDataConsumer that = (BusMultiAddressDataConsumer) o;
 
-        if (!Arrays.equals(addresses, that.addresses)) return false;
+        if (!Arrays.equals(addresses, that.addresses))
+            return false;
 
         return true;
     }

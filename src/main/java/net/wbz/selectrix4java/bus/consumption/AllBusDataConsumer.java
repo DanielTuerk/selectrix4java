@@ -5,7 +5,7 @@ package net.wbz.selectrix4java.bus.consumption;
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-abstract public class AllBusDataConsumer extends AbstractMultiAddressBusDataConsumer {
+abstract public class AllBusDataConsumer extends AbstractBusDataConsumer {
 
     protected AllBusDataConsumer() {
         super(-1);

@@ -7,7 +7,9 @@ import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 
 import java.math.BigInteger;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Block which use the feedback address to receive the train address on the block.
@@ -34,7 +36,6 @@ public class FeedbackBlockModule implements Module {
 
     public FeedbackBlockModule(int bus, final int address,
                                final int feedbackAddress, final int additionalAddress) {
-
         this.bus = bus;
         this.address = address;
 
@@ -43,7 +44,7 @@ public class FeedbackBlockModule implements Module {
             blockStates.put(i, new Block(i));
         }
 
-        consumer = new BusMultiAddressDataConsumer(bus, new int[]{address, feedbackAddress, additionalAddress}) {
+        consumer = new BusMultiAddressDataConsumer(bus, address, feedbackAddress, additionalAddress) {
 
             /**
              * Flag to indicate the first call for throwing the events for the initial state of all blocks.
@@ -57,7 +58,7 @@ public class FeedbackBlockModule implements Module {
             private int lastSequenceNr = -1;
 
             @Override
-            public void valueChanged(BusAddressData[] data) {
+            public void valueChanged(Collection<BusAddressData> data) {
 
                 int train = -1;
 
