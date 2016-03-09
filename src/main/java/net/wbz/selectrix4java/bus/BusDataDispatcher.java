@@ -159,25 +159,25 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     /**
-     * TODO
-     * 
-     * @param busNr
-     * @param data
-     * @param oldData
-     * @param initialCall
+     * Call the registered consumers for the given bus data.
+     * Changes of bus data can be checked from the new and old data to call consumers.
+     *
+     * @param consumers consumers to call
+     * @param busNr number of bus
+     * @param data new data of the bus
+     * @param oldData old data of the bus
+     * @param initialCall indicate the first call of the given consumers
      */
     private void callConsumers(List<AbstractBusDataConsumer> consumers, int busNr, byte[] data, byte[] oldData,
             boolean initialCall) {
-
         final Collection<AbstractBusDataConsumer> consumersToCall = Lists.newArrayList(consumers);
 
+        // call the multi address consumers
         Collection<BusMultiAddressDataConsumer> multiAddressConsumers = getConsumersOfType(consumersToCall,
                 BusMultiAddressDataConsumer.class);
-
         for (final BusMultiAddressDataConsumer multiAddressDataConsumer : multiAddressConsumers) {
             fireMultiAddressChange(multiAddressDataConsumer, busNr, oldData, data, initialCall);
         }
-
         consumersToCall.removeAll(multiAddressConsumers);
 
         // fire changes one after another for each address
@@ -193,7 +193,7 @@ public class BusDataDispatcher implements BusDataReceiver {
                         callBitAddressConsumer((BusBitConsumer) consumer, busNr, i, oldData[i], data[i],
                                 initialCall);
                     } else if (consumer instanceof BusAddressDataConsumer) {
-                        callSingleAddressConsumer((BusAddressDataConsumer) consumer, busNr, i, oldData[i], data[i]);
+                        callBusAddressDataConsumer((BusAddressDataConsumer) consumer, busNr, i, oldData[i], data[i]);
                     } else {
                         String errorMsg = "unknown consumer: " + consumer.getClass().getName();
                         log.error(errorMsg);
@@ -205,15 +205,15 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     /**
-     * TODO
-     * @param busNr
-     * @param address
-     * @param oldData
-     * @param newData
-     * @param consumer
-     * @return
+     * Call the {@link AllBusDataConsumer}.
+     *
+     * @param busNr number of bus
+     * @param address address of bus
+     * @param oldData old data of address
+     * @param newData new data of address
+     * @param consumer consumer to call
      */
-    private boolean callAllBusDataConsumers(final int busNr, final int address, final int oldData, final int newData,
+    private void callAllBusDataConsumers(final int busNr, final int address, final int oldData, final int newData,
             final AllBusDataConsumer consumer) {
         executorService.submit(new Runnable() {
             @Override
@@ -221,20 +221,19 @@ public class BusDataDispatcher implements BusDataReceiver {
                 consumer.valueChanged(busNr, address, oldData, newData);
             }
         });
-        return true;
     }
 
     /**
-     * TODO
-     * @param consumer
-     * @param busNr
-     * @param address
-     * @param oldData
-     * @param newData
-     * @param initialCall
-     * @return
+     * Call the {@link BusBitConsumer}.
+     *
+     * @param busNr number of bus
+     * @param address address of bus
+     * @param oldData old data of address
+     * @param newData new data of address
+     * @param consumer consumer to call
+     * @param initialCall indicate the first call for the given consumer
      */
-    private boolean callBitAddressConsumer(final BusBitConsumer consumer, final int busNr, final int address,
+    private void callBitAddressConsumer(final BusBitConsumer consumer, final int busNr, final int address,
             final int oldData, final int newData, boolean initialCall) {
         // bit change
         if (consumer.getAddress() == address && consumer.getBus() == busNr) {
@@ -249,22 +248,21 @@ public class BusDataDispatcher implements BusDataReceiver {
                         consumer.valueChanged(oldBitState ? 1 : 0, newBitState ? 1 : 0);
                     }
                 });
-                return true;
             }
         }
-        return false;
     }
 
     /**
-     * TODO
-     * @param consumer
-     * @param busNr
-     * @param address
-     * @param oldData
-     * @param newData
-     * @return
+     * Call the {@link BusAddressDataConsumer}.
+     *
+     * @param busNr number of bus
+     * @param address address of bus
+     * @param oldData old data of address
+     * @param newData new data of address
+     * @param consumer consumer to call
      */
-    private boolean callSingleAddressConsumer(final BusAddressDataConsumer consumer, final int busNr, final int address, final int oldData, final int newData) {
+    private void callBusAddressDataConsumer(final BusAddressDataConsumer consumer, final int busNr, final int address,
+            final int oldData, final int newData) {
         if (consumer.getAddress() == address && consumer.getBus() == busNr) {
             executorService.submit(new Runnable() {
                 @Override
@@ -272,9 +270,7 @@ public class BusDataDispatcher implements BusDataReceiver {
                     consumer.valueChanged(oldData, newData);
                 }
             });
-            return true;
         }
-        return false;
     }
 
     /**
