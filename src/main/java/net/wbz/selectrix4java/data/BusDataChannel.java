@@ -182,6 +182,10 @@ public class BusDataChannel {
         return receivers.contains(busDataRecorder);
     }
 
+    protected List<BusDataReceiver> getReceivers() {
+        return receivers;
+    }
+
     public interface ChannelStateCallback {
         public void channelClosed();
     }
