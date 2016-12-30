@@ -52,18 +52,11 @@ public class WriteTask extends AbstractSerialAccessTask<Boolean> {
             address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
             getOutputStream().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
             getOutputStream().flush();
-            log.debug("write reply: " + getInputStream().read());
         } else if (data != null && busData == null) {
-            //TODO
             throw new RuntimeException("wtf? why no address byte?");
-//            getOutputStream().write(data);
-//            getOutputStream().flush();
-            // read reply which is variable by the count of the sent bytes
-//            log.debug("native write reply: " + getInputStream().read(new byte[data.length - 2]));
         } else {
             throw new RuntimeException("invalid data to send! Only byte array or BusData are valid!");
         }
-
 
         // TODO: fix this bullshit: do the fake read to avoid invalid reply
         Thread.sleep(BusDataChannel.DELAY);

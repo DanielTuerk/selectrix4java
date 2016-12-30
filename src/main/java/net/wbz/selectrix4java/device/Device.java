@@ -18,7 +18,7 @@ public interface Device extends Serializable {
     /**
      * Possible system formats for the device.
      */
-    public enum SYSTEM_FORMAT {
+    enum SYSTEM_FORMAT {
         UNKNOWN, ONLY_SX1, SX1_SX2, SX1_SX2_DCC, ONLY_DCC, SX1_SX2_MM, ONLY_MM, SX1_SX2_DCC_MM
     }
 
@@ -27,45 +27,45 @@ public interface Device extends Serializable {
      *
      * @param listener {@link DeviceConnectionListener}
      */
-    public void addDeviceConnectionListener(DeviceConnectionListener listener);
+    void addDeviceConnectionListener(DeviceConnectionListener listener);
 
     /**
      * Remove the given and already registered listener.
      *
      * @param listener {@link DeviceConnectionListener}
      */
-    public void removeDeviceConnectionListener(DeviceConnectionListener listener);
+    void removeDeviceConnectionListener(DeviceConnectionListener listener);
 
     /**
      * Register the given listener to the device to receive state changes of the device.
      *
      * @param listener {@link DeviceListener}
      */
-    public void addDeviceListener(DeviceListener listener);
+    void addDeviceListener(DeviceListener listener);
 
     /**
      * Remove the given and already registered listener.
      *
      * @param listener {@link DeviceListener}
      */
-    public void removeDeviceListener(DeviceListener listener);
+    void removeDeviceListener(DeviceListener listener);
 
     /**
      * Create connection of the device.
      */
-    public void connect() throws DeviceAccessException;
+    void connect() throws DeviceAccessException;
 
     /**
      * Disconnect the open connection.
      */
-    public void disconnect() throws DeviceAccessException;
+    void disconnect() throws DeviceAccessException;
 
     /**
      * Check connection state.
      *
      * @return actual state
      */
-    public boolean isConnected();
+    boolean isConnected();
 
     /**
      * Access to the {@link net.wbz.selectrix4java.block.BlockModule} for the given address or multi addresses.
@@ -75,7 +75,7 @@ public interface Device extends Serializable {
      * @return {@link net.wbz.selectrix4java.block.BlockModule}
      * @throws DeviceAccessException
      */
-    public BlockModule getBlockModule(int address) throws DeviceAccessException;
+    BlockModule getBlockModule(int address) throws DeviceAccessException;
 
     /**
      * TODO
@@ -86,7 +86,7 @@ public interface Device extends Serializable {
      * @return {@link net.wbz.selectrix4java.block.FeedbackBlockModule}
      * @throws DeviceAccessException
      */
-    public FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException;
+    FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException;
 
     /**
      * State of the rail voltage.
@@ -94,7 +94,7 @@ public interface Device extends Serializable {
      * @return {@link java.lang.Boolean} the current state
      * @throws DeviceAccessException
      */
-    public boolean getRailVoltage() throws DeviceAccessException;
+    boolean getRailVoltage() throws DeviceAccessException;
 
     /**
      * Change the state of the rail voltage.
@@ -102,7 +102,7 @@ public interface Device extends Serializable {
      * @param state {@link java.lang.Boolean} new state
      * @throws DeviceAccessException
      */
-    public void setRailVoltage(boolean state) throws DeviceAccessException;
+    void setRailVoltage(boolean state) throws DeviceAccessException;
 
     /**
      * Send the given byte array to the device output.
@@ -110,17 +110,17 @@ public interface Device extends Serializable {
      *
      * @param data bytes to send
      */
-    public void sendNative(byte[] data);
+    void sendNative(byte[] data);
 
     /**
      * Switch the device to the next system format.
      */
-    public void switchDeviceSystemFormat();
+    void switchDeviceSystemFormat();
 
     /**
      * @return {@link net.wbz.selectrix4java.device.Device.SYSTEM_FORMAT}
      */
-    public SYSTEM_FORMAT getActualSystemFormat() throws DeviceAccessException;
+    SYSTEM_FORMAT getActualSystemFormat() throws DeviceAccessException;
 
     /**
      * Direct access to the bus. Any operation will not affect the modules of this device.
@@ -133,14 +133,14 @@ public interface Device extends Serializable {
      * @return {@link net.wbz.selectrix4java.bus.BusDataDispatcher}
      */
     @Deprecated
-    public BusDataDispatcher getBusDataDispatcher();
+    BusDataDispatcher getBusDataDispatcher();
 
     /**
      * Running channel for communication or {@code null} if not connected.
      *
      * @return {@link net.wbz.selectrix4java.data.BusDataChannel} or {@code null}
      */
-    public BusDataChannel getBusDataChannel();
+    BusDataChannel getBusDataChannel();
 
     /**
      * Get or create the {@link net.wbz.selectrix4java.bus.BusAddress}.
@@ -150,7 +150,7 @@ public interface Device extends Serializable {
      * @return {@link net.wbz.selectrix4java.bus.BusAddress}
      * @throws DeviceAccessException
      */
-    public BusAddress getBusAddress(int bus, int address) throws DeviceAccessException;
+    BusAddress getBusAddress(int bus, int address) throws DeviceAccessException;
 
     /**
      * TODO
@@ -158,6 +158,6 @@ public interface Device extends Serializable {
      * @return
      * @throws DeviceAccessException
      */
-    public TrainModule getTrainModule(int address, int... additionalAddresses) throws DeviceAccessException;
+    TrainModule getTrainModule(int address, int... additionalAddresses) throws DeviceAccessException;
 
 }

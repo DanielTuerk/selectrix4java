@@ -1,18 +1,21 @@
 package net.wbz.selectrix4java.device.test;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
  * Test implementation which stores the written values into an byte array and read the byte array.
- *
+ * <p/>
  * Simulates a SX1 bus.
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class TestBus {
-
+    private static final Logger LOG = LoggerFactory.getLogger(TestBus.class);
     /**
      * Container for the bus 0 and bus 1 for 113 addresses.
      */
@@ -51,7 +54,11 @@ public class TestBus {
                 if (b.length == 3) {
                     //write address value
                     int address = (toUnsignedInt(b[0]) * 113) + (b[1] < 0 ? b[1] + 128 : b[1]);
-                    busData[address] = b[2];
+                    if (address >= busData.length) {
+                        LOG.debug("ignore address " + address + " for test bus (max :" + busData.length + ")");
+                    } else {
+                        busData[address] = b[2];
+                    }
                 }
 //                TODO
 //                if (b.length == 2) {
