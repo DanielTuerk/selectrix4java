@@ -101,7 +101,7 @@ public class FccTest extends BaseTest {
             }
 
             @Override
-            public void functionStateChanged(byte address, int functionBit, boolean state) {
+            public void functionStateChanged(int address, int functionBit, boolean state) {
                 System.out.println(String.format("functionStateChanged a: %d f: %d s:%b", address, functionBit, state));
             }
 

@@ -27,9 +27,13 @@ public class TrainDataDispatcher extends AbstractModuleDataDispatcher<TrainDataL
         });
     }
 
-    public void fireFunctionStateChanged(int address, int functionBit, boolean state) {
-        //TODO
-        throw new RuntimeException();
+    public void fireFunctionStateChanged(final int address, final int functionBit, final boolean state) {
+        fire(new ListenerRunnable() {
+            @Override
+            public void run() {
+                getListener().functionStateChanged(address, functionBit, state);
+            }
+        });
     }
 
     public void fireLightStateChanged(final boolean on) {

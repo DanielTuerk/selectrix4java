@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -306,14 +307,19 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         if (address >= 0) {
             final int bus = 0;
             String busAddressIdentifier = createIdentifier(bus, address, TrainModule.class);
+            if (additionalAddresses != null) {
+                busAddressIdentifier += "-additional: " + Arrays.toString(additionalAddresses);
+            }
             if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
                 List<BusAddress> additionalBusAddresses = Lists.newArrayList();
-                for (int additionalAddress : additionalAddresses) {
-                    additionalBusAddresses.add(getBusAddress(bus, additionalAddress));
+                if (additionalAddresses != null) {
+                    for (int additionalAddress : additionalAddresses) {
+                        additionalBusAddresses.add(getBusAddress(bus, additionalAddress));
+                    }
                 }
-                TrainModule blockModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(new BusAddress[additionalBusAddresses.size()]));
+                TrainModule trainModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(new BusAddress[additionalBusAddresses.size()]));
 //            busDataDispatcher.registerConsumer(blockModule.getConsumer()); TODO; after refactoring of no BusAddress usage
-                modules.put(busAddressIdentifier, blockModule);
+                modules.put(busAddressIdentifier, trainModule);
             }
             return (TrainModule) modules.get(busAddressIdentifier);
         }

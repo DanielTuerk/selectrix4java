@@ -7,6 +7,7 @@ import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ import java.util.List;
 public class TrainModule implements Module {
 
     /**
-     * Light of the train: bit 6
+     * Driving direction of the train: bit 6
      */
     public static final int BIT_DRIVING_DIRECTION = 6;
 
@@ -30,9 +31,16 @@ public class TrainModule implements Module {
     public static final int BIT_LIGHT = 7;
 
     /**
-     * Light of the train: bit 8
+     * Horn of the train: bit 8
      */
     public static final int BIT_HORN = 8;
+
+    /**
+     * Driving direction of the train.
+     */
+    public enum DRIVING_DIRECTION {
+        FORWARD, BACKWARD
+    }
 
     /**
      * Main address of the train.
@@ -90,18 +98,34 @@ public class TrainModule implements Module {
         });
         this.additionalAddresses = Lists.newArrayList(additionalAddresses);
         for (final BusAddress additionalAddress : additionalAddresses) {
-            additionalAddress.addListener(new BusAddressListener() {
-                @Override
-                public void dataChanged(byte oldValue, byte newValue) {
-                    for (int i = 1; i < 9; i++) {
-                        boolean functionState = BigInteger.valueOf(oldValue).testBit(i) != BigInteger.valueOf(newValue).testBit(i);
-                        dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i, functionState);
-                    }
-                }
-            });
+            registerAdditionalAddress(additionalAddress);
         }
     }
 
+    private void registerAdditionalAddress(final BusAddress additionalAddress) {
+        additionalAddress.addListener(new BusAddressListener() {
+            @Override
+            public void dataChanged(byte oldValue, byte newValue) {
+                for (int i = 1; i < 9; i++) {
+                    boolean functionState = BigInteger.valueOf(oldValue).testBit(i) != BigInteger.valueOf(newValue).testBit(i);
+                    dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i, functionState);
+                }
+            }
+        });
+    }
+
+    public void setFunctionState(BusAddress address, int bit, boolean state) {
+        if(!additionalAddresses.contains(address)){
+            additionalAddresses.add(address);
+            registerAdditionalAddress(address);
+        }
+        if(state) {
+            address.setBit(bit);
+        }else{
+            address.clearBit(bit);
+        }
+        address.send();
+    }
     /**
      * Change the driving level.
      *
@@ -124,10 +148,6 @@ public class TrainModule implements Module {
             address.send();
         }
         return this;
-    }
-
-    public enum DRIVING_DIRECTION {
-        FORWARD, BACKWARD
     }
 
     /**

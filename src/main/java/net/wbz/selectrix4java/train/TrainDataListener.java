@@ -5,10 +5,10 @@ package net.wbz.selectrix4java.train;
  */
 public interface TrainDataListener {
 
-    public void drivingLevelChanged(int level);
-    public void drivingDirectionChanged(TrainModule.DRIVING_DIRECTION direction);
-    public void functionStateChanged(byte address, int functionBit, boolean state);
-    public void lightStateChanged(boolean on);
-    public void hornStateChanged(boolean on);
+    void drivingLevelChanged(int level);
+    void drivingDirectionChanged(TrainModule.DRIVING_DIRECTION direction);
+    void functionStateChanged(int address, int functionBit, boolean state);
+    void lightStateChanged(boolean on);
+    void hornStateChanged(boolean on);
 
 }
