@@ -249,6 +249,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
             modules.clear();
             // address after train because the train map has the address as key
             busAddresses.clear();
+            busDataDispatcher.reset();
         }
     }
 

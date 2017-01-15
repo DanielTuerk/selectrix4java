@@ -137,6 +137,15 @@ public class BusDataDispatcher implements BusDataReceiver {
         this.consumers.removeAll(consumers);
     }
 
+
+    /**
+     * Reset to initial state by unregister all consumers and clear the data cache.
+     */
+    public void reset() {
+        consumers.clear();
+        busData.clear();
+    }
+
     @Override
     public void received(final int busNr, byte[] data) {
         final boolean initialCall;
