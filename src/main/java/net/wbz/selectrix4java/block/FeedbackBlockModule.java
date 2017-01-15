@@ -9,7 +9,6 @@ import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Block which use the feedback address to receive the train address on the block.
@@ -22,9 +21,17 @@ import java.util.Set;
  * </ul>
  * <p/>
  *
+ * TODO should be the D&H 8i - implementation
+ *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class FeedbackBlockModule implements Module {
+
+    /**
+     * Count of blocks for module.
+     * TODO need be parametrized
+     */
+    private static final int NUMBER_OF_BLOCKS = 8;
 
     private final FeedbackBlockModuleDataDispatcher dispatcher = new FeedbackBlockModuleDataDispatcher();
 
@@ -40,7 +47,7 @@ public class FeedbackBlockModule implements Module {
         this.address = address;
 
         // init blocks
-        for (int i = 1; i <= 8; i++) {
+        for (int i = 1; i <= NUMBER_OF_BLOCKS; i++) {
             blockStates.put(i, new Block(i));
         }
 
@@ -72,7 +79,7 @@ public class FeedbackBlockModule implements Module {
                 // check block state
                 for (BusAddressData addressData : data) {
                     if (addressData.getAddress() == address) {
-                        for (int blockNr = 1; blockNr < 9; blockNr++) {
+                        for (int blockNr = 1; blockNr <= NUMBER_OF_BLOCKS; blockNr++) {
                             boolean newState = BigInteger.valueOf(addressData.getNewDataValue()).testBit(blockNr - 1);
                             boolean oldState = BigInteger.valueOf(addressData.getOldDataValue()).testBit(blockNr - 1);
                             if (initial || newState != oldState) {
