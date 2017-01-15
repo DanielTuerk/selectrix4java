@@ -417,6 +417,9 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     @Override
     public void addDeviceConnectionListener(DeviceConnectionListener listener) {
         listeners.add(listener);
+        if(isConnected()) {
+            listener.connected(this);
+        }
     }
 
     /**
