@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Random;
 
 /**
  * Test implementation which stores the written values into an byte array and read the byte array.
@@ -24,6 +25,8 @@ public class TestBus {
     private final InputStream inputStream;
     private final OutputStream outputStream;
 
+    private long foo;
+
     public TestBus() {
         inputStream = new InputStream() {
             @Override
@@ -33,6 +36,11 @@ public class TestBus {
 
             @Override
             public int read(byte[] b) throws IOException {
+//                if(foo-System.currentTimeMillis() > 1000L) {
+//                    for(int i=0; i<10;i++) {
+//                        b[i]= Byte.
+//                    }
+//                }
                 System.arraycopy(busData, 0, b, 0, busData.length);
                 return b.length;
             }

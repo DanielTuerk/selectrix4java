@@ -12,13 +12,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
-import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
-import net.wbz.selectrix4java.bus.consumption.BusAddressData;
-import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
-import net.wbz.selectrix4java.bus.consumption.BusBitConsumer;
-import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +19,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusAddressData;
+import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusBitConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 
 /**
  * The dispatcher stores all values for each address of the SX bus channels. To
@@ -136,7 +136,6 @@ public class BusDataDispatcher implements BusDataReceiver {
     public void unregisterConsumers(List<AbstractBusDataConsumer> consumers) {
         this.consumers.removeAll(consumers);
     }
-
 
     /**
      * Reset to initial state by unregister all consumers and clear the data cache.
