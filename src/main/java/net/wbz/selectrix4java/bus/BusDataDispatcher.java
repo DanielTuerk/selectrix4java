@@ -146,7 +146,7 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     @Override
-    public void received(final int busNr, byte[] data) {
+    public synchronized void received(final int busNr, byte[] data) {
         final boolean initialCall;
         final byte[] oldData;
 
@@ -191,23 +191,32 @@ public class BusDataDispatcher implements BusDataReceiver {
         consumersToCall.removeAll(multiAddressConsumers);
 
         // fire changes one after another for each address
-        for (int i = 0; i < data.length; i++) {
-            if (initialCall || Byte.compare(data[i], oldData[i]) != 0) {
+        for (int address = 0; address < data.length; address++) {
+            // skip the multiplex counter of FCC TODO refactor to FCCImpl
+            if (address != 111) {
+                if (initialCall || Byte.compare(data[address], oldData[address]) != 0) {
 
-                // TODO: refactor to consumerDispatchers ?
+                    log.debug(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
+                            initialCall, busNr, address, oldData[address], data[address]));
+                    // TODO: refactor to consumerDispatchers ?
 
-                for (AbstractBusDataConsumer consumer : consumersToCall) {
-                    if (consumer instanceof AllBusDataConsumer) {
-                        callAllBusDataConsumers(busNr, i, oldData[i], data[i], (AllBusDataConsumer) consumer);
-                    } else if (consumer instanceof BusBitConsumer) {
-                        callBitAddressConsumer((BusBitConsumer) consumer, busNr, i, oldData[i], data[i],
-                                initialCall);
-                    } else if (consumer instanceof BusAddressDataConsumer) {
-                        callBusAddressDataConsumer((BusAddressDataConsumer) consumer, busNr, i, oldData[i], data[i]);
-                    } else {
-                        String errorMsg = "unknown consumer: " + consumer.getClass().getName();
-                        log.error(errorMsg);
-                        throw new RuntimeException(errorMsg);
+                    for (AbstractBusDataConsumer consumer : consumersToCall) {
+                        if (consumer instanceof AllBusDataConsumer) {
+                            callAllBusDataConsumers(busNr, address, oldData[address], data[address],
+                                    (AllBusDataConsumer) consumer);
+                        } else if (consumer instanceof BusBitConsumer) {
+                            callBitAddressConsumer((BusBitConsumer) consumer, busNr, address, oldData[address],
+                                    data[address],
+                                    initialCall);
+                        } else if (consumer instanceof BusAddressDataConsumer) {
+                            callBusAddressDataConsumer((BusAddressDataConsumer) consumer, busNr, address,
+                                    oldData[address],
+                                    data[address]);
+                        } else {
+                            String errorMsg = "unknown consumer: " + consumer.getClass().getName();
+                            log.error(errorMsg);
+                            throw new RuntimeException(errorMsg);
+                        }
                     }
                 }
             }
