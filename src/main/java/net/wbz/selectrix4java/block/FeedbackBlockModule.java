@@ -164,17 +164,17 @@ public class FeedbackBlockModule implements Module {
             this.blockNr = blockNr;
         }
 
-        public void trainEnter(int train, boolean direction) {
+        public void trainEnter(int train, boolean forward) {
             if (!trainBlockStateMap.containsKey(train)) {
-                trainBlockStateMap.put(train, direction);
-                dispatcher.fireTrainEnterBlock(blockNr, train, direction);
+                trainBlockStateMap.put(train, forward);
+                dispatcher.fireTrainEnterBlock(blockNr, train, forward);
             }
         }
 
-        public void trainExit(int train, boolean direction) {
+        public void trainExit(int train, boolean forward) {
             if (trainBlockStateMap.containsKey(train)) {
                 trainBlockStateMap.remove(train);
-                dispatcher.fireTrainLeaveBlock(blockNr, train, direction);
+                dispatcher.fireTrainLeaveBlock(blockNr, train, forward);
             }
         }
     }

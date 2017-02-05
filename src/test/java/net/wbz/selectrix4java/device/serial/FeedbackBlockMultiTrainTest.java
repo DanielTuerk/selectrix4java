@@ -51,8 +51,8 @@ public class FeedbackBlockMultiTrainTest extends BaseRecordingTest {
                 (byte) (blockAddress + 2), (byte) (blockAddress + 1));
         feedbackBlockModule.addFeedbackBlockListener(new FeedbackBlockListener() {
             @Override
-            public void trainEnterBlock(int blockNumber, int train, boolean drivingDirection) {
-                print("train %d enter -> Block: %d (direction: %b)", train, blockNumber, drivingDirection);
+            public void trainEnterBlock(int blockNumber, int train, boolean forward) {
+                print("train %d enter -> Block: %d (direction: %b)", train, blockNumber, forward);
                 if (train == 7) {
                     Assert.assertEquals(train7EnterBlocks.poll().intValue(), blockNumber);
                 } else if (train == 13) {
@@ -61,8 +61,8 @@ public class FeedbackBlockMultiTrainTest extends BaseRecordingTest {
             }
 
             @Override
-            public void trainLeaveBlock(int blockNumber, int train, boolean drivingDirection) {
-                print("train %d exit <- Block: %d (direction: %b)", train, blockNumber, drivingDirection);
+            public void trainLeaveBlock(int blockNumber, int train, boolean forward) {
+                print("train %d exit <- Block: %d (direction: %b)", train, blockNumber, forward);
             }
 
             @Override
