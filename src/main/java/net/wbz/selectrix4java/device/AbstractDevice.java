@@ -1,7 +1,21 @@
 package net.wbz.selectrix4java.device;
 
+import java.math.BigInteger;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.FutureTask;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
@@ -14,18 +28,6 @@ import net.wbz.selectrix4java.data.recording.BusDataRecorder;
 import net.wbz.selectrix4java.data.recording.IsRecordable;
 import net.wbz.selectrix4java.data.recording.RecordingException;
 import net.wbz.selectrix4java.train.TrainModule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.FutureTask;
 
 /**
  * The device implementation manage the connection.
@@ -45,7 +47,8 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * Default address for the rail voltage.
      * TODO: move later to implementations by device (e.g. FCC)
      */
-    public static final int RAILVOLTAGE_ADDRESS = 127;
+    public static final int RAILVOLTAGE_ADDRESS = 109;
+    public static final int RAILVOLTAGE_BIT = 8;
 
 //    /**
 //     * Used {@link net.wbz.selectrix4java.train.TrainModule}s by main {@link net.wbz.selectrix4java.bus.BusAddress}.
@@ -357,8 +360,14 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * @return {@link boolean} state
      * @throws DeviceAccessException
      */
+    @Override
     public boolean getRailVoltage() throws DeviceAccessException {
-        return BigInteger.valueOf(getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS).getData()).testBit(8);
+        return BigInteger.valueOf(getRailVoltageAddress().getData()).testBit(RAILVOLTAGE_BIT);
+    }
+
+    @Override
+    public BusAddress getRailVoltageAddress() throws DeviceAccessException {
+        return getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS);
     }
 
     /**
@@ -368,13 +377,12 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * @throws DeviceAccessException
      */
     public void setRailVoltage(boolean state) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS);
+        BusAddress busAddress = getBusAddress(1, (byte) 255);
         if (state) {
-            busAddress.setBit(8);
+            busAddress.sendData((byte) 1);
         } else {
-            busAddress.clearBit(8);
+            busAddress.sendData((byte) 0);
         }
-        busAddress.send();
     }
 
     @Override

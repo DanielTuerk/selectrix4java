@@ -1,5 +1,7 @@
 package net.wbz.selectrix4java.device;
 
+import java.io.Serializable;
+
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
@@ -7,8 +9,6 @@ import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.train.TrainModule;
-
-import java.io.Serializable;
 
 /**
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
@@ -95,6 +95,14 @@ public interface Device extends Serializable {
      * @throws DeviceAccessException
      */
     boolean getRailVoltage() throws DeviceAccessException;
+
+    /**
+     * Return the {@link BusAddress} for the rail voltage.
+     *
+     * @return {@link BusAddress}
+     * @throws DeviceAccessException
+     */
+    BusAddress getRailVoltageAddress() throws DeviceAccessException;
 
     /**
      * Change the state of the rail voltage.
