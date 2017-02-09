@@ -9,5 +9,5 @@ package net.wbz.selectrix4java.bus;
  */
 public interface BusDataReceiver {
 
-    public void received(int busNr, byte[] data);
+    void received(int busNr, byte[] data);
 }

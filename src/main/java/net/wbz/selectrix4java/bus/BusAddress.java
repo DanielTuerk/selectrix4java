@@ -10,9 +10,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.FutureTask;
 
 /**
  * Address of an bus. Wrap the data value and send state change events.
@@ -47,10 +45,13 @@ public class BusAddress {
 
     private final Queue<BusListener> listeners = new ConcurrentLinkedQueue<>();
 
+    private final BusAddressDataDispatcher dispatcher = new BusAddressDataDispatcher();
+
     public BusAddress(final int bus, final int address, BusDataChannel busDataChannel) {
         this.bus = bus;
         this.address = address;
         this.busDataChannel = busDataChannel;
+
 
         busDataConsumer = new BusAddressDataConsumer(bus, address) {
             @Override
@@ -58,44 +59,49 @@ public class BusAddress {
                 if ((byte) newValue != data) {
                     data = (byte) newValue;
                     // only fire changes, initial data changed call for the current value is done by addListener
-                    fireDataChanged(oldValue, newValue);
+                    // fireDataChanged(oldValue, newValue);
+                    dispatcher.fireValueChanged(oldValue, newValue);
                 }
             }
         };
     }
 
-    /**
-     * Call the registered listeners for value change of the bus address.
-     *
-     * @param oldValue old data value
-     * @param newValue new data value
-     */
-    private void fireDataChanged(final int oldValue, final int newValue) {
-        for (final BusListener listener : listeners) {
-            new FutureTask<>(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
+    // private void fireDataChanged(final BusListener listener ,final int oldValue, final int newValue) {
+    // new FutureTask<>(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    //
+    // if (listener instanceof BusAddressListener) {
+    // ((BusAddressListener) listener).dataChanged((byte) oldValue, (byte) newValue);
+    // } else if (listener instanceof BusAddressBitListener) {
+    // BusAddressBitListener busAddressBitListener = (BusAddressBitListener) listener;
+    // boolean oldBitValue = BigInteger.valueOf(oldValue).testBit(busAddressBitListener.getBitNr() - 1);
+    // boolean newBitValue = BigInteger.valueOf(newValue).testBit(busAddressBitListener.getBitNr() - 1);
+    //
+    // if (!busAddressBitListener.isCalled() || oldBitValue != newBitValue) {
+    // busAddressBitListener.bitChanged(oldBitValue, newBitValue);
+    // busAddressBitListener.setCalled(true);
+    // }
+    // } else {
+    // throw new RuntimeException("unknown bus listener instance: " + listener.getClass().getName());
+    // }
+    //
+    // return null;
+    // }
+    // }).run();
+    // }
 
-                    if (listener instanceof BusAddressListener) {
-                        ((BusAddressListener) listener).dataChanged((byte) oldValue, (byte) newValue);
-                    } else if (listener instanceof BusAddressBitListener) {
-                        BusAddressBitListener busAddressBitListener = (BusAddressBitListener) listener;
-                        boolean oldBitValue = BigInteger.valueOf(oldValue).testBit(busAddressBitListener.getBitNr() - 1);
-                        boolean newBitValue = BigInteger.valueOf(newValue).testBit(busAddressBitListener.getBitNr() - 1);
-
-                        if (!busAddressBitListener.isCalled() || oldBitValue != newBitValue) {
-                            busAddressBitListener.bitChanged(oldBitValue, newBitValue);
-                            busAddressBitListener.setCalled(true);
-                        }
-                    } else {
-                        throw new RuntimeException("unknown bus listener instance: " + listener.getClass().getName());
-                    }
-
-                    return null;
-                }
-            }).run();
-        }
-    }
+    // /**
+    // * Call the registered listeners for value change of the bus address.
+    // *
+    // * @param oldValue old data value
+    // * @param newValue new data value
+    // */
+    // private void fireDataChanged(final int oldValue, final int newValue) {
+    // for (final BusListener listener : listeners) {
+    // fireDataChanged(listener,oldValue,newValue);
+    // }
+    // }
 
     /**
      * Actual data of the address.
@@ -180,8 +186,10 @@ public class BusAddress {
      * @param listener {@link net.wbz.selectrix4java.bus.BusListener}
      */
     public void addListener(BusListener listener) {
-        this.listeners.add(listener);
-        fireDataChanged(0, data);
+        // this.listeners.add(listener);
+        dispatcher.addListener(listener);
+        // TODO maybe fire in dispatcher (also TODO) or grap last consumer value and call dispatcher for single listener
+        // fireDataChanged(listener, 0, data);
     }
 
     /**
@@ -190,7 +198,8 @@ public class BusAddress {
      * @param listener {@link net.wbz.selectrix4java.bus.BusListener}
      */
     public void removeListener(BusListener listener) {
-        this.listeners.remove(listener);
+        // this.listeners.remove(listener);
+        dispatcher.removeListener(listener);
     }
 
     public void addListeners(List<BusListener> listeners) {

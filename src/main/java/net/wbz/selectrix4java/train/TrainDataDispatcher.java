@@ -10,47 +10,63 @@ import net.wbz.selectrix4java.AbstractModuleDataDispatcher;
 public class TrainDataDispatcher extends AbstractModuleDataDispatcher<TrainDataListener> {
 
     public void fireDrivingLevelChanged(final int level) {
-        fire(new ListenerRunnable() {
-            @Override
-            public void run() {
-                getListener().drivingLevelChanged(level);
-            }
-        });
+        for (TrainDataListener listener : getListeners()) {
+            listener.drivingLevelChanged(level);
+        }
+
+        // fire(new ListenerRunnable() {
+        // @Override
+        // public void run() {
+        // listener.drivingLevelChanged(level);
+        // }
+        // });
     }
 
     public void fireDrivingDirectionChanged(final TrainModule.DRIVING_DIRECTION direction) {
-        fire(new ListenerRunnable() {
-            @Override
-            public void run() {
-                getListener().drivingDirectionChanged(direction);
-            }
-        });
+        for (TrainDataListener listener : getListeners()) {
+            listener.drivingDirectionChanged(direction);
+        }
+        // fire(new ListenerRunnable() {
+        // @Override
+        // public void run() {
+        // listener.drivingDirectionChanged(direction);
+        // }
+        // });
     }
 
     public void fireFunctionStateChanged(final int address, final int functionBit, final boolean state) {
-        fire(new ListenerRunnable() {
-            @Override
-            public void run() {
-                getListener().functionStateChanged(address, functionBit, state);
-            }
-        });
+        for (TrainDataListener listener : getListeners()) {
+            listener.functionStateChanged(address, functionBit, state);
+        }
+        // fire(new ListenerRunnable() {
+        // @Override
+        // public void run() {
+        // listener.functionStateChanged(address, functionBit, state);
+        // }
+        // });
     }
 
     public void fireLightStateChanged(final boolean on) {
-        fire(new ListenerRunnable() {
-            @Override
-            public void run() {
-                getListener().lightStateChanged(on);
-            }
-        });
+        for (TrainDataListener listener : getListeners()) {
+            listener.lightStateChanged(on);
+        }
+        // fire(new ListenerRunnable() {
+        // @Override
+        // public void run() {
+        // listener.lightStateChanged(on);
+        // }
+        // });
     }
 
     public void fireHornStateChanged(final boolean on) {
-        fire(new ListenerRunnable() {
-            @Override
-            public void run() {
-                getListener().hornStateChanged(on);
-            }
-        });
+        for (TrainDataListener listener : getListeners()) {
+            listener.hornStateChanged(on);
+        }
+        // fire(new ListenerRunnable() {
+        // @Override
+        // public void run() {
+        // listener.hornStateChanged(on);
+        // }
+        // });
     }
 }

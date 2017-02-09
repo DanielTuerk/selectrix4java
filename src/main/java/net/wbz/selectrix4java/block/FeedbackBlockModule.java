@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java.block;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
@@ -150,6 +151,14 @@ public class FeedbackBlockModule implements Module {
         return consumer;
     }
 
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("bus", bus)
+                .add("address", address)
+                .toString();
+    }
+
     /**
      * Model of one singe block to store the trains enter and exit the the block.
      * For each state change an event will be thrown by the
@@ -158,24 +167,17 @@ public class FeedbackBlockModule implements Module {
     private class Block {
 
         private int blockNr;
-        private final Map<Integer, Boolean> trainBlockStateMap = Maps.newConcurrentMap();
 
         public Block(int blockNr) {
             this.blockNr = blockNr;
         }
 
         public void trainEnter(int train, boolean forward) {
-            if (!trainBlockStateMap.containsKey(train)) {
-                trainBlockStateMap.put(train, forward);
                 dispatcher.fireTrainEnterBlock(blockNr, train, forward);
-            }
         }
 
         public void trainExit(int train, boolean forward) {
-            if (trainBlockStateMap.containsKey(train)) {
-                trainBlockStateMap.remove(train);
                 dispatcher.fireTrainLeaveBlock(blockNr, train, forward);
-            }
         }
     }
 }

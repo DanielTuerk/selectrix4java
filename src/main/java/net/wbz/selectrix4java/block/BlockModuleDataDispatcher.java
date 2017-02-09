@@ -10,20 +10,28 @@ import net.wbz.selectrix4java.AbstractModuleDataDispatcher;
 public class BlockModuleDataDispatcher<T extends BlockListener> extends AbstractModuleDataDispatcher<T> {
 
     public void fireBlockOccupied(final int blockNr){
-        fire(new ListenerRunnable() {
-            @Override
-            public void run() {
-                getListener().blockOccupied(blockNr);
-            }
-        });
+        for (T listener : getListeners()) {
+            listener.blockOccupied(blockNr);
+        }
+
+        // fire(new ListenerRunnable() {
+        // @Override
+        // public void run() {
+        // getListener().blockOccupied(blockNr);
+        // }
+        // });
     }
     public void fireBlockFreed(final int blockNr){
-        fire(new ListenerRunnable() {
-            @Override
-            public void run() {
-                getListener().blockFreed(blockNr);
-            }
-        });
+        for (T listener : getListeners()) {
+            listener.blockFreed(blockNr);
+        }
+
+        // fire(new ListenerRunnable() {
+        // @Override
+        // public void run() {
+        // getListener().blockFreed(blockNr);
+        // }
+        // });
     }
 
     public void fireBlockState(int blockNr, boolean state) {

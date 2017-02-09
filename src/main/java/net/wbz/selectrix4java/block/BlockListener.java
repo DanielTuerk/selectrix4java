@@ -7,7 +7,8 @@ package net.wbz.selectrix4java.block;
  */
 public interface BlockListener {
 
-    public void blockOccupied(int blockNr);
-    public void blockFreed(int blockNr);
+    void blockOccupied(int blockNr);
+
+    void blockFreed(int blockNr);
 
 }
