@@ -11,24 +11,12 @@ public class FeedbackBlockModuleDataDispatcher extends BlockModuleDataDispatcher
         for (FeedbackBlockListener listener : getListeners()) {
             listener.trainEnterBlock(blockNumber, trainAddress, forward);
         }
-        // fire(new ListenerRunnable() {
-        // @Override
-        // public void run() {
-        // getListener().trainEnterBlock(blockNumber, trainAddress, forward);
-        // }
-        // });
     }
 
     public void fireTrainLeaveBlock(final int blockNumber, final int trainAddress, final boolean forward) {
         for (FeedbackBlockListener listener : getListeners()) {
             listener.trainLeaveBlock(blockNumber, trainAddress, forward);
         }
-        // fire(new ListenerRunnable() {
-        // @Override
-        // public void run() {
-        // getListener().trainLeaveBlock(blockNumber, trainAddress, forward);
-        // }
-        // });
     }
 
 }

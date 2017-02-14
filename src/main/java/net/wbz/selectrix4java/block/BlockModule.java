@@ -1,12 +1,15 @@
 package net.wbz.selectrix4java.block;
 
-import com.google.common.collect.Maps;
-import net.wbz.selectrix4java.Module;
-import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
-import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
-
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import com.google.common.collect.Maps;
+
+import net.wbz.selectrix4java.Module;
+import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
+import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 
 /**
  * Retrieve the occupied state of the track blocks.
@@ -28,7 +31,7 @@ public class BlockModule implements Module {
      */
     private Map<Integer, Boolean> blockStates = Maps.newHashMap();
 
-    private final AbstractBusDataConsumer consumer;
+    private final List<AbstractBusDataConsumer> consumers = new ArrayList<>();
     /**
      * Create a new module with the main address and additional function addresses.
      *
@@ -38,7 +41,7 @@ public class BlockModule implements Module {
         this.bus=bus;
         this.address=address;
 
-        consumer=new BusAddressDataConsumer(bus,address) {
+        consumers.add(new BusAddressDataConsumer(bus, address) {
             @Override
             public void valueChanged(int oldValue, int newValue) {
                 for (int i = 1; i < 9; i++) {
@@ -55,7 +58,7 @@ public class BlockModule implements Module {
                     blockStates.put(i, state);
                 }
             }
-        };
+        });
     }
 
     /**
@@ -87,8 +90,8 @@ public class BlockModule implements Module {
     }
 
     @Override
-    public AbstractBusDataConsumer getConsumer() {
-        return consumer;
+    public List<AbstractBusDataConsumer> getConsumers() {
+        return consumers;
     }
 
     /**

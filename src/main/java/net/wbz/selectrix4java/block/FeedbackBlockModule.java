@@ -1,15 +1,23 @@
 package net.wbz.selectrix4java.block;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
-import net.wbz.selectrix4java.Module;
-import net.wbz.selectrix4java.bus.consumption.BusAddressData;
-import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
-import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
-
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import net.wbz.selectrix4java.bus.consumption.BusAddressData;
+import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 
 /**
  * Block which use the feedback address to receive the train address on the block.
@@ -21,101 +29,159 @@ import java.util.Map;
  * <li>D&H Belegtmelder 8i</li>
  * </ul>
  * <p/>
- *
  * TODO should be the D&H 8i - implementation
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
-public class FeedbackBlockModule implements Module {
+public class FeedbackBlockModule extends BlockModule {
+
+    private static final Logger log = LoggerFactory.getLogger(FeedbackBlockModule.class);
 
     /**
-     * Count of blocks for module.
-     * TODO need be parametrized
+     * TODO doc
      */
-    private static final int NUMBER_OF_BLOCKS = 8;
+    private final ExecutorService executorService;
 
     private final FeedbackBlockModuleDataDispatcher dispatcher = new FeedbackBlockModuleDataDispatcher();
 
-    private final AbstractBusDataConsumer consumer;
-    private final int bus;
-    private final int address;
+    /**
+     * TODO avoid duplicated events? but how with exeutor?
+     * Mapping of trains which where detected in this feedback block. Each train map to the last received train data.
+     */
+    private final Map<Integer, FeedbackTrainData> trainAddressEventMapping = Maps.newConcurrentMap();
 
-    private final Map<Integer, Block> blockStates = Maps.newConcurrentMap();
+    public FeedbackBlockModule(int bus, final int address, final int feedbackAddress, final int additionalAddress) {
+        super(bus, address);
 
-    public FeedbackBlockModule(int bus, final int address,
-                               final int feedbackAddress, final int additionalAddress) {
-        this.bus = bus;
-        this.address = address;
+        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("feedback-block-%d").build();
+        executorService = Executors.newCachedThreadPool(namedThreadFactory);
 
-        // init blocks
-        for (int i = 1; i <= NUMBER_OF_BLOCKS; i++) {
-            blockStates.put(i, new Block(i));
-        }
-
-        consumer = new BusMultiAddressDataConsumer(bus, address, feedbackAddress, additionalAddress) {
-
-            /**
-             * Flag to indicate the first call for throwing the events for the initial state of all blocks.
-             */
-            private boolean initial = true;
-
+        getConsumers().add(new BusMultiAddressDataConsumer(bus, additionalAddress, feedbackAddress) {
             /**
              * Last sequence number which was used to throw an event.
              * Only the first unique number could be used to indicate the train state at the block.
              */
             private int lastSequenceNr = -1;
 
+            /**
+             * Last train address which was detected. Is only fired once it changes. State changes on blocks belong to
+             * the same train, until a new train address is thrown.
+             */
+            private int lastTrainAddress = -1;
+
+            private FeedbackTrainData lastData = new FeedbackTrainData();
+
+            private Future<?> future;
+
             @Override
-            public void valueChanged(Collection<BusAddressData> data) {
+            public synchronized void valueChanged(Collection<BusAddressData> data) {
+                log.trace("valueChanged last data: {}; last sequence {} -- {}", new Object[] { lastData,
+                        lastSequenceNr, data });
 
-                int train = -1;
-
-                // check train address
+                // check for new train address
+                Integer train = null;
                 for (BusAddressData addressData : data) {
                     if (addressData.getAddress() == feedbackAddress) {
-                        train = addressData.getNewDataValue();
+                        int newDataValue = addressData.getNewDataValue();
+                        log.debug("new train {}", newDataValue);
+                        train = newDataValue;
+                        lastTrainAddress = newDataValue;
                     }
                 }
 
-                // check block state
                 for (BusAddressData addressData : data) {
-                    if (addressData.getAddress() == address) {
-                        for (int blockNr = 1; blockNr <= NUMBER_OF_BLOCKS; blockNr++) {
-                            boolean newState = BigInteger.valueOf(addressData.getNewDataValue()).testBit(blockNr - 1);
-                            boolean oldState = BigInteger.valueOf(addressData.getOldDataValue()).testBit(blockNr - 1);
-                            if (initial || newState != oldState) {
-                                dispatcher.fireBlockState(blockNr, newState);
-                            }
-                        }
-                    }
-
                     // check train state on block number
-                    if (addressData.getAddress() == additionalAddress && train > 0) {
+                    if (addressData.getAddress() == additionalAddress) { // && lastTrainAddress > 0
 
-                        // only first unique sequence number throw an event, next data of same sequence number could be corrupt
+                        /*
+                         * Only first unique sequence number throw an event, next data of same sequence number could be
+                         * corrupt.
+                         */
                         int sequenceNr = addressData.getNewDataValue() & 0x60;
+                        log.trace("new sequence {}", sequenceNr);
+
                         if (sequenceNr != lastSequenceNr) {
-
-                            int blockNr = (addressData.getNewDataValue() & 0x7) + 1;
-
-                            BigInteger wrappedAddress = BigInteger.valueOf(addressData.getNewDataValue());
-                            boolean enter = wrappedAddress.testBit(3);
-                            boolean forward = wrappedAddress.testBit(4);
-
-                            if (enter) {
-                                blockStates.get(blockNr).trainEnter(train, forward);
-                            } else {
-                                blockStates.get(blockNr).trainExit(train, forward);
+                            // new data - immediately start pending data
+                            lastData.setReady(true);
+                            // wait for finish
+                            if (future != null) {
+                                try {
+                                    future.get();
+                                } catch (InterruptedException | ExecutionException e) {
+                                    log.error("join future", e);
+                                }
                             }
-
                             lastSequenceNr = sequenceNr;
+                            lastData = new FeedbackTrainData();
+
+                        } else {
+                            log.warn("getting the same squence number last data: {}; last train: {}", lastData,
+                                    lastTrainAddress);
+                            return;
                         }
+
+                        int blockNr = (addressData.getNewDataValue() & 0x7) + 1;
+
+                        BigInteger wrappedNewDataValue = BigInteger.valueOf(addressData.getNewDataValue());
+                        boolean enter = wrappedNewDataValue.testBit(3);
+                        boolean forward = wrappedNewDataValue.testBit(4);
+
+                        if (train == null) {
+                            lastData.setTrainAddress(lastTrainAddress);
+                        } else {
+                            lastData.setTrainAddress(train);
+                        }
+                        lastData.setBlockNr(blockNr);
+                        lastData.setEnteringBlock(enter);
+                        lastData.setTrainDirectionForward(forward);
+
                     }
                 }
 
-                initial = false;
+                if (lastData.isComplete() && (future == null || future.isDone())) {
+                    log.trace("feedback module ({}) - last Data: {}", new Object[] { address, lastData });
+                    future = submitDispatcherCall(lastData);
+                } else {
+                    // correct the data
+                    lastData.setTrainAddress(train);
+                    log.trace("only update train data");
+                }
+
             }
-        };
+        });
+
+    }
+
+    private Future<?> submitDispatcherCall(final FeedbackTrainData lastData) {
+        return executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+
+                int secondsCount = 0;
+                while (secondsCount < 5) {
+                    if (lastData.isReady()) {
+                        // stop waiting
+                        break;
+                    }
+                    try {
+                        // TODO less waiting
+                        Thread.sleep(50L);
+                    } catch (InterruptedException e) {
+                        log.error("error waiting for ready of feedback data {}", lastData, e);
+                    }
+                    secondsCount++;
+                }
+
+                log.trace("send -> {}", lastData);
+                if (lastData.getEnteringBlock() != null && lastData.getEnteringBlock()) {
+                    dispatcher.fireTrainEnterBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
+                            .getTrainDirectionForward());
+                } else {
+                    dispatcher.fireTrainLeaveBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
+                            .getTrainDirectionForward());
+                }
+            }
+        });
     }
 
     /**
@@ -124,6 +190,7 @@ public class FeedbackBlockModule implements Module {
      * @param listener {@link net.wbz.selectrix4java.block.FeedbackBlockListener}
      */
     public void addFeedbackBlockListener(FeedbackBlockListener listener) {
+        addBlockListener(listener);
         dispatcher.addListener(listener);
     }
 
@@ -133,51 +200,90 @@ public class FeedbackBlockModule implements Module {
      * @param listener {@link net.wbz.selectrix4java.block.FeedbackBlockListener}
      */
     public void removeFeedbackBlockListener(FeedbackBlockListener listener) {
+        removeBlockListener(listener);
         dispatcher.removeListener(listener);
     }
 
     @Override
-    public int getBus() {
-        return bus;
-    }
-
-    @Override
-    public int getAddress() {
-        return address;
-    }
-
-    @Override
-    public AbstractBusDataConsumer getConsumer() {
-        return consumer;
-    }
-
-    @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("bus", bus)
-                .add("address", address)
+        return super.toString() + Objects.toStringHelper(this)
+                .add("dispatcher", dispatcher)
                 .toString();
     }
 
     /**
-     * Model of one singe block to store the trains enter and exit the the block.
-     * For each state change an event will be thrown by the
-     * {@link net.wbz.selectrix4java.block.FeedbackBlockModuleDataDispatcher}.
+     * Model to store information about train data on block.
      */
-    private class Block {
+    private class FeedbackTrainData {
+        private Integer trainAddress;
+        private Boolean trainDirectionForward;
+        private Integer blockNr;
+        private Boolean enteringBlock;
 
-        private int blockNr;
+        /**
+         * State to immediately call the dispatcher.
+         */
+        private boolean ready = false;
 
-        public Block(int blockNr) {
+        FeedbackTrainData() {
+        }
+
+        boolean isReady() {
+            return ready;
+        }
+
+        void setReady(boolean ready) {
+            this.ready = ready;
+        }
+
+        boolean isComplete() {
+            return trainAddress != null
+                    && trainDirectionForward != null
+                    && blockNr != null
+                    && enteringBlock != null;
+        }
+
+        Integer getTrainAddress() {
+            return trainAddress;
+        }
+
+        void setTrainAddress(Integer trainAddress) {
+            this.trainAddress = trainAddress;
+        }
+
+        Boolean getTrainDirectionForward() {
+            return trainDirectionForward;
+        }
+
+        void setTrainDirectionForward(Boolean trainDirectionForward) {
+            this.trainDirectionForward = trainDirectionForward;
+        }
+
+        Integer getBlockNr() {
+            return blockNr;
+        }
+
+        void setBlockNr(Integer blockNr) {
             this.blockNr = blockNr;
         }
 
-        public void trainEnter(int train, boolean forward) {
-                dispatcher.fireTrainEnterBlock(blockNr, train, forward);
+        Boolean getEnteringBlock() {
+            return enteringBlock;
         }
 
-        public void trainExit(int train, boolean forward) {
-                dispatcher.fireTrainLeaveBlock(blockNr, train, forward);
+        void setEnteringBlock(Boolean enteringBlock) {
+            this.enteringBlock = enteringBlock;
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this)
+                    .add("train", trainAddress)
+                    .add("forward", trainDirectionForward)
+                    .add("blockNr", blockNr)
+                    .add("enteringBlock", enteringBlock)
+                    .toString();
         }
     }
+
 }

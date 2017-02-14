@@ -1,12 +1,10 @@
 package net.wbz.selectrix4java.device.serial;
 
-import com.google.common.collect.Lists;
-import net.wbz.selectrix4java.block.FeedbackBlockListener;
-import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.concurrent.LinkedBlockingDeque;
+import net.wbz.selectrix4java.block.FeedbackBlockListener;
+import net.wbz.selectrix4java.block.FeedbackBlockModule;
 
 /**
  * Test the feedback block modules for received occupy states and train decoder information.
@@ -32,19 +30,29 @@ import java.util.concurrent.LinkedBlockingDeque;
  *
  * @author Daniel Tuerk
  */
-public class FeedbackBlockSingleTrainTest extends BaseRecordingTest {
+public class FeedbackBlockSingleTrainTest extends BaseFeedbackTest<Integer> {
 
     public FeedbackBlockSingleTrainTest() {
         super("records/feedback_module_58-train_7", DEFAULT_PLAYBACK_SPEED);
+    }
+
+    @Override
+    protected void initTest() {
+        // TODO create new testdata, also there are two trains in test data (5+7)
+        appendToQueue(4);
+        appendToQueue(4);
+        appendToQueue(3);
+        appendToQueue(2);
+        appendToQueue(1);
+        appendToQueue(2);
+        appendToQueue(3);
+        appendToQueue(4);
     }
 
     @Test
     public void testBlock() throws Exception {
 
         final int expectedTrain = 7;
-
-        final LinkedBlockingDeque<Integer> enterBlocks = new LinkedBlockingDeque<>(
-                Lists.newArrayList(4, 3, 2, 1, 2, 3, 4));
 
         final int blockAddress = 58;
 
@@ -54,8 +62,12 @@ public class FeedbackBlockSingleTrainTest extends BaseRecordingTest {
             @Override
             public void trainEnterBlock(int blockNumber, int train, boolean forward) {
                 print("train %d enter -> Block: %d (direction: %b)", train, blockNumber, forward);
-                Assert.assertEquals(enterBlocks.poll().intValue(), blockNumber);
-                Assert.assertEquals(expectedTrain, train);
+                try {
+                    Assert.assertEquals(nextFromQueue().intValue(), blockNumber);
+                    Assert.assertEquals(expectedTrain, train);
+                } catch (AssertionError e) {
+                    add(e);
+                }
             }
 
             @Override
@@ -77,7 +89,6 @@ public class FeedbackBlockSingleTrainTest extends BaseRecordingTest {
         startPlayback();
 
         waitToFinishRecord();
-
 
     }
 

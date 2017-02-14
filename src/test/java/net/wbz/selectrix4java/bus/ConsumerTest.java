@@ -2,7 +2,11 @@ package net.wbz.selectrix4java.bus;
 
 import java.math.BigInteger;
 import java.util.Collection;
-import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.collect.Iterables;
 
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
@@ -13,11 +17,6 @@ import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 import net.wbz.selectrix4java.data.ReadBlockTask;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.serial.BaseTest;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import com.google.common.collect.Iterables;
 
 /**
  * Test to check all {@link AbstractBusDataConsumer} implementations. Check
@@ -47,7 +46,8 @@ public class ConsumerTest extends BaseTest {
         assertEventReceived(testDataSet, 2);
 
         Thread.sleep(500L);
-        Assert.assertEquals("amount of overall event wrong", ReadBlockTask.LENGTH_OF_DATA_REPLY + 1,
+        // - 2 for the ignored address 111 on bus 0 and 1
+        Assert.assertEquals("amount of overall event wrong", ReadBlockTask.LENGTH_OF_DATA_REPLY + 1 - (2),
                 amountOfOverallEvents[0]);
     }
 
@@ -107,12 +107,13 @@ public class ConsumerTest extends BaseTest {
                         }
                     }
                 });
+        // expect one change of each address and initial state
         sendTestData(testDataSetAddress1);
         assertEventReceived(testDataSetAddress1, 2);
         sendTestData(testDataSetAddress2);
-        assertEventReceived(testDataSetAddress2, 3);
+        assertEventReceived(testDataSetAddress2, 2);
         sendTestData(testDataSetAddress3);
-        assertEventReceived(testDataSetAddress3, 4);
+        assertEventReceived(testDataSetAddress3, 2);
     }
 
     @Test
@@ -178,7 +179,7 @@ public class ConsumerTest extends BaseTest {
         Thread.sleep(200L);
         getDevice().getBusAddress(testDataSet.getSendBus(), (byte) testDataSet.getSendAddress())
                 .sendData((byte) testDataSet.getSendValue());
-        Thread.sleep(300L);
+        Thread.sleep(200L);
     }
 
 }

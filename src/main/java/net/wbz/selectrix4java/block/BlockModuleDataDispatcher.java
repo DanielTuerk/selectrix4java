@@ -14,24 +14,12 @@ public class BlockModuleDataDispatcher<T extends BlockListener> extends Abstract
             listener.blockOccupied(blockNr);
         }
 
-        // fire(new ListenerRunnable() {
-        // @Override
-        // public void run() {
-        // getListener().blockOccupied(blockNr);
-        // }
-        // });
     }
     public void fireBlockFreed(final int blockNr){
         for (T listener : getListeners()) {
             listener.blockFreed(blockNr);
         }
 
-        // fire(new ListenerRunnable() {
-        // @Override
-        // public void run() {
-        // getListener().blockFreed(blockNr);
-        // }
-        // });
     }
 
     public void fireBlockState(int blockNr, boolean state) {

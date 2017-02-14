@@ -46,6 +46,7 @@ public class BusDataRecorder implements BusDataReceiver {
      *                          data by calling {@see #getRecordOutput}
      */
     public void start(Path destinationFolder) throws RecordingException {
+        log.debug("start recording");
         if (!isRunning()) {
             if (!Files.exists(destinationFolder)) {
                 try {
@@ -75,6 +76,7 @@ public class BusDataRecorder implements BusDataReceiver {
      * Stop the actual running recording.
      */
     public void stop() {
+        log.debug("stop recording");
         if (isRunning()) {
             running = false;
         } else {

@@ -241,9 +241,10 @@ public class TrainModule implements Module {
     }
 
     @Override
-    public AbstractBusDataConsumer getConsumer() {
+    public List<AbstractBusDataConsumer> getConsumers() {
         return null;
     }
+
 
     /**
      * Additional addresses of functions for the train.

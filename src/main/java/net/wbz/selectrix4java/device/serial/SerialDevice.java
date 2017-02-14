@@ -1,16 +1,23 @@
 package net.wbz.selectrix4java.device.serial;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.util.Enumeration;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gnu.io.CommPortIdentifier;
 import gnu.io.SerialPort;
+import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.device.AbstractDevice;
 import net.wbz.selectrix4java.device.DeviceAccessException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.util.Enumeration;
 
 /**
  * {@link net.wbz.selectrix4java.device.Device} implementation for serial access like COM or USB.

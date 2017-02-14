@@ -3,14 +3,14 @@ package net.wbz.selectrix4java.device.serial;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import junit.framework.Assert;
-import net.wbz.selectrix4java.bus.BusAddressListener;
-import net.wbz.selectrix4java.bus.TestDataSet;
-import net.wbz.selectrix4java.device.Device;
-import net.wbz.selectrix4java.device.DeviceAccessException;
-
 import org.junit.After;
 import org.junit.Before;
+
+import junit.framework.Assert;
+import net.wbz.selectrix4java.bus.TestDataSet;
+import net.wbz.selectrix4java.device.Device;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Base test class to test the communication of a device.
@@ -74,15 +74,6 @@ public class BaseTest {
         Assert.assertTrue("can't disconnect", connection.disconnect());
     }
 
-    protected void addConsoleBusAddressListener(final int bus, final int address) throws DeviceAccessException {
-        getDevice().getBusAddress(bus, (byte) address).addListener(new BusAddressListener() {
-            @Override
-            public void dataChanged(byte oldValue, byte newValue) {
-                printData(oldValue, newValue, bus, address);
-            }
-        });
-    }
-
     protected void assertEventReceived(TestDataSet testDataSet) {
         assertEventReceived(testDataSet, -1);
     }
@@ -100,8 +91,8 @@ public class BaseTest {
 
     protected void assertTestData(int expectedBus, int receivedBus, int expectedAddress, int receivedAddress,
             int expectedValue, int receivedValue) {
-        Assert.assertEquals(expectedBus, receivedBus);
-        Assert.assertEquals(expectedAddress, receivedAddress);
-        Assert.assertEquals(expectedValue, receivedValue);
+        assertEquals(expectedBus, receivedBus);
+        assertEquals(expectedAddress, receivedAddress);
+        assertEquals(expectedValue, receivedValue);
     }
 }

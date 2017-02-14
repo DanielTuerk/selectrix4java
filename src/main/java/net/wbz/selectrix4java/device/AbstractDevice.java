@@ -336,7 +336,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         String busAddressIdentifier = createIdentifier(bus, address, BlockModule.class);
         if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
             BlockModule blockModule = new BlockModule(bus, address);
-            busDataDispatcher.registerConsumer(blockModule.getConsumer());
+            busDataDispatcher.registerConsumers(blockModule.getConsumers());
             modules.put(busAddressIdentifier, blockModule);
         }
         return (BlockModule) modules.get(busAddressIdentifier);
@@ -348,7 +348,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         String busAddressIdentifier = createIdentifier(bus, address, FeedbackBlockModule.class);
         if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
             FeedbackBlockModule blockModule = new FeedbackBlockModule(bus, address, feedbackAddress, additionalAddress);
-            busDataDispatcher.registerConsumer(blockModule.getConsumer());
+            busDataDispatcher.registerConsumers(blockModule.getConsumers());
             modules.put(busAddressIdentifier, blockModule);
         }
         return (FeedbackBlockModule) modules.get(busAddressIdentifier);

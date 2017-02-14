@@ -196,7 +196,7 @@ public class BusDataDispatcher implements BusDataReceiver {
             if (address != 111) {
                 if (initialCall || Byte.compare(data[address], oldData[address]) != 0) {
 
-                    log.debug(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
+                    log.trace(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
                             initialCall, busNr, address, oldData[address], data[address]));
                     // TODO: refactor to consumerDispatchers ?
 
@@ -301,8 +301,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @param busNr number of bus
      * @param oldData old data of bus
      * @param data new data of bus
-     * @param initialCall {@code true} to fire instead of same old and new data
-     *            value
+     * @param initialCall {@code true} to fire instead of same old and new data value
      */
     private void fireMultiAddressChange(final BusMultiAddressDataConsumer multiAddressDataConsumer, int busNr,
             byte[] oldData, byte[] data, boolean initialCall) {
@@ -311,11 +310,10 @@ public class BusDataDispatcher implements BusDataReceiver {
             final Set<BusAddressData> busAddressData = Sets.newHashSet();
             for (int addressIndex = 0; addressIndex < multiAddressDataConsumer.getAddresses().length; addressIndex++) {
                 int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
-                if (Byte.compare(data[busAddress], oldData[busAddress]) != 0) {
+                if (initialCall || Byte.compare(data[busAddress], oldData[busAddress]) != 0) {
                     anyAddressDataChanged = true;
+                    busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress], data[busAddress]));
                 }
-                busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress],
-                        data[busAddress]));
             }
             if (anyAddressDataChanged || initialCall) {
                 executorService.submit(new Runnable() {

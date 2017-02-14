@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java;
 
+import java.util.List;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 
 /**
@@ -7,9 +8,9 @@ import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
  */
 public interface Module {
 
-    public int getBus();
+    int getBus();
 
-    public int getAddress();
+    int getAddress();
 
-    public AbstractBusDataConsumer getConsumer();
+    List<AbstractBusDataConsumer> getConsumers();
 }
