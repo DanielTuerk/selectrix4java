@@ -11,7 +11,7 @@ public class BaseFeedbackDataTest extends BaseFeedbackTest<FeedbackData> {
         super(recordFilePath, playbackSpeed);
     }
 
-    protected void check(boolean enter, int blockNumber, int train, boolean forward) {
+    protected synchronized void check(boolean enter, int blockNumber, int train, boolean forward) {
         try {
             FeedbackData data = nextFromQueue();
 

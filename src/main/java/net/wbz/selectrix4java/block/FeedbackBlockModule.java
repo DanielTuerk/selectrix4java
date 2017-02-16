@@ -173,12 +173,14 @@ public class FeedbackBlockModule extends BlockModule {
                 }
 
                 log.trace("send -> {}", lastData);
-                if (lastData.getEnteringBlock() != null && lastData.getEnteringBlock()) {
-                    dispatcher.fireTrainEnterBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
-                            .getTrainDirectionForward());
-                } else {
-                    dispatcher.fireTrainLeaveBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
-                            .getTrainDirectionForward());
+                if (lastData.isComplete()) {
+                    if (lastData.getEnteringBlock() != null && lastData.getEnteringBlock()) {
+                        dispatcher.fireTrainEnterBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
+                                .getTrainDirectionForward());
+                    } else {
+                        dispatcher.fireTrainLeaveBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
+                                .getTrainDirectionForward());
+                    }
                 }
             }
         });
@@ -238,6 +240,7 @@ public class FeedbackBlockModule extends BlockModule {
 
         boolean isComplete() {
             return trainAddress != null
+                    && trainAddress > 0
                     && trainDirectionForward != null
                     && blockNr != null
                     && enteringBlock != null;

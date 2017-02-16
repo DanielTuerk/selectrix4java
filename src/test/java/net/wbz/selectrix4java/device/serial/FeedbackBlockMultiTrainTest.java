@@ -39,7 +39,6 @@ public class FeedbackBlockMultiTrainTest extends BaseFeedbackDataTest {
     protected void initTest() {
         super.initTest();
 
-        appendToQueue(new FeedbackData(1, false, 0, false));
         appendToQueue(new FeedbackData(4, false, 7, false));
         appendToQueue(new FeedbackData(4, true, 7, false));
     }
