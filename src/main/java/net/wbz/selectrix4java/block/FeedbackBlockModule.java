@@ -115,7 +115,7 @@ public class FeedbackBlockModule extends BlockModule {
                             lastData = new FeedbackTrainData();
 
                         } else {
-                            log.warn("getting the same squence number last data: {}; last train: {}", lastData,
+                            log.warn("getting the same sequence number last data: {}; last train: {}", lastData,
                                     lastTrainAddress);
                             return;
                         }
@@ -139,8 +139,8 @@ public class FeedbackBlockModule extends BlockModule {
                 }
 
                 if (lastData.isComplete() && (future == null || future.isDone())) {
-                    log.trace("feedback module ({}) - last Data: {}", new Object[] { address, lastData });
-                    future = submitDispatcherCall(lastData);
+                    log.trace("feedback module ({}) - submit last Data: {}", new Object[] { address, lastData });
+                    future = submitDispatcherCall(lastData, address);
                 } else {
                     // correct the data
                     lastData.setTrainAddress(train);
@@ -152,7 +152,7 @@ public class FeedbackBlockModule extends BlockModule {
 
     }
 
-    private Future<?> submitDispatcherCall(final FeedbackTrainData lastData) {
+    private Future<?> submitDispatcherCall(final FeedbackTrainData lastData, final int address) {
         return executorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -172,14 +172,16 @@ public class FeedbackBlockModule extends BlockModule {
                     secondsCount++;
                 }
 
-                log.trace("send -> {}", lastData);
+                log.trace("Block {}: send -> {}", address, lastData);
                 if (lastData.isComplete()) {
-                    if (lastData.getEnteringBlock() != null && lastData.getEnteringBlock()) {
-                        dispatcher.fireTrainEnterBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
-                                .getTrainDirectionForward());
-                    } else {
-                        dispatcher.fireTrainLeaveBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
-                                .getTrainDirectionForward());
+                    if (lastData.getEnteringBlock() != null) {
+                        if (lastData.getEnteringBlock()) {
+                            dispatcher.fireTrainEnterBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
+                                    .getTrainDirectionForward());
+                        } else {
+                            dispatcher.fireTrainLeaveBlock(lastData.getBlockNr(), lastData.getTrainAddress(), lastData
+                                    .getTrainDirectionForward());
+                        }
                     }
                 }
             }
