@@ -107,8 +107,10 @@ public class TrainModule implements Module {
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
                 for (int i = 1; i < 9; i++) {
-                    boolean functionState = BigInteger.valueOf(oldValue).testBit(i) != BigInteger.valueOf(newValue).testBit(i);
-                    dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i, functionState);
+                    boolean newBitState = BigInteger.valueOf(newValue).testBit(i);
+                    if (BigInteger.valueOf(oldValue).testBit(i) != newBitState) {
+                        dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i, newBitState);
+                    }
                 }
             }
         });
