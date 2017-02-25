@@ -105,6 +105,7 @@ public class BusDataChannel {
                         serialTaskExecutor.submit(task).get();
                     } catch (InterruptedException e) {
                         log.error("serial access interrupted", e);
+                        shutdownNow();
                     } catch (ExecutionException e) {
                         log.error("execution error of serial access", e);
                         shutdownNow();

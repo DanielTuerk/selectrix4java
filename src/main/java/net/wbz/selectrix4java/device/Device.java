@@ -140,7 +140,6 @@ public interface Device extends Serializable {
      *
      * @return {@link net.wbz.selectrix4java.bus.BusDataDispatcher}
      */
-    @Deprecated
     BusDataDispatcher getBusDataDispatcher();
 
     /**

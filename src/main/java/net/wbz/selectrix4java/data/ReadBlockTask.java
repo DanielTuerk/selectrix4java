@@ -23,8 +23,10 @@ import net.wbz.selectrix4java.bus.BusDataReceiver;
  */
 public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
-    public static final int LENGTH_OF_DATA_REPLY = 226;
     private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
+    public static final int LENGTH_OF_DATA_REPLY = 226;
+    private static final long TIMEOUT = 5000L;
+
     private byte[] reply = new byte[LENGTH_OF_DATA_REPLY];
 
     /**
@@ -64,11 +66,15 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
         }
 
         // waiting for full response from FCC
+        long maxWaitingTime = System.currentTimeMillis() + TIMEOUT;
         while (getInputStream().available() < LENGTH_OF_DATA_REPLY) {
             try {
                 Thread.sleep(10L);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }
+            if (System.currentTimeMillis() > maxWaitingTime) {
+                break;
             }
         }
 
