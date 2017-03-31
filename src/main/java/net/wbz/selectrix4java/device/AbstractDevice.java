@@ -68,7 +68,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * <p/>
      * Single instance of each address to prevent event-traffic.
      */
-    private Map<String, BusAddress> busAddresses = Maps.newHashMap();
+    private Map<String, BusAddress> busAddresses = Maps.newConcurrentMap();
 
     /**
      * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String}
@@ -274,11 +274,11 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * @throws DeviceAccessException
      */
     @Override
-    public BusAddress getBusAddress(int bus, int address) throws DeviceAccessException {
+    public synchronized BusAddress getBusAddress(int bus, int address) throws DeviceAccessException {
         checkConnected();
 
         String busAddressIdentifier = createIdentifier(bus, address, null);
-        if (!busAddresses.containsKey(String.valueOf(busAddressIdentifier))) {
+        if (!busAddresses.containsKey(busAddressIdentifier)) {
             BusAddress busAddress = new BusAddress(bus, address, busDataChannel);
             busDataDispatcher.registerConsumer(busAddress.getConsumer());
             busAddresses.put(busAddressIdentifier, busAddress);
