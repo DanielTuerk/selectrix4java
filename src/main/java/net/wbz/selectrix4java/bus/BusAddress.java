@@ -3,8 +3,12 @@ package net.wbz.selectrix4java.bus;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Objects;
 
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
@@ -17,6 +21,7 @@ import net.wbz.selectrix4java.data.BusDataChannel;
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class BusAddress {
+    private static final Logger LOG = LoggerFactory.getLogger(BusAddress.class);
 
     /**
      * Bus number for the address.
@@ -33,7 +38,7 @@ public class BusAddress {
     /**
      * Current data for the bus address before called {#send}.
      */
-    private byte data = 0;
+    private volatile byte data = 0;
     /**
      * Last received data. Is only updated by received changed data.
      */
@@ -41,7 +46,7 @@ public class BusAddress {
     /**
      * Bit state to toggle by next {#send} call. Set the state of bit by {#setBit} and {#clearBit}.
      */
-    private Map<Integer, Boolean> bitsToUpdate = Maps.newConcurrentMap();
+    private final Map<Integer, Boolean> bitsToUpdate = new ConcurrentHashMap<>(8);
 
     public BusAddress(final int bus, final int address, BusDataChannel busDataChannel) {
         this.bus = bus;
@@ -52,11 +57,17 @@ public class BusAddress {
         busDataConsumer = new BusAddressDataConsumer(bus, address) {
             @Override
             public void valueChanged(int oldValue, int newValue) {
-                if ((byte) newValue != lastReceivedData) {
-                    lastReceivedData = (byte) newValue;
-                    // only fire changes, initial data changed call for the current value is done by addListener
-                    // fireDataChanged(oldValue, newValue);
-                    dispatcher.fireValueChanged(oldValue, newValue);
+                synchronized (BusAddress.this) {
+                    if ((byte) newValue != lastReceivedData) {
+                        lastReceivedData = (byte) newValue;
+                        if (bitsToUpdate.isEmpty()) {
+                            LOG.debug("update data {} to last received {}", data, lastReceivedData);
+                            data = lastReceivedData;
+                        }
+                        // only fire changes, initial data changed call for the current value is done by addListener
+                        // fireDataChanged(oldValue, newValue);
+                        dispatcher.fireValueChanged(oldValue, newValue);
+                    }
                 }
             }
         };
@@ -79,12 +90,14 @@ public class BusAddress {
     public synchronized void sendData(byte data) {
         // send new data value to channel; actual data value is updated async by consumer
         busDataChannel.send(new BusData(bus, address, data));
+        this.data = data;
     }
 
     /**
      * Send the actual data of this address to the bus.
      */
     public synchronized void send() {
+        LOG.debug("{} -> send - data {}", this.toString(), data);
         BigInteger dataToSend = BigInteger.valueOf(data);
         // check for bit manipulation to send for current data value
         if (!bitsToUpdate.isEmpty()) {
@@ -129,7 +142,7 @@ public class BusAddress {
      * @param bit 1-8
      * @return state
      */
-    public synchronized boolean getBitState(int bit) {
+    public boolean getBitState(int bit) {
         // check first bits in update session to update the data value during next send call
         if (bitsToUpdate.containsKey(bit)) {
             return bitsToUpdate.get(bit);
@@ -209,5 +222,13 @@ public class BusAddress {
         int result = bus;
         result = 31 * result + address;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("bus", bus)
+                .add("address", address)
+                .toString();
     }
 }

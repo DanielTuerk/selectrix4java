@@ -4,9 +4,9 @@ package net.wbz.selectrix4java.data;
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
 public class BusData {
-    private int bus;
-    private int address;
-    private int data;
+    private final int bus;
+    private final int address;
+    private final int data;
 
     public BusData(int bus, int address, int data) {
         this.bus = bus;
@@ -18,23 +18,12 @@ public class BusData {
         return bus;
     }
 
-    public void setBus(int bus) {
-        this.bus = bus;
-    }
-
     public int getAddress() {
         return address;
-    }
-
-    public void setAddress(int address) {
-        this.address = address;
     }
 
     public int getData() {
         return data;
     }
 
-    public void setData(int data) {
-        this.data = data;
-    }
 }

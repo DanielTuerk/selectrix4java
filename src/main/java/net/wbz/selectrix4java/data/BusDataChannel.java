@@ -143,7 +143,7 @@ public class BusDataChannel {
      * @param busData {@link net.wbz.selectrix4java.data.BusData} to send
      */
     public void send(BusData busData) {
-        queue.push(new WriteTask(inputStream, outputStream, busData));
+        queue.offer(new WriteTask(inputStream, outputStream, busData));
     }
 
     /**
@@ -153,7 +153,7 @@ public class BusDataChannel {
      * @param data bytes to send
      */
     public void send(byte[] data) {
-        queue.push(new WriteTask(inputStream, outputStream, data));
+        queue.offer(new WriteTask(inputStream, outputStream, data));
     }
 
     /**

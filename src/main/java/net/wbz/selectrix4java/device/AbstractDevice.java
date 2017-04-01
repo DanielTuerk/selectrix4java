@@ -346,7 +346,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     public synchronized FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException {
         int bus = 1;
         String busAddressIdentifier = createIdentifier(bus, address, FeedbackBlockModule.class);
-        if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
+        if (!modules.containsKey(busAddressIdentifier)) {
             FeedbackBlockModule blockModule = new FeedbackBlockModule(bus, address, feedbackAddress, additionalAddress);
             busDataDispatcher.registerConsumers(blockModule.getConsumers());
             modules.put(busAddressIdentifier, blockModule);
