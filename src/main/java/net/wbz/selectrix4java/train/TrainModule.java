@@ -243,6 +243,11 @@ public class TrainModule implements Module {
     }
 
     @Override
+    public BusAddress getBusAddress() {
+        return address;
+    }
+
+    @Override
     public List<AbstractBusDataConsumer> getConsumers() {
         return null;
     }

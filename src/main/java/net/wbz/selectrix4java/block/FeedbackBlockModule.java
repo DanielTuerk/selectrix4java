@@ -16,6 +16,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
 import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 
@@ -49,14 +50,19 @@ public class FeedbackBlockModule extends BlockModule {
      * Mapping of trains which where detected in this feedback block. Each train map to the last received train data.
      */
     private final Map<Integer, FeedbackTrainData> trainAddressEventMapping = Maps.newConcurrentMap();
+    private final BusAddress feedbackAddress;
+    private final BusAddress additionalAddress;
 
-    public FeedbackBlockModule(int bus, final int address, final int feedbackAddress, final int additionalAddress) {
-        super(bus, address);
+    public FeedbackBlockModule(BusAddress busAddress, BusAddress feedbackAddress, BusAddress additionalAddress) {
+        super(busAddress);
+        this.feedbackAddress = feedbackAddress;
+        this.additionalAddress = additionalAddress;
 
         ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("feedback-block-%d").build();
         executorService = Executors.newCachedThreadPool(namedThreadFactory);
 
-        getConsumers().add(new BusMultiAddressDataConsumer(bus, additionalAddress, feedbackAddress) {
+        getConsumers().add(new BusMultiAddressDataConsumer(busAddress.getBus(), additionalAddress.getAddress(),
+                feedbackAddress.getAddress()) {
             /**
              * Last sequence number which was used to throw an event.
              * Only the first unique number could be used to indicate the train state at the block.
@@ -81,7 +87,7 @@ public class FeedbackBlockModule extends BlockModule {
                 // check for new train address
                 Integer train = null;
                 for (BusAddressData addressData : data) {
-                    if (addressData.getAddress() == feedbackAddress) {
+                    if (addressData.getAddress() == FeedbackBlockModule.this.feedbackAddress.getAddress()) {
                         int newDataValue = addressData.getNewDataValue();
                         log.debug("new train {}", newDataValue);
                         train = newDataValue;
@@ -91,7 +97,9 @@ public class FeedbackBlockModule extends BlockModule {
 
                 for (BusAddressData addressData : data) {
                     // check train state on block number
-                    if (addressData.getAddress() == additionalAddress) { // && lastTrainAddress > 0
+                    if (addressData.getAddress() == FeedbackBlockModule.this.additionalAddress.getAddress()) { // &&
+                                                                                                               // lastTrainAddress
+                                                                                                               // > 0
 
                         /*
                          * Only first unique sequence number throw an event, next data of same sequence number could be
@@ -139,8 +147,10 @@ public class FeedbackBlockModule extends BlockModule {
                 }
 
                 if (lastData.isComplete() && (future == null || future.isDone())) {
-                    log.trace("feedback module ({}) - submit last Data: {}", new Object[] { address, lastData });
-                    future = submitDispatcherCall(lastData, address);
+                    log.trace("feedback module ({}) - submit last Data: {}", new Object[] { getBusAddress()
+                            .getAddress(),
+                            lastData });
+                    future = submitDispatcherCall(lastData, getBusAddress().getAddress());
                 } else {
                     // correct the data
                     lastData.setTrainAddress(train);
@@ -206,6 +216,13 @@ public class FeedbackBlockModule extends BlockModule {
     public void removeFeedbackBlockListener(FeedbackBlockListener listener) {
         removeBlockListener(listener);
         dispatcher.removeListener(listener);
+    }
+
+    /**
+     * TODO verify
+     */
+    public void requestCurrentFeedbackState() {
+        additionalAddress.setBit(8).send();
     }
 
     @Override

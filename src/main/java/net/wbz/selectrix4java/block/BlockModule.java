@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
 import net.wbz.selectrix4java.Module;
+import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 
@@ -18,30 +20,26 @@ import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
  */
 public class BlockModule implements Module {
 
-    private final int bus;
-    private final int address;
-
     /**
      * Dispatcher to fire asynchronous the train events to the listeners.
      */
     private final BlockModuleDataDispatcher<BlockListener> dispatcher = new BlockModuleDataDispatcher<>();
-
+    private final BusAddress busAddress;
+    private final List<AbstractBusDataConsumer> consumers = new ArrayList<>();
     /**
      * Storage of the actual occupied states of this block.
      */
     private Map<Integer, Boolean> blockStates = Maps.newHashMap();
 
-    private final List<AbstractBusDataConsumer> consumers = new ArrayList<>();
     /**
      * Create a new module with the main address and additional function addresses.
      *
-     * @param address             {@link net.wbz.selectrix4java.bus.BusAddress}
+     * @param busAddress {@link net.wbz.selectrix4java.bus.BusAddress}
      */
-    public BlockModule(int bus, int address) {
-        this.bus=bus;
-        this.address=address;
+    public BlockModule(BusAddress busAddress) {
+        this.busAddress = busAddress;
 
-        consumers.add(new BusAddressDataConsumer(bus, address) {
+        consumers.add(new BusAddressDataConsumer(busAddress.getBus(), busAddress.getAddress()) {
             @Override
             public void valueChanged(int oldValue, int newValue) {
                 for (int i = 1; i < 9; i++) {
@@ -81,12 +79,17 @@ public class BlockModule implements Module {
 
     @Override
     public int getBus() {
-        return bus;
+        return busAddress.getBus();
     }
 
     @Override
     public int getAddress() {
-        return address;
+        return busAddress.getAddress();
+    }
+
+    @Override
+    public BusAddress getBusAddress() {
+        return busAddress;
     }
 
     @Override
@@ -101,27 +104,24 @@ public class BlockModule implements Module {
      * @return {@code true} if the block is occupied otherwise it's free
      */
     public boolean getLastReceivedBlockState(int blockNr) {
-        assert blockNr >=1 && blockNr <=8;
+        assert blockNr >= 1 && blockNr <= 8;
         return blockStates.get(blockNr);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         BlockModule that = (BlockModule) o;
-
-        if (address != that.address) return false;
-        if (bus != that.bus) return false;
-
-        return true;
+        return Objects.equal(busAddress, that.busAddress);
     }
 
     @Override
     public int hashCode() {
-        int result = bus;
-        result = 31 * result + (int) address;
-        return result;
+        return Objects.hashCode(busAddress);
     }
 }
