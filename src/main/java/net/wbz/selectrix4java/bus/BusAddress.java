@@ -61,7 +61,7 @@ public class BusAddress {
                     if ((byte) newValue != lastReceivedData) {
                         lastReceivedData = (byte) newValue;
                         if (bitsToUpdate.isEmpty()) {
-                            LOG.debug("update data {} to last received {}", data, lastReceivedData);
+                            LOG.trace("update data {} to last received {}", data, lastReceivedData);
                             data = lastReceivedData;
                         }
                         // only fire changes, initial data changed call for the current value is done by addListener
@@ -97,7 +97,7 @@ public class BusAddress {
      * Send the actual data of this address to the bus.
      */
     public synchronized void send() {
-        LOG.debug("{} -> send - data {}", this.toString(), data);
+        LOG.trace("{} -> send - data {}", this.toString(), data);
         BigInteger dataToSend = BigInteger.valueOf(data);
         // check for bit manipulation to send for current data value
         if (!bitsToUpdate.isEmpty()) {

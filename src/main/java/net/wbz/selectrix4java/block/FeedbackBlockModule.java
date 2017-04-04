@@ -219,7 +219,8 @@ public class FeedbackBlockModule extends BlockModule {
     }
 
     /**
-     * TODO verify
+     * Send the state request for the feedback module.
+     * The module get response for all actual train block information of the additional and feedback address.
      */
     public void requestCurrentFeedbackState() {
         additionalAddress.setBit(8).send();

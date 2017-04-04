@@ -89,6 +89,14 @@ public interface Device extends Serializable {
     FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException;
 
     /**
+     * Send the request for the current feedback state of all registered {@link FeedbackBlockModule}s.
+     *
+     * @see FeedbackBlockModule#requestCurrentFeedbackState()
+     *      TODO move to FccImpl
+     */
+    void requestCurrentFeedbackStateOfAllRegisteredFeedbackModules();
+
+    /**
      * State of the rail voltage.
      *
      * @return {@link java.lang.Boolean} the current state

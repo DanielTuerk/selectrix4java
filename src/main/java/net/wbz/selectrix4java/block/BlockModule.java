@@ -8,6 +8,7 @@ import java.util.Map;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 
+import java.util.concurrent.ConcurrentHashMap;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
@@ -29,7 +30,7 @@ public class BlockModule implements Module {
     /**
      * Storage of the actual occupied states of this block.
      */
-    private Map<Integer, Boolean> blockStates = Maps.newHashMap();
+    private final Map<Integer, Boolean> blockStates = new ConcurrentHashMap<>();
 
     /**
      * Create a new module with the main address and additional function addresses.
@@ -41,7 +42,7 @@ public class BlockModule implements Module {
 
         consumers.add(new BusAddressDataConsumer(busAddress.getBus(), busAddress.getAddress()) {
             @Override
-            public void valueChanged(int oldValue, int newValue) {
+            public synchronized void valueChanged(int oldValue, int newValue) {
                 for (int i = 1; i < 9; i++) {
                     boolean state = BigInteger.valueOf(newValue).testBit(i - 1);
                     if (blockStates.containsKey(i)) {
@@ -123,5 +124,12 @@ public class BlockModule implements Module {
     @Override
     public int hashCode() {
         return Objects.hashCode(busAddress);
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("busAddress", busAddress)
+                .toString();
     }
 }

@@ -41,27 +41,22 @@ import net.wbz.selectrix4java.train.TrainModule;
  */
 public abstract class AbstractDevice implements Device, IsRecordable {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractDevice.class);
-
     /**
      * Default address for the rail voltage.
      * TODO: move later to implementations by device (e.g. FCC)
      */
     public static final int RAILVOLTAGE_ADDRESS = 109;
     public static final int RAILVOLTAGE_BIT = 8;
+    private static final Logger log = LoggerFactory.getLogger(AbstractDevice.class);
 
-//    /**
-//     * Used {@link net.wbz.selectrix4java.train.TrainModule}s by main {@link net.wbz.selectrix4java.bus.BusAddress}.
-//     * Single instance of each module to prevent event-traffic.
-//     */
-//    private Map<BusAddress, TrainModule> trainModules = Maps.newHashMap();
-//
-//    /**
-//     * Used {@link net.wbz.selectrix4java.block.BlockModule}s by main {@link net.wbz.selectrix4java.bus.BusAddress}.
-//     * Single instance of each module to prevent event-traffic.
-//     */
-//    private Map<BusAddress, BlockModule> blockModules = Maps.newHashMap();
-
+    /**
+     * Corresponding dispatcher to read the bus and dispatch the data ot the customers.
+     */
+    private final BusDataDispatcher busDataDispatcher = new BusDataDispatcher();
+    /**
+     * Recorder to implement {@link net.wbz.selectrix4java.data.recording.IsRecordable}.
+     */
+    private final BusDataRecorder busDataRecorder = new BusDataRecorder();
     /**
      * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String}
      * in the format 'bus:address'.
@@ -69,7 +64,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * Single instance of each address to prevent event-traffic.
      */
     private Map<String, BusAddress> busAddresses = Maps.newConcurrentMap();
-
     /**
      * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String}
      * in the format 'bus:address'.
@@ -77,27 +71,15 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * Single instance of each module to prevent event-traffic.
      */
     private Map<String, Module> modules = Maps.newHashMap();
-
     /**
      * Channel to send signals to the connected bus.
      */
     private BusDataChannel busDataChannel;
-
-    /**
-     * Corresponding dispatcher to read the bus and dispatch the data ot the customers.
-     */
-    private final BusDataDispatcher busDataDispatcher = new BusDataDispatcher();
-
     /**
      * Registered listener of {@link DeviceConnectionListener}.
      * Usage of {@link java.util.Queue} for synchronization to remove listener while event handling is in progress.
      */
     private Queue<DeviceConnectionListener> listeners = new ConcurrentLinkedQueue<>();
-
-    /**
-     * Recorder to implement {@link net.wbz.selectrix4java.data.recording.IsRecordable}.
-     */
-    private final BusDataRecorder busDataRecorder = new BusDataRecorder();
 
     /**
      * Open the connection for the device.
@@ -268,7 +250,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * <p/>
      * {@link net.wbz.selectrix4java.bus.BusAddress} is created by the first access and cached for future access.
      *
-     * @param bus     number of bus
+     * @param bus number of bus
      * @param address address to access
      * @return {@link net.wbz.selectrix4java.bus.BusAddress}
      * @throws DeviceAccessException
@@ -301,13 +283,14 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * <p/>
      * Module is created by the first access and cached for future access.
      *
-     * @param address             address of the train
+     * @param address address of the train
      * @param additionalAddresses additional function address
      * @return {@link net.wbz.selectrix4java.train.TrainModule}
      * @throws DeviceAccessException
      */
     @Override
-    public synchronized TrainModule getTrainModule(int address, int... additionalAddresses) throws DeviceAccessException {
+    public synchronized TrainModule getTrainModule(int address, int... additionalAddresses)
+            throws DeviceAccessException {
         if (address >= 0) {
             final int bus = 0;
             String busAddressIdentifier = createIdentifier(bus, address, TrainModule.class);
@@ -321,8 +304,8 @@ public abstract class AbstractDevice implements Device, IsRecordable {
                         additionalBusAddresses.add(getBusAddress(bus, additionalAddress));
                     }
                 }
-                TrainModule trainModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(new BusAddress[additionalBusAddresses.size()]));
-//            busDataDispatcher.registerConsumer(blockModule.getConsumer()); TODO; after refactoring of no BusAddress usage
+                TrainModule trainModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(
+                        new BusAddress[additionalBusAddresses.size()]));
                 modules.put(busAddressIdentifier, trainModule);
             }
             return (TrainModule) modules.get(busAddressIdentifier);
@@ -343,7 +326,8 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     }
 
     @Override
-    public synchronized FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException {
+    public synchronized FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress,
+            int additionalAddress) throws DeviceAccessException {
         int bus = 1;
         String busAddressIdentifier = createIdentifier(bus, address, FeedbackBlockModule.class);
         if (!modules.containsKey(busAddressIdentifier)) {
@@ -355,6 +339,19 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         return (FeedbackBlockModule) modules.get(busAddressIdentifier);
     }
 
+    @Override
+    public void requestCurrentFeedbackStateOfAllRegisteredFeedbackModules() {
+        // TODO trigger by railvoltage change
+        // TODO gettting a write reply of > 1000 bytes! why? how to handle?
+        // for (Module module : modules.values()) {
+        // if (module instanceof FeedbackBlockModule) {
+        // FeedbackBlockModule feedbackBlockModule = (FeedbackBlockModule) module;
+        // log.debug("Request feedback block state for: {}",feedbackBlockModule);
+        // feedbackBlockModule.requestCurrentFeedbackState();
+        // }
+        // }
+    }
+
     /**
      * Read the actual value of the rail voltage.
      *
@@ -364,11 +361,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     @Override
     public boolean getRailVoltage() throws DeviceAccessException {
         return BigInteger.valueOf(getRailVoltageAddress().getData()).testBit(RAILVOLTAGE_BIT);
-    }
-
-    @Override
-    public BusAddress getRailVoltageAddress() throws DeviceAccessException {
-        return getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS);
     }
 
     /**
@@ -387,18 +379,23 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     }
 
     @Override
+    public BusAddress getRailVoltageAddress() throws DeviceAccessException {
+        return getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS);
+    }
+
+    @Override
     public void sendNative(byte[] data) {
         busDataChannel.send(data);
     }
 
     @Override
     public void switchDeviceSystemFormat() {
-        sendNative(new byte[]{(byte) 131, (byte) 160, (byte) 0, (byte) 0, (byte) 0});
+        sendNative(new byte[] { (byte) 131, (byte) 160, (byte) 0, (byte) 0, (byte) 0 });
     }
 
     @Override
     public SYSTEM_FORMAT getActualSystemFormat() throws DeviceAccessException {
-        //TODO: maybe getting initial 0 value before consumer update the address data value
+        // TODO: maybe getting initial 0 value before consumer update the address data value
         BigInteger wrappedData = BigInteger.valueOf(getBusAddress(0, (byte) 110).getData());
         return convertSystemFormat(wrappedData.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff);
     }
@@ -426,7 +423,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     @Override
     public void addDeviceConnectionListener(DeviceConnectionListener listener) {
         listeners.add(listener);
-        if(isConnected()) {
+        if (isConnected()) {
             listener.connected(this);
         }
     }
@@ -466,7 +463,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
             }
         }
     }
-
 
     @Override
     public Path stopRecording() throws DeviceAccessException {
