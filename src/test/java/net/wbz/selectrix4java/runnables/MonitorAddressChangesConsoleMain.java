@@ -49,42 +49,22 @@ class MonitorAddressChangesConsoleMain {
             });
             serialDevice.connect();
 
-            // addListener(serialDevice, 50);
-            // addListener(serialDevice, 53);
-            // addListener(serialDevice, 54);
-            // addListener(serialDevice, 55);
-            // addListener(serialDevice, 56);
+            // addBusAddressListener(serialDevice, 50);
+            // addBusAddressListener(serialDevice, 53);
+            // addBusAddressListener(serialDevice, 54);
+            // addBusAddressListener(serialDevice, 55);
+            // addBusAddressListener(serialDevice, 56);
 
-            serialDevice.getFeedbackBlockModule(53, 55, 54).addFeedbackBlockListener(new FeedbackBlockListener() {
-                @Override
-                public void trainEnterBlock(int blockNumber, int trainAddress, boolean forward) {
-                    System.out.println(">> " + blockNumber + ": " + (forward ? "->" : "<-") + " - " + trainAddress);
+            addFeedbackModule(serialDevice, 50);
+            addFeedbackModule(serialDevice, 53);
 
-                }
-
-                @Override
-                public void trainLeaveBlock(int blockNumber, int trainAddress, boolean forward) {
-                    System.out.println("<< " + blockNumber + ": " + (forward ? "->" : "<-") + " - " + trainAddress);
-                }
-
-                @Override
-                public void blockOccupied(int blockNr) {
-
-                }
-
-                @Override
-                public void blockFreed(int blockNr) {
-
-                }
-            });
-
-            TrainModule trainModuleA = serialDevice.getTrainModule(7);
+            TrainModule trainModuleA = serialDevice.getTrainModule(25); // VT 18.16
             trainModuleA.setLight(true);
-            TrainModule trainModuleB = serialDevice.getTrainModule(13);
+            TrainModule trainModuleB = serialDevice.getTrainModule(20); // BR 183
             trainModuleB.setLight(true);
 
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Geben Sie etwas ein: ");
+            System.out.println("Geben Sie etwas ein: ");
             String line;
             try {
                 boolean running = true;
@@ -153,7 +133,35 @@ class MonitorAddressChangesConsoleMain {
         }
     }
 
-    private static void addListener(SerialDevice serialDevice, final int address) throws DeviceAccessException {
+    private static void addFeedbackModule(SerialDevice serialDevice, final int address) throws DeviceAccessException {
+        serialDevice.getFeedbackBlockModule(address, address + 2, address + 1).addFeedbackBlockListener(
+                new FeedbackBlockListener() {
+                    @Override
+                    public void trainEnterBlock(int blockNumber, int trainAddress, boolean forward) {
+                        System.out.println(address + " ENTER " + blockNumber + ": " + trainAddress + " ( " + (forward
+                                ? "FORWARD" : "BACKWARD") + ")");
+                    }
+
+                    @Override
+                    public void trainLeaveBlock(int blockNumber, int trainAddress, boolean forward) {
+                        System.out.println(address + " EXIT  " + blockNumber + ": " + trainAddress + " ( " + (forward
+                                ? "FORWARD" : "BACKWARD") + ")");
+                    }
+
+                    @Override
+                    public void blockOccupied(int blockNr) {
+                        System.out.println(address + ": block - " + blockNr + " occupied");
+                    }
+
+                    @Override
+                    public void blockFreed(int blockNr) {
+                        System.out.println(address + ": block - " + blockNr + " freed");
+                    }
+                });
+    }
+
+    private static void addBusAddressListener(SerialDevice serialDevice, final int address)
+            throws DeviceAccessException {
         serialDevice.getBusAddress(1, address).addListener(new BusAddressListener() {
             @Override
             public void dataChanged(byte oldValue, byte newValue) {

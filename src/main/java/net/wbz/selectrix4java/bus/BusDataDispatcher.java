@@ -295,7 +295,7 @@ public class BusDataDispatcher implements BusDataReceiver {
     /**
      * Call asynchronous the
      * {@link net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer}
-     * s for data value changes of the addresses.
+     * s for data value changes of at least one of the addresses.
      *
      * @param multiAddressDataConsumer consumer to call
      * @param busNr number of bus
@@ -312,8 +312,8 @@ public class BusDataDispatcher implements BusDataReceiver {
                 int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
                 if (initialCall || Byte.compare(data[busAddress], oldData[busAddress]) != 0) {
                     anyAddressDataChanged = true;
-                    busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress], data[busAddress]));
                 }
+                busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress], data[busAddress]));
             }
             if (anyAddressDataChanged || initialCall) {
                 executorService.submit(new Runnable() {

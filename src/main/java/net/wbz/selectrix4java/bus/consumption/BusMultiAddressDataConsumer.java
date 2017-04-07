@@ -4,7 +4,9 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * Consumers are informed by state changes of the configured bus and address.
+ * Consumers are informed by state changes of the configured bus and addresses.
+ * Is called if at least one address data has changed. All other data of configured addresses is send with the old
+ * value.
  *
  * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
  */
@@ -24,7 +26,8 @@ abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsume
     }
 
     /**
-     * Data value of the addresses has changed. Each address with new data value is given by the {@link BusAddressData}.
+     * Data value of the addresses. Each address data value is given by the {@link BusAddressData}.
+     * At least one address with new data value was detected.
      *
      * @param data collection of {@link BusAddressData}
      */
