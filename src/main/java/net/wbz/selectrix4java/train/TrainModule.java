@@ -1,14 +1,14 @@
 package net.wbz.selectrix4java.train;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import com.google.common.collect.Lists;
+
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
-
-import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * This module is an wrapper for {@link net.wbz.selectrix4java.bus.BusAddress}s
@@ -34,33 +34,27 @@ public class TrainModule implements Module {
      * Horn of the train: bit 8
      */
     public static final int BIT_HORN = 8;
-
-    /**
-     * Driving direction of the train.
-     */
-    public enum DRIVING_DIRECTION {
-        FORWARD, BACKWARD
-    }
-
     /**
      * Main address of the train.
      */
     private final BusAddress address;
-
     /**
      * Additional function addresses of the train or even an second decoder.
      */
     private final List<BusAddress> additionalAddresses;
-
     /**
      * Dispatcher to fire asynchronous the train events to the listeners.
      */
     private final TrainDataDispatcher dispatcher = new TrainDataDispatcher();
+    /**
+     * Last received driving level.
+     */
+    private int lastDrivingLevel = 0;
 
     /**
      * Create a new module with the main address and additional function addresses.
      *
-     * @param address             {@link net.wbz.selectrix4java.bus.BusAddress}
+     * @param address {@link net.wbz.selectrix4java.bus.BusAddress}
      * @param additionalAddresses additional addresses (e.g. function decoder)
      */
     public TrainModule(BusAddress address, BusAddress... additionalAddresses) {
@@ -72,28 +66,23 @@ public class TrainModule implements Module {
                 BigInteger wrappedNewValue = BigInteger.valueOf(newValue);
 
                 // direction
-                if (wrappedOldValue.testBit(BIT_DRIVING_DIRECTION - 1)
-                        != wrappedNewValue.testBit(BIT_DRIVING_DIRECTION - 1)) {
-                    dispatcher.fireDrivingDirectionChanged(wrappedNewValue.testBit(BIT_DRIVING_DIRECTION - 1) ?
-                            DRIVING_DIRECTION.FORWARD :
-                            DRIVING_DIRECTION.BACKWARD);
+                if (wrappedOldValue.testBit(BIT_DRIVING_DIRECTION - 1) != wrappedNewValue.testBit(BIT_DRIVING_DIRECTION
+                        - 1)) {
+                    dispatcher.fireDrivingDirectionChanged(wrappedNewValue.testBit(BIT_DRIVING_DIRECTION - 1)
+                            ? DRIVING_DIRECTION.FORWARD : DRIVING_DIRECTION.BACKWARD);
                 }
                 // light
-                if (wrappedOldValue.testBit(BIT_LIGHT - 1)
-                        != wrappedNewValue.testBit(BIT_LIGHT - 1)) {
+                if (wrappedOldValue.testBit(BIT_LIGHT - 1) != wrappedNewValue.testBit(BIT_LIGHT - 1)) {
                     dispatcher.fireLightStateChanged(wrappedNewValue.testBit(BIT_LIGHT - 1));
                 }
                 // horn
-                if (wrappedOldValue.testBit(BIT_HORN - 1)
-                        != wrappedNewValue.testBit(BIT_HORN - 1)) {
+                if (wrappedOldValue.testBit(BIT_HORN - 1) != wrappedNewValue.testBit(BIT_HORN - 1)) {
                     dispatcher.fireHornStateChanged(wrappedNewValue.testBit(BIT_HORN - 1));
                 }
                 // speed: check for changes in bit 1-5
-                int oldDrivingLevel = wrappedOldValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
                 int newDrivingLevel = wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
-                if (oldDrivingLevel != newDrivingLevel) {
-                    dispatcher.fireDrivingLevelChanged(newDrivingLevel);
-                }
+                lastDrivingLevel = newDrivingLevel;
+                dispatcher.fireDrivingLevelChanged(newDrivingLevel);
             }
         });
         this.additionalAddresses = Lists.newArrayList(additionalAddresses);
@@ -117,17 +106,18 @@ public class TrainModule implements Module {
     }
 
     public void setFunctionState(BusAddress address, int bit, boolean state) {
-        if(!additionalAddresses.contains(address)){
+        if (!additionalAddresses.contains(address)) {
             additionalAddresses.add(address);
             registerAdditionalAddress(address);
         }
-        if(state) {
+        if (state) {
             address.setBit(bit);
-        }else{
+        } else {
             address.clearBit(bit);
         }
         address.send();
     }
+
     /**
      * Change the driving level.
      *
@@ -135,19 +125,20 @@ public class TrainModule implements Module {
      * @return {@link net.wbz.selectrix4java.train.TrainModule}
      */
     public TrainModule setDrivingLevel(int level) {
-        if (level >= 0 && level <= 31) {
-            // bit 1-5
-
-            BigInteger wrappedLevel = BigInteger.valueOf(level);
-            for (int i = 0; i < 5; i++) {
-
-                if (wrappedLevel.testBit(i)) {
-                    address.setBit(i + 1);
-                } else {
-                    address.clearBit(i + 1);
+        // avoid duplicate sending
+        if (level != lastDrivingLevel) {
+            if (level >= 0 && level <= 31) {
+                // bit 1-5
+                BigInteger wrappedLevel = BigInteger.valueOf(level);
+                for (int i = 0; i < 5; i++) {
+                    if (wrappedLevel.testBit(i)) {
+                        address.setBit(i + 1);
+                    } else {
+                        address.clearBit(i + 1);
+                    }
                 }
+                address.send();
             }
-            address.send();
         }
         return this;
     }
@@ -252,7 +243,6 @@ public class TrainModule implements Module {
         return null;
     }
 
-
     /**
      * Additional addresses of functions for the train.
      *
@@ -279,5 +269,12 @@ public class TrainModule implements Module {
     @Override
     public int hashCode() {
         return address.hashCode();
+    }
+
+    /**
+     * Driving direction of the train.
+     */
+    public enum DRIVING_DIRECTION {
+        FORWARD, BACKWARD
     }
 }
