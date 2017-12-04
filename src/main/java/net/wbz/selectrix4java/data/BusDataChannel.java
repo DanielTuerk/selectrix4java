@@ -112,7 +112,7 @@ public class BusDataChannel {
                     }
                 }
             }
-        }, 500, DELAY, TimeUnit.MILLISECONDS);
+        }, 200, DELAY, TimeUnit.MILLISECONDS);
     }
 
     /**
