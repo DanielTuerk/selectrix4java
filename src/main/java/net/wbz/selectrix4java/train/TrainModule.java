@@ -60,29 +60,35 @@ public class TrainModule implements Module {
     public TrainModule(BusAddress address, BusAddress... additionalAddresses) {
         this.address = address;
         address.addListener(new BusAddressListener() {
+            private boolean initialCall = true;
+
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
                 BigInteger wrappedOldValue = BigInteger.valueOf(oldValue);
                 BigInteger wrappedNewValue = BigInteger.valueOf(newValue);
 
                 // direction
-                if (wrappedOldValue.testBit(BIT_DRIVING_DIRECTION - 1) != wrappedNewValue.testBit(BIT_DRIVING_DIRECTION
-                        - 1)) {
+                if (initialCall || wrappedOldValue.testBit(BIT_DRIVING_DIRECTION - 1) != wrappedNewValue.testBit(
+                        BIT_DRIVING_DIRECTION
+                                - 1)) {
                     dispatcher.fireDrivingDirectionChanged(wrappedNewValue.testBit(BIT_DRIVING_DIRECTION - 1)
                             ? DRIVING_DIRECTION.FORWARD : DRIVING_DIRECTION.BACKWARD);
                 }
                 // light
-                if (wrappedOldValue.testBit(BIT_LIGHT - 1) != wrappedNewValue.testBit(BIT_LIGHT - 1)) {
+                if (initialCall || wrappedOldValue.testBit(BIT_LIGHT - 1) != wrappedNewValue.testBit(BIT_LIGHT - 1)) {
                     dispatcher.fireLightStateChanged(wrappedNewValue.testBit(BIT_LIGHT - 1));
                 }
                 // horn
-                if (wrappedOldValue.testBit(BIT_HORN - 1) != wrappedNewValue.testBit(BIT_HORN - 1)) {
+                if (initialCall || wrappedOldValue.testBit(BIT_HORN - 1) != wrappedNewValue.testBit(BIT_HORN - 1)) {
                     dispatcher.fireHornStateChanged(wrappedNewValue.testBit(BIT_HORN - 1));
                 }
                 // speed: check for changes in bit 1-5
                 int newDrivingLevel = wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
+                if (initialCall || lastDrivingLevel != newDrivingLevel) {
+                    dispatcher.fireDrivingLevelChanged(newDrivingLevel);
+                }
                 lastDrivingLevel = newDrivingLevel;
-                dispatcher.fireDrivingLevelChanged(newDrivingLevel);
+                initialCall = false;
             }
         });
         this.additionalAddresses = Lists.newArrayList(additionalAddresses);
@@ -93,14 +99,17 @@ public class TrainModule implements Module {
 
     private void registerAdditionalAddress(final BusAddress additionalAddress) {
         additionalAddress.addListener(new BusAddressListener() {
+            private boolean initialCall = true;
+
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
                 for (int i = 1; i < 9; i++) {
                     boolean newBitState = BigInteger.valueOf(newValue).testBit(i);
-                    if (BigInteger.valueOf(oldValue).testBit(i) != newBitState) {
+                    if (initialCall || BigInteger.valueOf(oldValue).testBit(i) != newBitState) {
                         dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i, newBitState);
                     }
                 }
+                initialCall = false;
             }
         });
     }

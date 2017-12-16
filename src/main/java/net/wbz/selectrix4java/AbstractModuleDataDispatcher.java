@@ -30,8 +30,6 @@ public class AbstractModuleDataDispatcher<T> {
 
     public void addListener(T listener) {
         listeners.add(listener);
-
-        // TODO fire: all last runnables which have to be stored here
     }
 
     public void removeListener(T listener) {

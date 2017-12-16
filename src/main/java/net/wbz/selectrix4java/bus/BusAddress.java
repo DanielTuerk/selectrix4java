@@ -36,17 +36,17 @@ public class BusAddress {
     private final AbstractBusDataConsumer busDataConsumer;
     private final BusAddressDataDispatcher dispatcher = new BusAddressDataDispatcher();
     /**
+     * Bit state to toggle by next {#send} call. Set the state of bit by {#setBit} and {#clearBit}.
+     */
+    private final Map<Integer, Boolean> bitsToUpdate = new ConcurrentHashMap<>(8);
+    /**
      * Current data for the bus address before called {#send}.
      */
     private volatile byte data = 0;
     /**
      * Last received data. Is only updated by received changed data.
      */
-    private byte lastReceivedData = 0;
-    /**
-     * Bit state to toggle by next {#send} call. Set the state of bit by {#setBit} and {#clearBit}.
-     */
-    private final Map<Integer, Boolean> bitsToUpdate = new ConcurrentHashMap<>(8);
+    private volatile byte lastReceivedData = -1;
 
     public BusAddress(final int bus, final int address, BusDataChannel busDataChannel) {
         this.bus = bus;
@@ -64,8 +64,10 @@ public class BusAddress {
                             LOG.trace("update data {} to last received {}", data, lastReceivedData);
                             data = lastReceivedData;
                         }
-                        // only fire changes, initial data changed call for the current value is done by addListener
-                        // fireDataChanged(oldValue, newValue);
+                        /*
+                         * Only fire changes, initial data changed call for the current value is done by initial call in
+                         * the consumer
+                         */
                         dispatcher.fireValueChanged(oldValue, newValue);
                     }
                 }
