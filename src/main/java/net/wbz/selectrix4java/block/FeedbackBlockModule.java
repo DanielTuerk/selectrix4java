@@ -51,7 +51,7 @@ public class FeedbackBlockModule extends BlockModule {
                 feedbackAddress.getAddress()) {
 
             @Override
-            public void valueChanged(Collection<BusAddressData> data) {
+            public synchronized void valueChanged(Collection<BusAddressData> data) {
                 log.trace("valueChanged data: {}", data);
 
                 if (data.size() != 2) {
@@ -76,7 +76,34 @@ public class FeedbackBlockModule extends BlockModule {
                 if (stateAddressNewDataValue != -1 && feedbackAddressNewDataValue != -1) {
                     int sequenceNr = stateAddressNewDataValue & 0x60;
                     log.trace("sequence {}", sequenceNr);
-                    handleFeedbackData(stateAddressNewDataValue, feedbackAddressNewDataValue);
+
+                    FeedbackTrainData feedbackTrainData = new FeedbackTrainData();
+
+                    BigInteger wrappedNewDataValue = BigInteger.valueOf(stateAddressNewDataValue);
+
+                    feedbackTrainData.setBlockNr((stateAddressNewDataValue & 0x7) + 1);
+                    feedbackTrainData.setEnteringBlock(wrappedNewDataValue.testBit(3));
+                    feedbackTrainData.setTrainDirectionForward(wrappedNewDataValue.testBit(4));
+                    feedbackTrainData.setTrainAddress(feedbackAddressNewDataValue);
+
+                    boolean isDuplicate = false;
+                    if (trainAddressLastSend.containsKey(feedbackTrainData.getTrainAddress())) {
+                        isDuplicate = trainAddressLastSend.get(feedbackTrainData.getTrainAddress())
+                                .equals(feedbackTrainData);
+                    }
+                    if (!isDuplicate) {
+                        trainAddressLastSend.put(feedbackTrainData.getTrainAddress(), feedbackTrainData);
+                        if (feedbackTrainData.isEnteringBlock()) {
+                            dispatcher.fireTrainEnterBlock(feedbackTrainData.getBlockNr(),
+                                    feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
+                        } else {
+                            dispatcher.fireTrainLeaveBlock(feedbackTrainData.getBlockNr(),
+                                    feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
+                        }
+                    } else {
+                        log.error("duplicate: {}", feedbackTrainData);
+                    }
+
                 } else {
                     log.error("state ({}) and feedback ({}) not new", stateAddressNewDataValue,
                             feedbackAddressNewDataValue);
@@ -84,35 +111,6 @@ public class FeedbackBlockModule extends BlockModule {
             }
         });
 
-    }
-
-    private synchronized void handleFeedbackData(int stateAddressNewDataValue, int feedbackAddressNewDataValue) {
-        FeedbackTrainData feedbackTrainData = new FeedbackTrainData();
-
-        BigInteger wrappedNewDataValue = BigInteger.valueOf(stateAddressNewDataValue);
-
-        feedbackTrainData.setBlockNr((stateAddressNewDataValue & 0x7) + 1);
-        feedbackTrainData.setEnteringBlock(wrappedNewDataValue.testBit(3));
-        feedbackTrainData.setTrainDirectionForward(wrappedNewDataValue.testBit(4));
-        feedbackTrainData.setTrainAddress(feedbackAddressNewDataValue);
-
-        boolean isDuplicate = false;
-        if (trainAddressLastSend.containsKey(feedbackTrainData.getTrainAddress())) {
-            isDuplicate = trainAddressLastSend.get(feedbackTrainData.getTrainAddress())
-                    .equals(feedbackTrainData);
-        }
-        if (!isDuplicate) {
-            trainAddressLastSend.put(feedbackTrainData.getTrainAddress(), feedbackTrainData);
-            if (feedbackTrainData.isEnteringBlock()) {
-                dispatcher.fireTrainEnterBlock(feedbackTrainData.getBlockNr(),
-                        feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
-            } else {
-                dispatcher.fireTrainLeaveBlock(feedbackTrainData.getBlockNr(),
-                        feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
-            }
-        } else {
-            log.error("duplicate: {}", feedbackTrainData);
-        }
     }
 
     /**
