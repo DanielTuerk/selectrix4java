@@ -168,12 +168,28 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      */
     private void railVoltageSwitchedOff() {
         resetFeedbackModules();
+
     }
 
     private void resetFeedbackModules() {
         for (FeedbackBlockModule feedbackBlockModule : getFeedbackBlockModules()) {
             feedbackBlockModule.reset();
         }
+    }
+
+    /**
+     * Return all registered {@link FeedbackBlockModule}s.
+     *
+     * @return modules
+     */
+    protected List<BlockModule> getBlockModules() {
+        List<BlockModule> blockModules = new ArrayList<>();
+        for (Module module : modules.values()) {
+            if (module instanceof BlockModule) {
+                blockModules.add((BlockModule) module);
+            }
+        }
+        return blockModules;
     }
 
     /**

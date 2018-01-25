@@ -60,6 +60,10 @@ public class BlockModule implements Module {
         });
     }
 
+    public void reset() {
+        blockStates.clear();
+    }
+
     /**
      * Add {@link net.wbz.selectrix4java.block.BlockListener} to receive the occupied events.
      *
