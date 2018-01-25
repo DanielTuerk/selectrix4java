@@ -2,6 +2,7 @@ package net.wbz.selectrix4java.device;
 
 import java.math.BigInteger;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
+import net.wbz.selectrix4java.bus.BusAddressBitListener;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
@@ -82,6 +84,12 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     private Queue<DeviceConnectionListener> listeners = new ConcurrentLinkedQueue<>();
 
     /**
+     * Registered listener of {@link RailVoltageListener}.
+     * Usage of {@link java.util.Queue} for synchronization to remove listener while event handling is in progress.
+     */
+    private Queue<RailVoltageListener> railVoltageListeners = new ConcurrentLinkedQueue<>();
+
+    /**
      * Open the connection for the device.
      *
      * @throws DeviceAccessException
@@ -124,6 +132,66 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
         busDataChannel.start();
 
+        initSystemFormatListener();
+
+        initRailVoltageListener();
+    }
+
+    private void initRailVoltageListener() throws DeviceAccessException {
+        getRailVoltageAddress().addListener(new BusAddressBitListener(RAILVOLTAGE_BIT) {
+            @Override
+            public void bitChanged(boolean oldValue, boolean newValue) {
+                if (newValue) {
+                    railVoltageSwitchedOn();
+                } else {
+                    railVoltageSwitchedOff();
+                }
+                // inform listeners
+                for (RailVoltageListener listener : railVoltageListeners) {
+                    listener.changed(newValue);
+                }
+            }
+        });
+    }
+
+    /**
+     * Handle turned on rail voltage.
+     */
+    private void railVoltageSwitchedOn() {
+        for (FeedbackBlockModule feedbackBlockModule : getFeedbackBlockModules()) {
+            feedbackBlockModule.requestNewFeedbackData();
+        }
+    }
+
+    /**
+     * Handle turned off rail voltage.
+     */
+    private void railVoltageSwitchedOff() {
+        resetFeedbackModules();
+    }
+
+    private void resetFeedbackModules() {
+        for (FeedbackBlockModule feedbackBlockModule : getFeedbackBlockModules()) {
+            feedbackBlockModule.reset();
+        }
+    }
+
+    /**
+     * Return all registered {@link FeedbackBlockModule}s.
+     *
+     * @return modules
+     */
+    protected List<FeedbackBlockModule> getFeedbackBlockModules() {
+        List<FeedbackBlockModule> feedbackBlockModules = new ArrayList<>();
+        for (Module module : modules.values()) {
+            if (module instanceof FeedbackBlockModule) {
+                feedbackBlockModules.add((FeedbackBlockModule) module);
+            }
+        }
+        return feedbackBlockModules;
+    }
+
+    private void initSystemFormatListener() throws DeviceAccessException {
         getBusAddress(1, (byte) 110).addListener(new BusAddressListener() {
 
             @Override
@@ -339,19 +407,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         return (FeedbackBlockModule) modules.get(busAddressIdentifier);
     }
 
-    @Override
-    public void requestCurrentFeedbackStateOfAllRegisteredFeedbackModules() {
-        // TODO trigger by railvoltage change
-        // TODO gettting a write reply of > 1000 bytes! why? how to handle?
-        // for (Module module : modules.values()) {
-        // if (module instanceof FeedbackBlockModule) {
-        // FeedbackBlockModule feedbackBlockModule = (FeedbackBlockModule) module;
-        // log.debug("Request feedback block state for: {}",feedbackBlockModule);
-        // feedbackBlockModule.requestCurrentFeedbackState();
-        // }
-        // }
-    }
-
     /**
      * Read the actual value of the rail voltage.
      *
@@ -381,6 +436,16 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     @Override
     public BusAddress getRailVoltageAddress() throws DeviceAccessException {
         return getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS);
+    }
+
+    @Override
+    public void addRailVoltageListener(RailVoltageListener listener) {
+        railVoltageListeners.add(listener);
+    }
+
+    @Override
+    public void removeRailVoltageListener(RailVoltageListener listener) {
+        railVoltageListeners.remove(listener);
     }
 
     @Override

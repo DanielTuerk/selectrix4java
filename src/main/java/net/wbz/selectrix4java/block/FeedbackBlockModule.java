@@ -59,58 +59,82 @@ public class FeedbackBlockModule extends BlockModule {
                     return;
                 }
 
-                int stateAddressNewDataValue = -1;
-                int feedbackAddressNewDataValue = -1;
-
-                for (BusAddressData addressData : data) {
-                    if (addressData.getAddress() == FeedbackBlockModule.this.additionalAddress.getAddress()) {
-                        stateAddressNewDataValue = addressData.getNewDataValue();
-                    } else if (addressData.getAddress() == FeedbackBlockModule.this.feedbackAddress.getAddress()) {
-                        if (addressData.getNewDataValue() > 0) {
-                            // inital 0 is called
-                            feedbackAddressNewDataValue = addressData.getNewDataValue();
-                        }
-                    }
-                }
-
-                if (stateAddressNewDataValue != -1 && feedbackAddressNewDataValue != -1) {
-                    int sequenceNr = stateAddressNewDataValue & 0x60;
-                    log.trace("sequence {}", sequenceNr);
-
-                    FeedbackTrainData feedbackTrainData = new FeedbackTrainData();
-
-                    BigInteger wrappedNewDataValue = BigInteger.valueOf(stateAddressNewDataValue);
-
-                    feedbackTrainData.setBlockNr((stateAddressNewDataValue & 0x7) + 1);
-                    feedbackTrainData.setEnteringBlock(wrappedNewDataValue.testBit(3));
-                    feedbackTrainData.setTrainDirectionForward(wrappedNewDataValue.testBit(4));
-                    feedbackTrainData.setTrainAddress(feedbackAddressNewDataValue);
-
-                    boolean isDuplicate = false;
-                    if (trainAddressLastSend.containsKey(feedbackTrainData.getTrainAddress())) {
-                        isDuplicate = trainAddressLastSend.get(feedbackTrainData.getTrainAddress())
-                                .equals(feedbackTrainData);
-                    }
-                    if (!isDuplicate) {
-                        trainAddressLastSend.put(feedbackTrainData.getTrainAddress(), feedbackTrainData);
-                        if (feedbackTrainData.isEnteringBlock()) {
-                            dispatcher.fireTrainEnterBlock(feedbackTrainData.getBlockNr(),
-                                    feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
-                        } else {
-                            dispatcher.fireTrainLeaveBlock(feedbackTrainData.getBlockNr(),
-                                    feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
-                        }
-                    } else {
-                        log.error("duplicate: {}", feedbackTrainData);
-                    }
-
-                } else {
-                    log.error("state ({}) and feedback ({}) not new", stateAddressNewDataValue,
-                            feedbackAddressNewDataValue);
-                }
+                handleReceivedFeedbackData(data);
             }
         });
 
+    }
+
+    private void handleReceivedFeedbackData(Collection<BusAddressData> data) {
+        int stateAddressNewDataValue = -1;
+        int feedbackAddressNewDataValue = -1;
+
+        for (BusAddressData addressData : data) {
+            if (addressData.getAddress() == FeedbackBlockModule.this.additionalAddress.getAddress()) {
+                stateAddressNewDataValue = addressData.getNewDataValue();
+            } else if (addressData.getAddress() == FeedbackBlockModule.this.feedbackAddress.getAddress()) {
+                if (addressData.getNewDataValue() > 0 && addressData.getNewDataValue() < 127) {
+                    // initial 0 is called
+                    feedbackAddressNewDataValue = addressData.getNewDataValue();
+                }
+            }
+        }
+
+        if (stateAddressNewDataValue != -1 && feedbackAddressNewDataValue != -1) {
+            int sequenceNr = stateAddressNewDataValue & 0x60;
+            log.trace("sequence {}", sequenceNr);
+
+            FeedbackTrainData feedbackTrainData = new FeedbackTrainData();
+
+            BigInteger wrappedNewDataValue = BigInteger.valueOf(stateAddressNewDataValue);
+
+            feedbackTrainData.setBlockNr((stateAddressNewDataValue & 0x7) + 1);
+            feedbackTrainData.setEnteringBlock(wrappedNewDataValue.testBit(3));
+            feedbackTrainData.setTrainDirectionForward(wrappedNewDataValue.testBit(4));
+            feedbackTrainData.setTrainAddress(feedbackAddressNewDataValue);
+
+            boolean isDuplicate = false;
+            if (trainAddressLastSend.containsKey(feedbackTrainData.getTrainAddress())) {
+                isDuplicate = trainAddressLastSend.get(feedbackTrainData.getTrainAddress())
+                        .equals(feedbackTrainData);
+            }
+            if (!isDuplicate) {
+                trainAddressLastSend.put(feedbackTrainData.getTrainAddress(), feedbackTrainData);
+                if (feedbackTrainData.isEnteringBlock()) {
+                    dispatcher.fireTrainEnterBlock(feedbackTrainData.getBlockNr(),
+                            feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
+                } else {
+                    dispatcher.fireTrainLeaveBlock(feedbackTrainData.getBlockNr(),
+                            feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
+                }
+            } else {
+                log.error("duplicate: {}", feedbackTrainData);
+            }
+
+        } else {
+            log.error("state ({}) and feedback ({}) not new", stateAddressNewDataValue,
+                    feedbackAddressNewDataValue);
+        }
+    }
+
+    /**
+     * Rest states and request new states from module.
+     * Sends the request command. New states are received by the consumer and delegated to listeners.
+     * 
+     * @see #handleReceivedFeedbackData(Collection)
+     */
+    public void requestNewFeedbackData() {
+        reset();
+        // only bit 8
+        additionalAddress.sendData((byte) 128);
+    }
+
+    /**
+     * Reset all feedback states which are cached as send state.
+     * This trigger the send of all next states which are received by the address consumers.
+     */
+    public void reset() {
+        trainAddressLastSend.clear();
     }
 
     /**
@@ -131,14 +155,6 @@ public class FeedbackBlockModule extends BlockModule {
     public void removeFeedbackBlockListener(FeedbackBlockListener listener) {
         removeBlockListener(listener);
         dispatcher.removeListener(listener);
-    }
-
-    /**
-     * Send the state request for the feedback module.
-     * The module get response for all actual train block information of the additional and feedback address.
-     */
-    public void requestCurrentFeedbackState() {
-        additionalAddress.setBit(8).send();
     }
 
     @Override
