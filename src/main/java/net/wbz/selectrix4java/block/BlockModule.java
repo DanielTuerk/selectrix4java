@@ -4,11 +4,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
 
-import java.util.concurrent.ConcurrentHashMap;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
@@ -29,6 +28,7 @@ public class BlockModule implements Module {
     private final List<AbstractBusDataConsumer> consumers = new ArrayList<>();
     /**
      * Storage of the actual occupied states of this block.
+     * Will be initial filled by the consumer after established connection.
      */
     private final Map<Integer, Boolean> blockStates = new ConcurrentHashMap<>();
 
@@ -60,8 +60,11 @@ public class BlockModule implements Module {
         });
     }
 
+    /**
+     * Reset the module.
+     */
     public void reset() {
-        blockStates.clear();
+        // nothing to reset
     }
 
     /**

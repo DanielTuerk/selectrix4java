@@ -133,7 +133,9 @@ public class FeedbackBlockModule extends BlockModule {
      * Reset all feedback states which are cached as send state.
      * This trigger the send of all next states which are received by the address consumers.
      */
+    @Override
     public void reset() {
+        super.reset();
         trainAddressLastSend.clear();
     }
 
