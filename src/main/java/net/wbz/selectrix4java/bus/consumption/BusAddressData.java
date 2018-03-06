@@ -1,8 +1,7 @@
 package net.wbz.selectrix4java.bus.consumption;
 
 /**
- * only for {@link net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer}
- * TODO: refactor to clear usage by mutli address
+ * Data holder for {@link net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer}.
  *
  * @author Daniel Tuerk
  */

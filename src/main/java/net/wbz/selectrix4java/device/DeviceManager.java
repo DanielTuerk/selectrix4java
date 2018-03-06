@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * TODO: refactor for multiple device types
+ * Manager to access the {@link Device} by device id.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class DeviceManager {
 

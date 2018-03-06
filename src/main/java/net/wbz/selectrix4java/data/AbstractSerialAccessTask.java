@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 abstract public class AbstractSerialAccessTask<T> implements Callable<T> {
 

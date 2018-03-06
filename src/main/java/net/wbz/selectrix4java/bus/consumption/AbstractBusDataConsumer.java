@@ -3,7 +3,7 @@ package net.wbz.selectrix4java.bus.consumption;
 /**
  * Consumers are informed by state changes of the configured bus and address.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 abstract public class AbstractBusDataConsumer {
 

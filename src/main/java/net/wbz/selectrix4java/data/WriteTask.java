@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  * Write {@link net.wbz.selectrix4java.data.BusData} to the {@link java.io.OutputStream} of the
  * connected device.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class WriteTask extends AbstractSerialAccessTask<Boolean> {
     private static final Logger log = LoggerFactory.getLogger(WriteTask.class);

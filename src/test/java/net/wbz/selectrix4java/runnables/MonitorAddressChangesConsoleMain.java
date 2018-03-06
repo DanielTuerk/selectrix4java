@@ -18,8 +18,7 @@ import net.wbz.selectrix4java.train.TrainModule.DRIVING_DIRECTION;
 
 /**
  * Main to add listener for value changes to address for connected serial device.
- * TODO create console runner with device as param
- * 
+ *
  * @author Daniel Tuerk
  */
 class MonitorAddressChangesConsoleMain {
@@ -48,12 +47,6 @@ class MonitorAddressChangesConsoleMain {
                 }
             });
             serialDevice.connect();
-
-            // addBusAddressListener(serialDevice, 50);
-            // addBusAddressListener(serialDevice, 53);
-            // addBusAddressListener(serialDevice, 54);
-            // addBusAddressListener(serialDevice, 55);
-            // addBusAddressListener(serialDevice, 56);
 
             addFeedbackModule(serialDevice, 50);
             addFeedbackModule(serialDevice, 53);
@@ -123,9 +116,7 @@ class MonitorAddressChangesConsoleMain {
                     }
                 }
                 serialDevice.disconnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
+            } catch (IOException | InterruptedException e) {
                 e.printStackTrace();
             }
         } catch (DeviceAccessException e) {

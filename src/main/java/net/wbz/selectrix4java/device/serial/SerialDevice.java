@@ -24,7 +24,7 @@ import net.wbz.selectrix4java.device.DeviceAccessException;
  * <p/>
  * Usage of the RXTX library. In the lib path of the JRE must be present the DLL or SO file for the native access.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class SerialDevice extends AbstractDevice {
 

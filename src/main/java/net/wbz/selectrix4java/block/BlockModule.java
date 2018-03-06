@@ -16,7 +16,7 @@ import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 /**
  * Retrieve the occupied state of the track blocks.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class BlockModule implements Module {
 

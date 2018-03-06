@@ -11,16 +11,9 @@ import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.train.TrainModule;
 
 /**
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public interface Device extends Serializable {
-
-    /**
-     * Possible system formats for the device.
-     */
-    enum SYSTEM_FORMAT {
-        UNKNOWN, ONLY_SX1, SX1_SX2, SX1_SX2_DCC, ONLY_DCC, SX1_SX2_MM, ONLY_MM, SX1_SX2_DCC_MM
-    }
 
     /**
      * Register the given listener to the device to receive connection state changes.
@@ -68,9 +61,8 @@ public interface Device extends Serializable {
     boolean isConnected();
 
     /**
-     * Access to the {@link net.wbz.selectrix4java.block.BlockModule} for the given address or multi addresses.
+     * Access to the {@link net.wbz.selectrix4java.block.BlockModule} for the given address.
      *
-     * @param bus number of bus
      * @param address address of the block module
      * @return {@link net.wbz.selectrix4java.block.BlockModule}
      * @throws DeviceAccessException
@@ -78,15 +70,16 @@ public interface Device extends Serializable {
     BlockModule getBlockModule(int address) throws DeviceAccessException;
 
     /**
-     * TODO
+     * Access to the {@link net.wbz.selectrix4java.block.FeedbackBlockModule} for the given address.
      *
-     * @param address
-     * @param feedbackAddress
-     * @param additionalAddress
+     * @param address address of the block module
+     * @param feedbackAddress address for feedback data
+     * @param additionalAddress additional address to receive block states
      * @return {@link net.wbz.selectrix4java.block.FeedbackBlockModule}
      * @throws DeviceAccessException
      */
-    FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress) throws DeviceAccessException;
+    FeedbackBlockModule getFeedbackBlockModule(int address, int feedbackAddress, int additionalAddress)
+            throws DeviceAccessException;
 
     /**
      * State of the rail voltage.
@@ -97,20 +90,20 @@ public interface Device extends Serializable {
     boolean getRailVoltage() throws DeviceAccessException;
 
     /**
-     * Return the {@link BusAddress} for the rail voltage.
-     *
-     * @return {@link BusAddress}
-     * @throws DeviceAccessException
-     */
-    BusAddress getRailVoltageAddress() throws DeviceAccessException;
-
-    /**
      * Change the state of the rail voltage.
      *
      * @param state {@link java.lang.Boolean} new state
      * @throws DeviceAccessException
      */
     void setRailVoltage(boolean state) throws DeviceAccessException;
+
+    /**
+     * Return the {@link BusAddress} for the rail voltage.
+     *
+     * @return {@link BusAddress}
+     * @throws DeviceAccessException
+     */
+    BusAddress getRailVoltageAddress() throws DeviceAccessException;
 
     /**
      * Add listener for the state change of the rail voltage.
@@ -174,11 +167,19 @@ public interface Device extends Serializable {
     BusAddress getBusAddress(int bus, int address) throws DeviceAccessException;
 
     /**
-     * TODO
-     * @param address
-     * @return
+     * Access the {@link TrainModule} for the given train on bus 0.
+     *
+     * @param address address of train
+     * @return {@link TrainModule}
      * @throws DeviceAccessException
      */
     TrainModule getTrainModule(int address, int... additionalAddresses) throws DeviceAccessException;
+
+    /**
+     * Possible system formats for the device.
+     */
+    enum SYSTEM_FORMAT {
+        UNKNOWN, ONLY_SX1, SX1_SX2, SX1_SX2_DCC, ONLY_DCC, SX1_SX2_MM, ONLY_MM, SX1_SX2_DCC_MM
+    }
 
 }

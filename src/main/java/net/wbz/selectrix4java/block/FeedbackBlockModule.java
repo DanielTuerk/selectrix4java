@@ -26,7 +26,7 @@ import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
  * <p/>
  * TODO should be the D&H 8i - implementation
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class FeedbackBlockModule extends BlockModule {
 

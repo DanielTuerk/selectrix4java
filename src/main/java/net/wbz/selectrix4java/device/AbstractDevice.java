@@ -39,7 +39,7 @@ import net.wbz.selectrix4java.train.TrainModule;
  * functionality by {@link net.wbz.selectrix4java.Module} implementations
  * (e.g. {@link net.wbz.selectrix4java.train.TrainModule}) instead of reading and writing byte arrays to the bus.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public abstract class AbstractDevice implements Device, IsRecordable {
 
@@ -476,7 +476,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     @Override
     public SYSTEM_FORMAT getActualSystemFormat() throws DeviceAccessException {
-        // TODO: maybe getting initial 0 value before consumer update the address data value
         BigInteger wrappedData = BigInteger.valueOf(getBusAddress(0, (byte) 110).getData());
         return convertSystemFormat(wrappedData.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff);
     }

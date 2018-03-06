@@ -3,7 +3,7 @@ package net.wbz.selectrix4java.bus;
 /**
  * Listener to observe a single bit of a {@link net.wbz.selectrix4java.bus.BusAddress}.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 abstract public class BusAddressBitListener implements BusListener {
 

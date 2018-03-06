@@ -7,7 +7,7 @@ import net.wbz.selectrix4java.AbstractModuleDataDispatcher;
 /**
  * Data dispatcher to call the {@link BusListener}.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class BusAddressDataDispatcher extends AbstractModuleDataDispatcher<BusListener> {
 

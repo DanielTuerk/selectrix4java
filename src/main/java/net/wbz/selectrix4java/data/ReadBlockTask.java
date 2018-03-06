@@ -16,10 +16,9 @@ import net.wbz.selectrix4java.bus.BusDataReceiver;
  * <p/>
  * As {@link net.wbz.selectrix4java.data.AbstractSerialAccessTask} it will
  * be used by the {@link net.wbz.selectrix4java.data.BusDataChannel}
- *
  * TODO it's a FCC specific implementation
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 

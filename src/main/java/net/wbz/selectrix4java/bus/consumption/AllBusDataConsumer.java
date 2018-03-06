@@ -3,7 +3,7 @@ package net.wbz.selectrix4java.bus.consumption;
 /**
  * This consumer is informed by state changes of all addresses of each existing SX bus.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 abstract public class AllBusDataConsumer extends AbstractBusDataConsumer {
 

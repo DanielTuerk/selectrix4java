@@ -5,7 +5,7 @@ import net.wbz.selectrix4java.AbstractModuleDataDispatcher;
 /**
  * Dispatcher for async call of the registered {@link net.wbz.selectrix4java.block.BlockListener}s.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class BlockModuleDataDispatcher<T extends BlockListener> extends AbstractModuleDataDispatcher<T> {
 

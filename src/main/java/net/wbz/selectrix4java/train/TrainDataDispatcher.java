@@ -5,7 +5,7 @@ import net.wbz.selectrix4java.AbstractModuleDataDispatcher;
 /**
  * Dispatcher for call of the registered {@link net.wbz.selectrix4java.train.TrainDataListener}s.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class TrainDataDispatcher extends AbstractModuleDataDispatcher<TrainDataListener> {
 

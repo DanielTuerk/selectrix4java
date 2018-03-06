@@ -17,14 +17,15 @@ import java.util.concurrent.*;
 /**
  * The channel communicate with the device to execute read and write operations.
  * Each operation is an {@link net.wbz.selectrix4java.data.AbstractSerialAccessTask}.
- * The tasks can be put into the queue to execute by calling {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}.
+ * The tasks can be put into the queue to execute by calling
+ * {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}.
  * <p/>
  * The queue is polled each timestamp to execute an task. If no task is present in the queue, the channel send the
  * {@link ReadBlockTask} to read the actual values from the SX bus.
  * <p/>
  * State changes of the values are published to the given {@link net.wbz.selectrix4java.bus.BusDataReceiver}.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class BusDataChannel {
     private static final Logger log = LoggerFactory.getLogger(BusDataChannel.class);

@@ -3,7 +3,7 @@ package net.wbz.selectrix4java.bus;
 /**
  * Listener for value change events of the data from an {@link net.wbz.selectrix4java.bus.BusAddress}.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public interface BusAddressListener extends BusListener {
 

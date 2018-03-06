@@ -3,7 +3,7 @@ package net.wbz.selectrix4java.block;
 /**
  * Dispatcher for async call of the registered {@link net.wbz.selectrix4java.block.FeedbackBlockListener}s.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class FeedbackBlockModuleDataDispatcher extends BlockModuleDataDispatcher<FeedbackBlockListener> {
 

@@ -34,7 +34,7 @@ import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
  * For each value which has changed, the registered
  * {@link AbstractBusDataConsumer}s are informed.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class BusDataDispatcher implements BusDataReceiver {
     private static final Logger log = LoggerFactory.getLogger(BusDataDispatcher.class);
@@ -195,10 +195,8 @@ public class BusDataDispatcher implements BusDataReceiver {
             // skip the multiplex counter of FCC TODO refactor to FCCImpl
             if (address != 111) {
                 if (initialCall || Byte.compare(data[address], oldData[address]) != 0) {
-
                     log.trace(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
                             initialCall, busNr, address, oldData[address], data[address]));
-                    // TODO: refactor to consumerDispatchers ?
 
                     for (AbstractBusDataConsumer consumer : consumersToCall) {
                         if (consumer instanceof AllBusDataConsumer) {

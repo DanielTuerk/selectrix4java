@@ -18,7 +18,7 @@ import net.wbz.selectrix4java.data.BusDataChannel;
 /**
  * Address of an bus. Wrap the data value and send state change events.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class BusAddress {
     private static final Logger LOG = LoggerFactory.getLogger(BusAddress.class);

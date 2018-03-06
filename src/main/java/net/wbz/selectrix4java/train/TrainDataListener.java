@@ -1,7 +1,7 @@
 package net.wbz.selectrix4java.train;
 
 /**
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public interface TrainDataListener {
 

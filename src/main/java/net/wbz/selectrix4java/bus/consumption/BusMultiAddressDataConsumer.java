@@ -8,7 +8,7 @@ import java.util.Collection;
  * Is called if at least one address data has changed. All other data of configured addresses is send with the old
  * value.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsumer {
 

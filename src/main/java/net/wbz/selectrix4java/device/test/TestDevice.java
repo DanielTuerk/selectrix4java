@@ -14,7 +14,7 @@ import java.nio.file.Path;
  * Simple test device which mock an connection.
  * The bus is simulated by the {@link net.wbz.selectrix4java.device.test.TestBus} for read and write operations.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class TestDevice extends AbstractDevice {
 

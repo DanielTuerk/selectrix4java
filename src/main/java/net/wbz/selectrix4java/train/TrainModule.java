@@ -16,7 +16,7 @@ import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
  * <p/>
  * The train can have several addresses for multiple decoders.
  *
- * @author Daniel Tuerk (daniel.tuerk@w-b-z.com)
+ * @author Daniel Tuerk
  */
 public class TrainModule implements Module {
 
