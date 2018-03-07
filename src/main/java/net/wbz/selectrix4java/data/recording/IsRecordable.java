@@ -18,18 +18,18 @@ public interface IsRecordable {
      *
      * @param destinationFolder {@link java.nio.file.Path} folder for the record file
      */
-    public void startRecording(Path destinationFolder) throws DeviceAccessException;
+    void startRecording(Path destinationFolder) throws DeviceAccessException;
 
     /**
      * Stop the running recording and return the file path of the record.
      *
      * @return {@link java.nio.file.Path} of the record file
      */
-    public Path stopRecording() throws DeviceAccessException;
+    Path stopRecording() throws DeviceAccessException;
 
     /**
      * @return {@code true} if recording is running, otherwise {@code false}
      */
-    public boolean isRecording();
+    boolean isRecording();
 
 }

@@ -12,6 +12,6 @@ public interface DeviceListener extends DeviceConnectionListener {
      *
      * @param actualSystemFormat actual system format of the {@link Device}
      */
-    public void systemFormatChanged(Device.SYSTEM_FORMAT actualSystemFormat);
+    void systemFormatChanged(Device.SYSTEM_FORMAT actualSystemFormat);
 
 }

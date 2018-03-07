@@ -28,11 +28,8 @@ abstract public class AbstractBusDataConsumer {
 
         AbstractBusDataConsumer that = (AbstractBusDataConsumer) o;
 
-        if (bus != that.bus) {
-            return false;
-        }
+        return bus == that.bus;
 
-        return true;
     }
 
     @Override

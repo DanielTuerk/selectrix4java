@@ -48,10 +48,8 @@ abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsume
 
         BusMultiAddressDataConsumer that = (BusMultiAddressDataConsumer) o;
 
-        if (!Arrays.equals(addresses, that.addresses))
-            return false;
+        return Arrays.equals(addresses, that.addresses);
 
-        return true;
     }
 
     @Override

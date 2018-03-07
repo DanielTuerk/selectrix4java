@@ -11,6 +11,9 @@ import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.train.TrainModule;
 
 /**
+ * Device to establish connection.
+ * The connected device have the access to {@link BusAddress} to read and write data.
+ *
  * @author Daniel Tuerk
  */
 public interface Device extends Serializable {

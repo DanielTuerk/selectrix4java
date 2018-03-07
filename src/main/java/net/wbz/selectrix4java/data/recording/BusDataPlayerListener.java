@@ -7,7 +7,7 @@ package net.wbz.selectrix4java.data.recording;
  */
 public interface BusDataPlayerListener {
 
-    public void playbackStarted();
+    void playbackStarted();
 
-    public void playbackStopped();
+    void playbackStopped();
 }

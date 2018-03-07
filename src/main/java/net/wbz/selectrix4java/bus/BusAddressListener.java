@@ -13,5 +13,5 @@ public interface BusAddressListener extends BusListener {
      * @param oldValue byte
      * @param newValue byte
      */
-    public void dataChanged(byte oldValue, byte newValue);
+    void dataChanged(byte oldValue, byte newValue);
 }

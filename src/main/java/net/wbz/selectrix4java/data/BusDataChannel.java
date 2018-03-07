@@ -189,6 +189,6 @@ public class BusDataChannel {
     }
 
     public interface ChannelStateCallback {
-        public void channelClosed();
+        void channelClosed();
     }
 }

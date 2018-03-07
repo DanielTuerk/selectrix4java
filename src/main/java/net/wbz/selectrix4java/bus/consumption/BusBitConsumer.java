@@ -26,9 +26,8 @@ abstract public class BusBitConsumer extends BusAddressDataConsumer {
 
         BusBitConsumer that = (BusBitConsumer) o;
 
-        if (bit != that.bit) return false;
+        return bit == that.bit;
 
-        return true;
     }
 
     @Override
