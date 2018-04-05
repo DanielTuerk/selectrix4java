@@ -305,15 +305,22 @@ public class BusDataDispatcher implements BusDataReceiver {
             byte[] oldData, byte[] data, boolean initialCall) {
         boolean anyAddressDataChanged = false;
         if (busNr == multiAddressDataConsumer.getBus()) {
-            final Set<BusAddressData> busAddressData = Sets.newHashSet();
+            // detect change of any address of consumer
             for (int addressIndex = 0; addressIndex < multiAddressDataConsumer.getAddresses().length; addressIndex++) {
                 int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
-                if (initialCall || Byte.compare(data[busAddress], oldData[busAddress]) != 0) {
+                if (Byte.compare(data[busAddress], oldData[busAddress]) != 0) {
                     anyAddressDataChanged = true;
                 }
-                busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress], data[busAddress]));
             }
             if (anyAddressDataChanged || initialCall) {
+                // collect data for all addresses to send data
+                final Set<BusAddressData> busAddressData = Sets.newHashSet();
+                // iterate again to avoid creation of endless address data objects
+                for (int addressIndex = 0; addressIndex < multiAddressDataConsumer
+                        .getAddresses().length; addressIndex++) {
+                    int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
+                    busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress], data[busAddress]));
+                }
                 executorService.submit(new Runnable() {
                     @Override
                     public void run() {
