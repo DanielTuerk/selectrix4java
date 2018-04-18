@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.Collection;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Iterables;
@@ -27,6 +28,12 @@ import net.wbz.selectrix4java.device.serial.BaseTest;
  * @author Daniel Tuerk
  */
 public class ConsumerTest extends BaseTest {
+
+    @Override
+    public void setup() throws InterruptedException {
+        super.setup();
+        getDevice().getBusDataDispatcher().reset();
+    }
 
     @Test
     public void testAllBusDataConsumer() throws DeviceAccessException, InterruptedException {
@@ -111,9 +118,9 @@ public class ConsumerTest extends BaseTest {
         sendTestData(testDataSetAddress1);
         assertEventReceived(testDataSetAddress1, 2);
         sendTestData(testDataSetAddress2);
-        assertEventReceived(testDataSetAddress2, 2);
+        assertEventReceived(testDataSetAddress2, 3);
         sendTestData(testDataSetAddress3);
-        assertEventReceived(testDataSetAddress3, 2);
+        assertEventReceived(testDataSetAddress3, 4);
     }
 
     @Test
@@ -164,10 +171,10 @@ public class ConsumerTest extends BaseTest {
 
         sendTestData(testDataSet);
 
-        assertEventReceived(busAddressDataResult, 2);
-        assertEventReceived(busAllBusDataResult, 2);
-        assertEventReceived(busBitResult, 2);
-        assertEventReceived(busMultiAddressDataResult, 2);
+        assertEventReceived(busAddressDataResult, 1);
+        assertEventReceived(busAllBusDataResult, 1);
+        assertEventReceived(busBitResult, 1);
+        assertEventReceived(busMultiAddressDataResult, 1);
     }
 
     private void sendAndAssertEventReceived(TestDataSet testDataSet)

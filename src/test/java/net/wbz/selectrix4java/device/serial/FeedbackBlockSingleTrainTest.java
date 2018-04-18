@@ -40,7 +40,6 @@ public class FeedbackBlockSingleTrainTest extends BaseFeedbackTest<Integer> {
     protected void initTest() {
         // TODO create new testdata, also there are two trains in test data (5+7)
         appendToQueue(4);
-        appendToQueue(4);
         appendToQueue(3);
         appendToQueue(2);
         appendToQueue(1);

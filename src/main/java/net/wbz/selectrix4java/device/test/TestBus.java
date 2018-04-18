@@ -1,6 +1,5 @@
 package net.wbz.selectrix4java.device.test;
 
-import com.sun.istack.internal.NotNull;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

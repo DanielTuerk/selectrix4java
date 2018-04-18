@@ -47,4 +47,14 @@ class FeedbackData {
     public void setForward(boolean forward) {
         this.forward = forward;
     }
+
+    @Override
+    public String toString() {
+        return "FeedbackData{" +
+                "blockNumber=" + blockNumber +
+                ", enter=" + enter +
+                ", train=" + train +
+                ", forward=" + forward +
+                '}';
+    }
 }
