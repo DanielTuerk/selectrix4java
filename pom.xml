@@ -21,8 +21,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <logback.version>0.9.15</logback.version>
-        <org.slf4j.version>1.5.10</org.slf4j.version>
+        <logback.version>1.0.9</logback.version>
+        <org.slf4j.version>1.7.2</org.slf4j.version>
 
         <java.version>1.7</java.version>
     </properties>
@@ -120,13 +120,7 @@
             <artifactId>slf4j-api</artifactId>
             <version>${org.slf4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${org.slf4j.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
+      <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
