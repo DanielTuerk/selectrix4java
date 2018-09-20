@@ -6,6 +6,7 @@ import net.wbz.selectrix4java.device.serial.SerialDevice;
  * @author Daniel Tuerk
  */
 public class StaerzInterfaceStation extends SerialDevice {
+
     /**
      * Create device to connect to an serial interface.
      *

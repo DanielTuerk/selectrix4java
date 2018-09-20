@@ -6,6 +6,7 @@ package net.wbz.selectrix4java.bus.consumption;
  * @author Daniel Tuerk
  */
 public class BusAddressData {
+
     private final int bus;
     private final int address;
     private final int oldDataValue;
@@ -36,11 +37,7 @@ public class BusAddressData {
 
     @Override
     public String toString() {
-        return "BusAddressData{" +
-                "bus=" + bus +
-                ", address=" + address +
-                ", oldDataValue=" + oldDataValue +
-                ", newDataValue=" + newDataValue +
-                '}';
+        return "BusAddressData{" + "bus=" + bus + ", address=" + address + ", oldDataValue=" + oldDataValue
+                + ", newDataValue=" + newDataValue + '}';
     }
 }

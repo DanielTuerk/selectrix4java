@@ -3,17 +3,16 @@ package net.wbz.selectrix4java.data;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Write {@link net.wbz.selectrix4java.data.BusData} to the {@link java.io.OutputStream} of the
- * connected device.
+ * Write {@link net.wbz.selectrix4java.data.BusData} to the {@link java.io.OutputStream} of the connected device.
  *
  * @author Daniel Tuerk
  */
 public class WriteTask extends AbstractSerialAccessTask<Boolean> {
+
     private static final Logger log = LoggerFactory.getLogger(WriteTask.class);
 
     private final BusData busData;
@@ -52,7 +51,7 @@ public class WriteTask extends AbstractSerialAccessTask<Boolean> {
             log.debug(String.format("write: bus=%d address=%d data=%d", busData.getBus(), busData.getAddress(),
                     busData.getData()));
             byte address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
-            getOutputStream().write(new byte[] { (byte) busData.getBus(), address, (byte) busData.getData() });
+            getOutputStream().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
             getOutputStream().flush();
         } else if (data != null && busData == null) {
             throw new RuntimeException("wtf? why no address byte?");

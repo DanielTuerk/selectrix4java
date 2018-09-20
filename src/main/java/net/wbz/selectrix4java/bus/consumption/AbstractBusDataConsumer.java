@@ -7,7 +7,7 @@ package net.wbz.selectrix4java.bus.consumption;
  */
 abstract public class AbstractBusDataConsumer {
 
-    private int bus;
+    private final int bus;
 
     protected AbstractBusDataConsumer(int bus) {
         this.bus = bus;

@@ -1,19 +1,16 @@
 package net.wbz.selectrix4java.bus;
 
+import com.google.common.base.Objects;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Objects;
-
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 import net.wbz.selectrix4java.data.BusData;
 import net.wbz.selectrix4java.data.BusDataChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Address of an bus. Wrap the data value and send state change events.
@@ -21,6 +18,7 @@ import net.wbz.selectrix4java.data.BusDataChannel;
  * @author Daniel Tuerk
  */
 public class BusAddress {
+
     private static final Logger LOG = LoggerFactory.getLogger(BusAddress.class);
 
     /**
@@ -154,9 +152,8 @@ public class BusAddress {
     }
 
     /**
-     * Add listener to receive data changes.
-     * After call of this method the listener will immediately receive the
-     * actual data from the {@link net.wbz.selectrix4java.bus.BusAddress}.
+     * Add listener to receive data changes. After call of this method the listener will immediately receive the actual
+     * data from the {@link net.wbz.selectrix4java.bus.BusAddress}.
      *
      * @param listener {@link net.wbz.selectrix4java.bus.BusListener}
      */
@@ -209,10 +206,12 @@ public class BusAddress {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
 
         BusAddress address1 = (BusAddress) o;
 
@@ -228,9 +227,6 @@ public class BusAddress {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("bus", bus)
-                .add("address", address)
-                .toString();
+        return Objects.toStringHelper(this).add("bus", bus).add("address", address).toString();
     }
 }

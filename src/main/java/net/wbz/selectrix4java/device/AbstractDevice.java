@@ -1,5 +1,7 @@
 package net.wbz.selectrix4java.device;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -10,13 +12,6 @@ import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.FutureTask;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
@@ -30,25 +25,25 @@ import net.wbz.selectrix4java.data.recording.BusDataRecorder;
 import net.wbz.selectrix4java.data.recording.IsRecordable;
 import net.wbz.selectrix4java.data.recording.RecordingException;
 import net.wbz.selectrix4java.train.TrainModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The device implementation manage the connection.
- * <p/>
- * Abstract device handle all state information for the bus. Common functions and delegates to access the bus within
- * an functional layer. Address values are wrapped by the {@link net.wbz.selectrix4java.bus.BusAddress} and the
- * functionality by {@link net.wbz.selectrix4java.Module} implementations
- * (e.g. {@link net.wbz.selectrix4java.train.TrainModule}) instead of reading and writing byte arrays to the bus.
+ * Abstract device handle all state information for the bus. Common functions and delegates to access the bus within an
+ * functional layer. Address values are wrapped by the {@link net.wbz.selectrix4java.bus.BusAddress} and the
+ * functionality by {@link net.wbz.selectrix4java.Module} implementations (e.g. {@link
+ * net.wbz.selectrix4java.train.TrainModule}) instead of reading and writing byte arrays to the bus.
  *
  * @author Daniel Tuerk
  */
 public abstract class AbstractDevice implements Device, IsRecordable {
 
     /**
-     * Default address for the rail voltage.
-     * TODO: move later to implementations by device (e.g. FCC)
+     * Default address for the rail voltage. TODO: move later to implementations by device (e.g. FCC)
      */
-    public static final int RAILVOLTAGE_ADDRESS = 109;
-    public static final int RAILVOLTAGE_BIT = 8;
+    private static final int RAILVOLTAGE_ADDRESS = 109;
+    private static final int RAILVOLTAGE_BIT = 8;
     private static final Logger log = LoggerFactory.getLogger(AbstractDevice.class);
 
     /**
@@ -60,39 +55,33 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      */
     private final BusDataRecorder busDataRecorder = new BusDataRecorder();
     /**
-     * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String}
-     * in the format 'bus:address'.
-     * <p/>
-     * Single instance of each address to prevent event-traffic.
+     * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String} in the format
+     * 'bus:address'. Single instance of each address to prevent event-traffic.
      */
-    private Map<String, BusAddress> busAddresses = Maps.newConcurrentMap();
+    private final Map<String, BusAddress> busAddresses = Maps.newConcurrentMap();
     /**
-     * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String}
-     * in the format 'bus:address'.
-     * <p/>
-     * Single instance of each module to prevent event-traffic.
+     * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String} in the format
+     * 'bus:address'. Single instance of each module to prevent event-traffic.
      */
-    private Map<String, Module> modules = Maps.newHashMap();
+    private final Map<String, Module> modules = Maps.newHashMap();
     /**
      * Channel to send signals to the connected bus.
      */
     private BusDataChannel busDataChannel;
     /**
-     * Registered listener of {@link DeviceConnectionListener}.
-     * Usage of {@link java.util.Queue} for synchronization to remove listener while event handling is in progress.
+     * Registered listener of {@link DeviceConnectionListener}. Usage of {@link java.util.Queue} for synchronization to
+     * remove listener while event handling is in progress.
      */
-    private Queue<DeviceConnectionListener> listeners = new ConcurrentLinkedQueue<>();
+    private final Queue<DeviceConnectionListener> listeners = new ConcurrentLinkedQueue<>();
 
     /**
-     * Registered listener of {@link RailVoltageListener}.
-     * Usage of {@link java.util.Queue} for synchronization to remove listener while event handling is in progress.
+     * Registered listener of {@link RailVoltageListener}. Usage of {@link java.util.Queue} for synchronization to
+     * remove listener while event handling is in progress.
      */
-    private Queue<RailVoltageListener> railVoltageListeners = new ConcurrentLinkedQueue<>();
+    private final Queue<RailVoltageListener> railVoltageListeners = new ConcurrentLinkedQueue<>();
 
     /**
      * Open the connection for the device.
-     *
-     * @throws DeviceAccessException
      */
     @Override
     public void connect() throws DeviceAccessException {
@@ -105,28 +94,19 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
         log.info("device connected");
         for (final DeviceConnectionListener listener : listeners) {
-            new FutureTask<>(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    listener.connected(AbstractDevice.this);
-                    return null;
-                }
+            new FutureTask<>((Callable<Void>) () -> {
+                listener.connected(AbstractDevice.this);
+                return null;
             }).run();
         }
 
-        busDataChannel.setCallback(new BusDataChannel.ChannelStateCallback() {
-            @Override
-            public void channelClosed() {
-                log.info("device connection lost");
-                for (final DeviceConnectionListener listener : listeners) {
-                    new FutureTask<>(new Callable<Void>() {
-                        @Override
-                        public Void call() throws Exception {
-                            listener.disconnected(AbstractDevice.this);
-                            return null;
-                        }
-                    }).run();
-                }
+        busDataChannel.setCallback(() -> {
+            log.info("device connection lost");
+            for (final DeviceConnectionListener listener : listeners) {
+                new FutureTask<>((Callable<Void>) () -> {
+                    listener.disconnected(AbstractDevice.this);
+                    return null;
+                }).run();
             }
         });
 
@@ -226,12 +206,9 @@ public abstract class AbstractDevice implements Device, IsRecordable {
             private void fireSystemFormat(final SYSTEM_FORMAT systemFormat) {
                 for (final DeviceConnectionListener listener : listeners) {
                     if (listener instanceof DeviceListener) {
-                        new FutureTask<>(new Callable<Void>() {
-                            @Override
-                            public Void call() throws Exception {
-                                ((DeviceListener) listener).systemFormatChanged(systemFormat);
-                                return null;
-                            }
+                        new FutureTask<>((Callable<Void>) () -> {
+                            ((DeviceListener) listener).systemFormatChanged(systemFormat);
+                            return null;
                         }).run();
                     }
                 }
@@ -276,19 +253,17 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     }
 
     /**
-     * Establish the connection to the OS and return the {@link net.wbz.selectrix4java.data.BusDataChannel}
-     * for the open streams.
+     * Establish the connection to the OS and return the {@link net.wbz.selectrix4java.data.BusDataChannel} for the open
+     * streams.
      *
      * @param busDataDispatcher {@link net.wbz.selectrix4java.bus.BusDataDispatcher}
      * @return {@link net.wbz.selectrix4java.data.BusDataChannel}
-     * @throws DeviceAccessException
+     * @throws DeviceAccessException no access
      */
     abstract protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException;
 
     /**
      * Close the active connection of the device and clear all caches.
-     *
-     * @throws DeviceAccessException
      */
     @Override
     public void disconnect() throws DeviceAccessException {
@@ -305,12 +280,9 @@ public abstract class AbstractDevice implements Device, IsRecordable {
             log.info("device disconnected");
 
             for (final DeviceConnectionListener listener : listeners) {
-                new FutureTask<>(new Callable<Void>() {
-                    @Override
-                    public Void call() throws Exception {
-                        listener.disconnected(AbstractDevice.this);
-                        return null;
-                    }
+                new FutureTask<>((Callable<Void>) () -> {
+                    listener.disconnected(AbstractDevice.this);
+                    return null;
                 }).run();
             }
 
@@ -324,20 +296,16 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     /**
      * Close the connection to the OS.
-     *
-     * @throws DeviceAccessException
      */
-    abstract public void doDisconnect() throws DeviceAccessException;
+    abstract public void doDisconnect();
 
     /**
      * Get {@link net.wbz.selectrix4java.bus.BusAddress} to read the data value or send new values.
-     * <p/>
      * {@link net.wbz.selectrix4java.bus.BusAddress} is created by the first access and cached for future access.
      *
      * @param bus number of bus
      * @param address address to access
      * @return {@link net.wbz.selectrix4java.bus.BusAddress}
-     * @throws DeviceAccessException
      */
     @Override
     public synchronized BusAddress getBusAddress(int bus, int address) throws DeviceAccessException {
@@ -364,17 +332,15 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     /**
      * Get {@link net.wbz.selectrix4java.train.TrainModule} with actual data for the address.
-     * <p/>
      * Module is created by the first access and cached for future access.
      *
      * @param address address of the train
      * @param additionalAddresses additional function address
      * @return {@link net.wbz.selectrix4java.train.TrainModule}
-     * @throws DeviceAccessException
      */
     @Override
-    public synchronized TrainModule getTrainModule(int address, int... additionalAddresses)
-            throws DeviceAccessException {
+    public synchronized TrainModule getTrainModule(int address, int... additionalAddresses) throws
+            DeviceAccessException {
         if (address >= 0) {
             final int bus = 0;
             String busAddressIdentifier = createIdentifier(bus, address, TrainModule.class);
@@ -388,8 +354,8 @@ public abstract class AbstractDevice implements Device, IsRecordable {
                         additionalBusAddresses.add(getBusAddress(bus, additionalAddress));
                     }
                 }
-                TrainModule trainModule = new TrainModule(getBusAddress(bus, address), additionalBusAddresses.toArray(
-                        new BusAddress[additionalBusAddresses.size()]));
+                TrainModule trainModule = new TrainModule(getBusAddress(bus, address),
+                        additionalBusAddresses.toArray(new BusAddress[0]));
                 modules.put(busAddressIdentifier, trainModule);
             }
             return (TrainModule) modules.get(busAddressIdentifier);
@@ -415,8 +381,8 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         int bus = 1;
         String busAddressIdentifier = createIdentifier(bus, address, FeedbackBlockModule.class);
         if (!modules.containsKey(busAddressIdentifier)) {
-            FeedbackBlockModule blockModule = new FeedbackBlockModule(getBusAddress(bus, address), getBusAddress(bus,
-                    feedbackAddress), getBusAddress(bus, additionalAddress));
+            FeedbackBlockModule blockModule = new FeedbackBlockModule(getBusAddress(bus, address),
+                    getBusAddress(bus, feedbackAddress), getBusAddress(bus, additionalAddress));
             busDataDispatcher.registerConsumers(blockModule.getConsumers());
             modules.put(busAddressIdentifier, blockModule);
         }
@@ -427,7 +393,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * Read the actual value of the rail voltage.
      *
      * @return {@link boolean} state
-     * @throws DeviceAccessException
      */
     @Override
     public boolean getRailVoltage() throws DeviceAccessException {
@@ -438,7 +403,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * Change rail voltage.
      *
      * @param state {@link java.lang.Boolean} state
-     * @throws DeviceAccessException
      */
     public void setRailVoltage(boolean state) throws DeviceAccessException {
         BusAddress busAddress = getBusAddress(1, (byte) 255);
@@ -471,7 +435,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     @Override
     public void switchDeviceSystemFormat() {
-        sendNative(new byte[] { (byte) 131, (byte) 160, (byte) 0, (byte) 0, (byte) 0 });
+        sendNative(new byte[]{(byte) 131, (byte) 160, (byte) 0, (byte) 0, (byte) 0});
     }
 
     @Override
@@ -486,9 +450,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     }
 
     /**
-     * Dispatcher for the read and write operation of the device.
-     * Used to register {@link AbstractBusDataConsumer}s.
-     * <p/>
+     * Dispatcher for the read and write operation of the device. Used to register {@link AbstractBusDataConsumer}s.
      * Dispatcher is also available in offline mode and will inform all consumers after an connection is established.
      *
      * @return {@link net.wbz.selectrix4java.bus.BusDataDispatcher}

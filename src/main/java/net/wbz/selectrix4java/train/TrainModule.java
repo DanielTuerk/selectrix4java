@@ -1,19 +1,15 @@
 package net.wbz.selectrix4java.train;
 
+import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.List;
-
-import com.google.common.collect.Lists;
-
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 
 /**
- * This module is an wrapper for {@link net.wbz.selectrix4java.bus.BusAddress}s
- * from an function decoder of an train.
- * <p/>
+ * This module is an wrapper for {@link net.wbz.selectrix4java.bus.BusAddress}s from an function decoder of an train.
  * The train can have several addresses for multiple decoders.
  *
  * @author Daniel Tuerk
@@ -21,19 +17,23 @@ import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 public class TrainModule implements Module {
 
     /**
+     * Driving direction of the train.
+     */
+    public enum DRIVING_DIRECTION {
+        FORWARD, BACKWARD
+    }
+    /**
      * Driving direction of the train: bit 6
      */
-    public static final int BIT_DRIVING_DIRECTION = 6;
-
+    private static final int BIT_DRIVING_DIRECTION = 6;
     /**
      * Light of the train: bit 7
      */
-    public static final int BIT_LIGHT = 7;
-
+    private static final int BIT_LIGHT = 7;
     /**
      * Horn of the train: bit 8
      */
-    public static final int BIT_HORN = 8;
+    private static final int BIT_HORN = 8;
     /**
      * Main address of the train.
      */
@@ -68,11 +68,11 @@ public class TrainModule implements Module {
                 BigInteger wrappedNewValue = BigInteger.valueOf(newValue);
 
                 // direction
-                if (initialCall || wrappedOldValue.testBit(BIT_DRIVING_DIRECTION - 1) != wrappedNewValue.testBit(
-                        BIT_DRIVING_DIRECTION
-                                - 1)) {
-                    dispatcher.fireDrivingDirectionChanged(wrappedNewValue.testBit(BIT_DRIVING_DIRECTION - 1)
-                            ? DRIVING_DIRECTION.FORWARD : DRIVING_DIRECTION.BACKWARD);
+                if (initialCall || wrappedOldValue.testBit(BIT_DRIVING_DIRECTION - 1) != wrappedNewValue
+                        .testBit(BIT_DRIVING_DIRECTION - 1)) {
+                    dispatcher.fireDrivingDirectionChanged(
+                            wrappedNewValue.testBit(BIT_DRIVING_DIRECTION - 1) ? DRIVING_DIRECTION.FORWARD
+                                    : DRIVING_DIRECTION.BACKWARD);
                 }
                 // light
                 if (initialCall || wrappedOldValue.testBit(BIT_LIGHT - 1) != wrappedNewValue.testBit(BIT_LIGHT - 1)) {
@@ -255,7 +255,7 @@ public class TrainModule implements Module {
     /**
      * Additional addresses of functions for the train.
      *
-     * @return {@link List<net.wbz.selectrix4java.bus.BusAddress>}
+     * @return list of {@link BusAddress}
      */
     public List<BusAddress> getAdditionalAddresses() {
         return additionalAddresses;
@@ -278,12 +278,5 @@ public class TrainModule implements Module {
     @Override
     public int hashCode() {
         return address.hashCode();
-    }
-
-    /**
-     * Driving direction of the train.
-     */
-    public enum DRIVING_DIRECTION {
-        FORWARD, BACKWARD
     }
 }

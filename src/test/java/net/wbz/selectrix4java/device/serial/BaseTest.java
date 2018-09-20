@@ -1,20 +1,18 @@
 package net.wbz.selectrix4java.device.serial;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.junit.After;
-import org.junit.Before;
-
-import junit.framework.Assert;
-import net.wbz.selectrix4java.bus.TestDataSet;
-import net.wbz.selectrix4java.device.Device;
-
 import static org.junit.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import net.wbz.selectrix4java.bus.TestDataSet;
+import net.wbz.selectrix4java.device.Device;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+
 /**
- * Base test class to test the communication of a device.
- * Connection for the device is established in {@see #setup} and closed in {@see #tearDown}.
+ * Base test class to test the communication of a device. Connection for the device is established in {@see #setup} and
+ * closed in {@see #tearDown}.
  *
  * @author Daniel Tuerk
  */
@@ -41,8 +39,8 @@ public class BaseTest {
     }
 
     public static void printData(int oldValue, int newValue, int bus, int address) {
-        System.out.printf("%d/%d = old: %s - new: %s%n", bus, address, toUnsignedInt((byte) oldValue), toUnsignedInt(
-                (byte) newValue));
+        System.out.printf("%d/%d = old: %s - new: %s%n", bus, address, toUnsignedInt((byte) oldValue),
+                toUnsignedInt((byte) newValue));
     }
 
     public static void printData(String msg, int oldValue, int newValue, int bus, int address) {
@@ -84,9 +82,8 @@ public class BaseTest {
         } else {
             Assert.assertEquals("amount of events wrong", expectedResultCount, testDataSet.getResultCallCount());
         }
-        assertTestData(testDataSet.getSendBus(), testDataSet.getReceivedBus(),
-                testDataSet.getSendAddress(), testDataSet.getReceivedAddress(),
-                testDataSet.getSendValue(), testDataSet.getReceivedValue());
+        assertTestData(testDataSet.getSendBus(), testDataSet.getReceivedBus(), testDataSet.getSendAddress(),
+                testDataSet.getReceivedAddress(), testDataSet.getSendValue(), testDataSet.getReceivedValue());
     }
 
     protected void assertTestData(int expectedBus, int receivedBus, int expectedAddress, int receivedAddress,

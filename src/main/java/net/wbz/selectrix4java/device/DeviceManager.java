@@ -2,11 +2,10 @@ package net.wbz.selectrix4java.device;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.wbz.selectrix4java.device.serial.SerialDevice;
-import net.wbz.selectrix4java.device.test.TestDevice;
-
 import java.util.List;
 import java.util.Map;
+import net.wbz.selectrix4java.device.serial.SerialDevice;
+import net.wbz.selectrix4java.device.test.TestDevice;
 
 /**
  * Manager to access the {@link Device} by device id.

@@ -1,14 +1,12 @@
 package net.wbz.selectrix4java.device.serial;
 
+import net.wbz.selectrix4java.block.FeedbackBlockListener;
+import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.wbz.selectrix4java.block.FeedbackBlockListener;
-import net.wbz.selectrix4java.block.FeedbackBlockModule;
-
 /**
  * Test the feedback block modules for received occupy states and train decoder information.
- * <p/>
  * Testcase:
  * <ol>
  * <li>Train 7</li>
@@ -56,8 +54,8 @@ public class FeedbackBlockSingleTrainTest extends BaseFeedbackTest<Integer> {
 
         final int blockAddress = 58;
 
-        FeedbackBlockModule feedbackBlockModule = getDevice().getFeedbackBlockModule((byte) blockAddress,
-                (byte) (blockAddress + 2), (byte) (blockAddress + 1));
+        FeedbackBlockModule feedbackBlockModule = getDevice()
+                .getFeedbackBlockModule((byte) blockAddress, (byte) (blockAddress + 2), (byte) (blockAddress + 1));
         feedbackBlockModule.addFeedbackBlockListener(new FeedbackBlockListener() {
             @Override
             public void trainEnterBlock(int blockNumber, int train, boolean forward) {

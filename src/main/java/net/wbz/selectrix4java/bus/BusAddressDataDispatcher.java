@@ -1,7 +1,6 @@
 package net.wbz.selectrix4java.bus;
 
 import java.math.BigInteger;
-
 import net.wbz.selectrix4java.AbstractModuleDataDispatcher;
 
 /**

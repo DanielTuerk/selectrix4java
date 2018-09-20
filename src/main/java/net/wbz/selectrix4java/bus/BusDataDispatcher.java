@@ -1,5 +1,9 @@
 package net.wbz.selectrix4java.bus;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,47 +15,38 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusBitConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * The dispatcher stores all values for each address of the SX bus channels. To
- * receive the values it implements {@link BusDataReceiver}.
- * <p/>
- * For each value which has changed, the registered
- * {@link AbstractBusDataConsumer}s are informed.
+ * The dispatcher stores all values for each address of the SX bus channels. To receive the values it implements {@link
+ * BusDataReceiver}.
+ * For each value which has changed, the registered {@link AbstractBusDataConsumer}s are informed.
  *
  * @author Daniel Tuerk
  */
 public class BusDataDispatcher implements BusDataReceiver {
+
     private static final Logger log = LoggerFactory.getLogger(BusDataDispatcher.class);
     /**
      * Service to call the consumers asynchronously.
      */
     private final ExecutorService executorService;
     /**
-     * Hold the actual data of the bus. Used to compare old and new bit data for
-     * each bus to identify changes.
+     * Hold the actual data of the bus. Used to compare old and new bit data for each bus to identify changes.
      */
-    private Map<Integer, byte[]> busData = Maps.newConcurrentMap();
+    private final Map<Integer, byte[]> busData = Maps.newConcurrentMap();
 
     /**
      * Consumers to call for bus data changes.
      */
-    private List<AbstractBusDataConsumer> consumers = Lists.newCopyOnWriteArrayList();
+    private final List<AbstractBusDataConsumer> consumers = Lists.newCopyOnWriteArrayList();
 
     /**
      * Create dispatcher with executor service for cached thread pool.
@@ -83,8 +78,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * Return the current values of all addresses for the given SX bus.
      *
      * @param busNr number of the SX bus (e.g.0 or 1)
-     * @return byte array which represents the address as index with the byte
-     *         value of the address.
+     * @return byte array which represents the address as index with the byte value of the address.
      */
     public byte[] getData(int busNr) {
         if (busData.containsKey(busNr)) {
@@ -94,10 +88,9 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     /**
-     * Register an new consumer to get state changed of for the values of an
-     * address from an SX bus. To get the values of all addresses use the
-     * {@link net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer}.
-     * Consumer is called initially with the actual data values after registration.
+     * Register an new consumer to get state changed of for the values of an address from an SX bus. To get the values
+     * of all addresses use the {@link net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer}. Consumer is called
+     * initially with the actual data values after registration.
      *
      * @param consumer {@link AbstractBusDataConsumer}
      */
@@ -108,8 +101,8 @@ public class BusDataDispatcher implements BusDataReceiver {
     /**
      * Register given list of {@link AbstractBusDataConsumer}s.
      *
-     * @see #registerConsumer(AbstractBusDataConsumer)
      * @param consumers list of {@link AbstractBusDataConsumer} to register
+     * @see #registerConsumer(AbstractBusDataConsumer)
      */
     public void registerConsumers(List<AbstractBusDataConsumer> consumers) {
         this.consumers.addAll(consumers);
@@ -169,8 +162,8 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     /**
-     * Call the registered consumers for the given bus data.
-     * Changes of bus data can be checked from the new and old data to call consumers.
+     * Call the registered consumers for the given bus data. Changes of bus data can be checked from the new and old
+     * data to call consumers.
      *
      * @param consumers consumers to call
      * @param busNr number of bus
@@ -204,12 +197,10 @@ public class BusDataDispatcher implements BusDataReceiver {
                                     (AllBusDataConsumer) consumer);
                         } else if (consumer instanceof BusBitConsumer) {
                             callBitAddressConsumer((BusBitConsumer) consumer, busNr, address, oldData[address],
-                                    data[address],
-                                    initialCall);
+                                    data[address], initialCall);
                         } else if (consumer instanceof BusAddressDataConsumer) {
                             callBusAddressDataConsumer((BusAddressDataConsumer) consumer, busNr, address,
-                                    oldData[address],
-                                    data[address]);
+                                    oldData[address], data[address]);
                         } else {
                             String errorMsg = "unknown consumer: " + consumer.getClass().getName();
                             log.error(errorMsg);
@@ -232,12 +223,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      */
     private void callAllBusDataConsumers(final int busNr, final int address, final int oldData, final int newData,
             final AllBusDataConsumer consumer) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                consumer.valueChanged(busNr, address, oldData, newData);
-            }
-        });
+        executorService.submit(() -> consumer.valueChanged(busNr, address, oldData, newData));
     }
 
     /**
@@ -254,17 +240,10 @@ public class BusDataDispatcher implements BusDataReceiver {
             final int oldData, final int newData, boolean initialCall) {
         // bit change
         if (consumer.getAddress() == address && consumer.getBus() == busNr) {
-            final boolean oldBitState = BigInteger.valueOf(oldData)
-                    .testBit(consumer.getBit() - 1);
-            final boolean newBitState = BigInteger.valueOf(newData)
-                    .testBit(consumer.getBit() - 1);
+            final boolean oldBitState = BigInteger.valueOf(oldData).testBit(consumer.getBit() - 1);
+            final boolean newBitState = BigInteger.valueOf(newData).testBit(consumer.getBit() - 1);
             if (initialCall || oldBitState != newBitState) {
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        consumer.valueChanged(oldBitState ? 1 : 0, newBitState ? 1 : 0);
-                    }
-                });
+                executorService.submit(() -> consumer.valueChanged(oldBitState ? 1 : 0, newBitState ? 1 : 0));
             }
         }
     }
@@ -281,19 +260,13 @@ public class BusDataDispatcher implements BusDataReceiver {
     private void callBusAddressDataConsumer(final BusAddressDataConsumer consumer, final int busNr, final int address,
             final int oldData, final int newData) {
         if (consumer.getAddress() == address && consumer.getBus() == busNr) {
-            executorService.submit(new Runnable() {
-                @Override
-                public void run() {
-                    consumer.valueChanged(oldData, newData);
-                }
-            });
+            executorService.submit(() -> consumer.valueChanged(oldData, newData));
         }
     }
 
     /**
-     * Call asynchronous the
-     * {@link net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer}
-     * s for data value changes of at least one of the addresses.
+     * Call asynchronous the {@link net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer} s for data value
+     * changes of at least one of the addresses.
      *
      * @param multiAddressDataConsumer consumer to call
      * @param busNr number of bus
@@ -316,17 +289,12 @@ public class BusDataDispatcher implements BusDataReceiver {
                 // collect data for all addresses to send data
                 final Set<BusAddressData> busAddressData = Sets.newHashSet();
                 // iterate again to avoid creation of endless address data objects
-                for (int addressIndex = 0; addressIndex < multiAddressDataConsumer
-                        .getAddresses().length; addressIndex++) {
+                for (int addressIndex = 0; addressIndex < multiAddressDataConsumer.getAddresses().length;
+                        addressIndex++) {
                     int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
                     busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress], data[busAddress]));
                 }
-                executorService.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        multiAddressDataConsumer.valueChanged(busAddressData);
-                    }
-                });
+                executorService.submit(() -> multiAddressDataConsumer.valueChanged(busAddressData));
             }
         }
     }

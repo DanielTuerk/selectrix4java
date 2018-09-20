@@ -1,11 +1,14 @@
 package net.wbz.selectrix4java.device.serial;
 
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import net.wbz.selectrix4java.device.Device;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.DeviceConnectionListener;
 import net.wbz.selectrix4java.device.DeviceManager;
-
-import java.util.concurrent.*;
 
 /**
  * @author Daniel Tuerk
@@ -17,7 +20,7 @@ public class Connection {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private Device device;
+    private final Device device;
     private volatile boolean connectedCallbackResult;
 
     public static Connection createTestDeviceConnection() {
@@ -43,20 +46,17 @@ public class Connection {
 
     public boolean connect() {
         try {
-            return executorService.submit(new Callable<Boolean>() {
-                @Override
-                public Boolean call() throws Exception {
-                    try {
-                        device.connect();
-                    } catch (DeviceAccessException e) {
-                        e.printStackTrace();
-                        return false;
-                    }
-                    while (!connectedCallbackResult) {
-                        Thread.sleep(200L);
-                    }
-                    return true;
+            return executorService.submit(() -> {
+                try {
+                    device.connect();
+                } catch (DeviceAccessException e) {
+                    e.printStackTrace();
+                    return false;
                 }
+                while (!connectedCallbackResult) {
+                    Thread.sleep(200L);
+                }
+                return true;
             }).get(TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
             e.printStackTrace();
@@ -67,20 +67,17 @@ public class Connection {
     public boolean disconnect() {
         if (device != null && device.isConnected()) {
             try {
-                return executorService.submit(new Callable<Boolean>() {
-                    @Override
-                    public Boolean call() throws Exception {
-                        try {
-                            device.disconnect();
-                        } catch (DeviceAccessException e) {
-                            e.printStackTrace();
-                            return false;
-                        }
-                        while (connectedCallbackResult) {
-                            Thread.sleep(200L);
-                        }
-                        return true;
+                return executorService.submit(() -> {
+                    try {
+                        device.disconnect();
+                    } catch (DeviceAccessException e) {
+                        e.printStackTrace();
+                        return false;
                     }
+                    while (connectedCallbackResult) {
+                        Thread.sleep(200L);
+                    }
+                    return true;
                 }).get(TIMEOUT, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 e.printStackTrace();

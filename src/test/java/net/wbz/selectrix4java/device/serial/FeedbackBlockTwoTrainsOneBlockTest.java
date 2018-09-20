@@ -1,28 +1,23 @@
 package net.wbz.selectrix4java.device.serial;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import net.wbz.selectrix4java.block.FeedbackBlockListener;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
+import org.junit.Test;
 
 /**
  * 2017-02-10 19:30:01 [bus-data-dispatcher-0] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 3;
- * sequence: 32 (last: 0); train: 13; enter: true; forward: false
- * 2017-02-10 19:30:03 [bus-data-dispatcher-0] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 5;
- * sequence: 64 (last: 32); train: 13; enter: false; forward: false
- * 2017-02-10 19:30:16 [bus-data-dispatcher-1] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 4;
- * sequence: 96 (last: 64); train: 13; enter: true; forward: true
- * 2017-02-10 19:30:32 [bus-data-dispatcher-1] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 6;
- * sequence: 0 (last: 96); train: 7; enter: true; forward: true
- * 2017-02-10 19:30:34 [bus-data-dispatcher-1] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 4;
- * sequence: 32 (last: 0); train: 7; enter: false; forward: true
- * 2017-02-10 19:30:47 [bus-data-dispatcher-0] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 2;
- * sequence: 64 (last: 32); train: 13; enter: true; forward: false
- * 2017-02-10 19:30:48 [bus-data-dispatcher-0] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 3;
- * sequence: 96 (last: 64); train: 13; enter: false; forward: false
- * Test the feedback block modules for received occupy states and train decoder information.
- * <p/>
+ * sequence: 32 (last: 0); train: 13; enter: true; forward: false 2017-02-10 19:30:03 [bus-data-dispatcher-0] DEBUG
+ * n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 5; sequence: 64 (last: 32); train: 13; enter: false;
+ * forward: false 2017-02-10 19:30:16 [bus-data-dispatcher-1] DEBUG n.w.s.block.FeedbackBlockModule - feedback module
+ * (53) - block: 4; sequence: 96 (last: 64); train: 13; enter: true; forward: true 2017-02-10 19:30:32
+ * [bus-data-dispatcher-1] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 6; sequence: 0 (last:
+ * 96); train: 7; enter: true; forward: true 2017-02-10 19:30:34 [bus-data-dispatcher-1] DEBUG
+ * n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 4; sequence: 32 (last: 0); train: 7; enter: false;
+ * forward: true 2017-02-10 19:30:47 [bus-data-dispatcher-0] DEBUG n.w.s.block.FeedbackBlockModule - feedback module
+ * (53) - block: 2; sequence: 64 (last: 32); train: 13; enter: true; forward: false 2017-02-10 19:30:48
+ * [bus-data-dispatcher-0] DEBUG n.w.s.block.FeedbackBlockModule - feedback module (53) - block: 3; sequence: 96 (last:
+ * 64); train: 13; enter: false; forward: false Test the feedback block modules for received occupy states and train
+ * decoder information.
  * Testcase:
  * <ol>
  * <li>Train 7</li>
@@ -66,8 +61,8 @@ public class FeedbackBlockTwoTrainsOneBlockTest extends BaseFeedbackDataTest {
     @Test
     public void testBlock() throws Exception {
         final int blockAddress = 53;
-        FeedbackBlockModule feedbackBlockModule = getDevice().getFeedbackBlockModule((byte) blockAddress,
-                (byte) (blockAddress + 2), (byte) (blockAddress + 1));
+        FeedbackBlockModule feedbackBlockModule = getDevice()
+                .getFeedbackBlockModule((byte) blockAddress, (byte) (blockAddress + 2), (byte) (blockAddress + 1));
         feedbackBlockModule.addFeedbackBlockListener(new FeedbackBlockListener() {
             @Override
             public void trainEnterBlock(int blockNumber, int train, boolean forward) {

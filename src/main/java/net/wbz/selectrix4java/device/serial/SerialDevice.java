@@ -1,27 +1,22 @@
 package net.wbz.selectrix4java.device.serial;
 
+import gnu.io.CommPortIdentifier;
+import gnu.io.SerialPort;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.math.BigInteger;
 import java.util.Enumeration;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
-import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.device.AbstractDevice;
 import net.wbz.selectrix4java.device.DeviceAccessException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link net.wbz.selectrix4java.device.Device} implementation for serial access like COM or USB.
- * <p/>
  * Usage of the RXTX library. In the lib path of the JRE must be present the DLL or SO file for the native access.
  *
  * @author Daniel Tuerk
@@ -88,12 +83,10 @@ public class SerialDevice extends AbstractDevice {
                 inputStream = serialPort.getInputStream();
                 serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
                 serialPort.enableReceiveTimeout(1000);
-                serialPort.setSerialPortParams(baudRate,
-                        SerialPort.DATABITS_8,
-                        SerialPort.STOPBITS_1,
+                serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
                         SerialPort.PARITY_NONE);
             } catch (Exception e) {
-                throw new DeviceAccessException(String.format("can't connect to device for id %s", deviceId),e);
+                throw new DeviceAccessException(String.format("can't connect to device for id %s", deviceId), e);
             }
             return new BusDataChannel(inputStream, outputStream, busDataDispatcher);
         }
@@ -102,8 +95,7 @@ public class SerialDevice extends AbstractDevice {
 
     /**
      * @see net.wbz.selectrix4java.device.Device#disconnect()
-     * <p/>
-     * Note: RXTX will crash on OSX (Linux and Windows is working)
+     *         TODO: RXTX will crash on OSX (Linux and Windows is working)
      */
     @Override
     public void doDisconnect() {
@@ -159,8 +151,7 @@ public class SerialDevice extends AbstractDevice {
                             break;
                         default:
                             String[] parts = line.split(" ");
-                            serialDevice.getBusAddress(Integer.parseInt(parts[0]),
-                                    (byte) Integer.parseInt(parts[1]))
+                            serialDevice.getBusAddress(Integer.parseInt(parts[0]), (byte) Integer.parseInt(parts[1]))
                                     .sendData((byte) Integer.parseInt(parts[2]));
                             break;
                     }

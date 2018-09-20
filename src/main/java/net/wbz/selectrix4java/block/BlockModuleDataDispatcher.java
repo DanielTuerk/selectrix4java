@@ -9,13 +9,14 @@ import net.wbz.selectrix4java.AbstractModuleDataDispatcher;
  */
 public class BlockModuleDataDispatcher<T extends BlockListener> extends AbstractModuleDataDispatcher<T> {
 
-    public void fireBlockOccupied(final int blockNr){
+    public void fireBlockOccupied(final int blockNr) {
         for (T listener : getListeners()) {
             listener.blockOccupied(blockNr);
         }
 
     }
-    public void fireBlockFreed(final int blockNr){
+
+    public void fireBlockFreed(final int blockNr) {
         for (T listener : getListeners()) {
             listener.blockFreed(blockNr);
         }
@@ -23,7 +24,7 @@ public class BlockModuleDataDispatcher<T extends BlockListener> extends Abstract
     }
 
     public void fireBlockState(int blockNr, boolean state) {
-        if(state) {
+        if (state) {
             fireBlockOccupied(blockNr);
         } else {
             fireBlockFreed(blockNr);

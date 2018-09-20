@@ -1,14 +1,11 @@
 package net.wbz.selectrix4java.device.serial;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
 import net.wbz.selectrix4java.block.FeedbackBlockListener;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
+import org.junit.Ignore;
 
 /**
  * Test the feedback block modules for received occupy states and train decoder information.
- * <p/>
  * Testcase:
  * <ol>
  * <li>Train 7</li>
@@ -45,8 +42,6 @@ public class FeedbackBlockMultiTrainTest extends BaseFeedbackDataTest {
 
     /**
      * TODO renew record data, seems corrupted
-     * 
-     * @throws Exception
      */
     @Ignore
     public void testBlock() throws Exception {
@@ -58,8 +53,8 @@ public class FeedbackBlockMultiTrainTest extends BaseFeedbackDataTest {
         // final LinkedBlockingDeque<Integer> train13EnterBlocks = new LinkedBlockingDeque<>(
         // Lists.newArrayList(4, 3, 4));
 
-        FeedbackBlockModule feedbackBlockModule = getDevice().getFeedbackBlockModule((byte) blockAddress,
-                (byte) (blockAddress + 2), (byte) (blockAddress + 1));
+        FeedbackBlockModule feedbackBlockModule = getDevice()
+                .getFeedbackBlockModule((byte) blockAddress, (byte) (blockAddress + 2), (byte) (blockAddress + 1));
         feedbackBlockModule.addFeedbackBlockListener(new FeedbackBlockListener() {
             @Override
             public void trainEnterBlock(int blockNumber, int train, boolean forward) {

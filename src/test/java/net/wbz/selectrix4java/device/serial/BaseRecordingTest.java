@@ -1,18 +1,16 @@
 package net.wbz.selectrix4java.device.serial;
 
+import java.nio.file.Paths;
 import net.wbz.selectrix4java.data.recording.BusDataPlayer;
 import net.wbz.selectrix4java.data.recording.BusDataPlayerListener;
-import net.wbz.selectrix4java.device.DeviceManager;
-
-import java.nio.file.Paths;
 
 /**
  * @author Daniel Tuerk
  */
 public class BaseRecordingTest extends BaseTest {
 
-    protected static final int DEFAULT_PLAYBACK_SPEED=10;
-    protected static final int NORMAL_PLAYBACK_SPEED=1;
+    protected static final int DEFAULT_PLAYBACK_SPEED = 10;
+    protected static final int NORMAL_PLAYBACK_SPEED = 1;
 
     private final String recordFilePath;
 
@@ -35,8 +33,8 @@ public class BaseRecordingTest extends BaseTest {
     public void setup() throws InterruptedException {
         super.setup();
 
-        busDataPlayer = new BusDataPlayer(getDevice().getBusDataDispatcher(), getDevice().getBusDataChannel(), playbackSpeed);
-
+        busDataPlayer = new BusDataPlayer(getDevice().getBusDataDispatcher(), getDevice().getBusDataChannel(),
+                playbackSpeed);
 
         busDataPlayer.addListener(new BusDataPlayerListener() {
             @Override
@@ -63,8 +61,4 @@ public class BaseRecordingTest extends BaseTest {
         }
     }
 
-    @Override
-    public void tearDown() {
-        super.tearDown();
-    }
 }

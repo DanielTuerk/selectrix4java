@@ -1,54 +1,51 @@
 package net.wbz.selectrix4java.device.test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test implementation which stores the written values into an byte array and read the byte array.
- * <p/>
- * Simulates a SX1 bus.
+ * Test implementation which stores the written values into an byte array and read the byte array. Simulates a SX1 bus.
  *
  * @author Daniel Tuerk
  */
-public class TestBus {
+class TestBus {
+
     private static final Logger LOG = LoggerFactory.getLogger(TestBus.class);
     private final InputStream inputStream;
     private final OutputStream outputStream;
     /**
      * Container for the bus 0 and bus 1 for 113 addresses.
      */
-    private transient byte[] busData = new byte[226];
+    private final transient byte[] busData = new byte[226];
 
-    public TestBus() {
+    TestBus() {
         inputStream = new InputStream() {
             @Override
-            public int read() throws IOException {
+            public int read() {
                 return 0;
             }
 
             @Override
-            public int read(byte[] b) throws IOException {
+            public int read(byte[] b) {
                 System.arraycopy(busData, 0, b, 0, busData.length);
                 return b.length;
             }
 
             @Override
-            public int available() throws IOException {
+            public int available() {
                 return busData.length;
             }
         };
         outputStream = new OutputStream() {
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 throw new RuntimeException("not implemented");
             }
 
             @Override
-            public void write(byte[] b) throws IOException {
+            public void write(byte[] b) {
                 if (b.length == 3) {
                     // write address value
                     int address = (toUnsignedInt(b[0]) * 113) + (b[1] < 0 ? b[1] + 128 : b[1]);
@@ -63,15 +60,15 @@ public class TestBus {
 
     }
 
-    private int toUnsignedInt(byte b) {
-        return ((int) b) & 0xFF;
-    }
-
-    public InputStream getInputStream() {
+    InputStream getInputStream() {
         return inputStream;
     }
 
-    public OutputStream getOutputStream() {
+    OutputStream getOutputStream() {
         return outputStream;
+    }
+
+    private int toUnsignedInt(byte b) {
+        return ((int) b) & 0xFF;
     }
 }

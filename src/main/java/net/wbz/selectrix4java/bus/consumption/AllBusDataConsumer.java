@@ -11,5 +11,5 @@ abstract public class AllBusDataConsumer extends AbstractBusDataConsumer {
         super(-1);
     }
 
-    abstract public void valueChanged(int bus,int address, int oldValue, int newValue);
+    abstract public void valueChanged(int bus, int address, int oldValue, int newValue);
 }

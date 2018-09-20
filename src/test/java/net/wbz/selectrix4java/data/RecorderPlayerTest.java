@@ -1,6 +1,11 @@
 package net.wbz.selectrix4java.data;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import net.wbz.selectrix4java.bus.TestDataSet;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 import net.wbz.selectrix4java.data.recording.BusDataPlayer;
@@ -8,17 +13,9 @@ import net.wbz.selectrix4java.data.recording.BusDataPlayerListener;
 import net.wbz.selectrix4java.data.recording.IsRecordable;
 import net.wbz.selectrix4java.data.recording.RecordingException;
 import net.wbz.selectrix4java.device.DeviceAccessException;
-import net.wbz.selectrix4java.device.DeviceManager;
 import net.wbz.selectrix4java.device.serial.BaseTest;
-import net.wbz.selectrix4java.device.serial.Connection;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
 /**
  * Test to record the bus of the device and playback the record as device data.
@@ -32,15 +29,18 @@ public class RecorderPlayerTest extends BaseTest {
     private Path recordDestination;
 
     @Test
-    public void test1Recording() throws DeviceAccessException, InterruptedException, RecordingException, IOException {
-        List<TestDataSet> testDataSets = Lists.newArrayList(new TestDataSet(0, 3, 2), new TestDataSet(1, 2, 4), new TestDataSet(1, 4, 8));
+    public void test1Recording() throws DeviceAccessException, InterruptedException, RecordingException {
+        List<TestDataSet> testDataSets = Lists
+                .newArrayList(new TestDataSet(0, 3, 2), new TestDataSet(1, 2, 4), new TestDataSet(1, 4, 8));
         IsRecordable recordableDevice = (IsRecordable) getDevice();
         recordableDevice.startRecording(RECORD_PATH_DIR);
 
         System.out.println("start sending test data");
         for (TestDataSet testDataSet : testDataSets) {
-            print("send -> bus %d address %d: %d", testDataSet.getSendBus(), testDataSet.getSendAddress(), testDataSet.getSendValue());
-            getDevice().getBusAddress(testDataSet.getSendBus(), (byte) testDataSet.getSendAddress()).sendData((byte) testDataSet.getSendValue());
+            print("send -> bus %d address %d: %d", testDataSet.getSendBus(), testDataSet.getSendAddress(),
+                    testDataSet.getSendValue());
+            getDevice().getBusAddress(testDataSet.getSendBus(), (byte) testDataSet.getSendAddress())
+                    .sendData((byte) testDataSet.getSendValue());
             Thread.sleep(200L);
         }
         System.out.println("finished sending test data");
@@ -53,18 +53,20 @@ public class RecorderPlayerTest extends BaseTest {
         super.setup();
 
         // init and start player
-        BusDataPlayer busDataPlayer = new BusDataPlayer(getDevice().getBusDataDispatcher(), getDevice().getBusDataChannel());
+        BusDataPlayer busDataPlayer = new BusDataPlayer(getDevice().getBusDataDispatcher(),
+                getDevice().getBusDataChannel());
         final boolean[] running = {false};
         for (final TestDataSet testDataSet : testDataSets) {
-            getDevice().getBusDataDispatcher().registerConsumer(new BusAddressDataConsumer(testDataSet.getSendBus(), testDataSet.getSendAddress()) {
-                @Override
-                public void valueChanged(int oldValue, int newValue) {
-                    printData(running[0] ? "player" : "init", oldValue, newValue, getBus(), getAddress());
-                    if (running[0]) {
-                        testDataSet.setResult(getBus(), getAddress(), newValue);
-                    }
-                }
-            });
+            getDevice().getBusDataDispatcher().registerConsumer(
+                    new BusAddressDataConsumer(testDataSet.getSendBus(), testDataSet.getSendAddress()) {
+                        @Override
+                        public void valueChanged(int oldValue, int newValue) {
+                            printData(running[0] ? "player" : "init", oldValue, newValue, getBus(), getAddress());
+                            if (running[0]) {
+                                testDataSet.setResult(getBus(), getAddress(), newValue);
+                            }
+                        }
+                    });
         }
         busDataPlayer.addListener(new BusDataPlayerListener() {
             @Override

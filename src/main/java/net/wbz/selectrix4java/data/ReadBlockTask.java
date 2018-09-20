@@ -4,29 +4,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-
+import net.wbz.selectrix4java.bus.BusDataReceiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.wbz.selectrix4java.bus.BusDataReceiver;
-
 /**
- * This task read the bus 0 and 1 the hole timestamp and delegate the result
- * to the {@link net.wbz.selectrix4java.bus.BusDataReceiver}s.
- * <p/>
- * As {@link net.wbz.selectrix4java.data.AbstractSerialAccessTask} it will
- * be used by the {@link net.wbz.selectrix4java.data.BusDataChannel}
- * TODO it's a FCC specific implementation
+ * This task read the bus 0 and 1 the hole timestamp and delegate the result to the {@link
+ * net.wbz.selectrix4java.bus.BusDataReceiver}s. As {@link net.wbz.selectrix4java.data.AbstractSerialAccessTask} it will
+ * be used by the {@link net.wbz.selectrix4java.data.BusDataChannel}. TODO it's a FCC specific implementation
  *
  * @author Daniel Tuerk
  */
 public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
 
-    private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
+    /**
+     * TODO only in SX1?
+     */
     public static final int LENGTH_OF_DATA_REPLY = 226;
+    private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
     private static final long TIMEOUT = 5000L;
+    /**
+     * TODO FCC specific
+     */
+    private static final int ADDRESS = 120;
+    /**
+     * TODO FCC specific
+     */
+    private static final int DATA = 3;
 
-    private byte[] reply = new byte[LENGTH_OF_DATA_REPLY];
+    private final byte[] reply = new byte[LENGTH_OF_DATA_REPLY];
 
     /**
      * Create new task.
@@ -34,14 +40,14 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
      * @param inputStream open {@link java.io.InputStream}
      * @param outputStream open {@link java.io.OutputStream}
      */
-    public ReadBlockTask(InputStream inputStream, OutputStream outputStream) {
+    ReadBlockTask(InputStream inputStream, OutputStream outputStream) {
         super(inputStream, outputStream);
     }
 
     @Override
-    public Void call() throws Exception {
+    public Void call() {
         try {
-            readBlock(120, 3, reply);
+            readBlock(reply);
         } catch (IOException e) {
             log.error("can't read block", e);
             return null;
@@ -55,10 +61,10 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
         return null;
     }
 
-    private void readBlock(int address, int data, byte[] reply) throws IOException {
+    private void readBlock(byte[] reply) throws IOException {
         // request bus data
         try {
-            getOutputStream().write(new byte[] { (byte) address, (byte) data });
+            getOutputStream().write(new byte[]{(byte) ADDRESS, (byte) DATA});
             getOutputStream().flush();
         } catch (IOException e) {
             throw new RuntimeException("can't write to output", e);

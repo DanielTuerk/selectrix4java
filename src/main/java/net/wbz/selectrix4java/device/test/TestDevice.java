@@ -2,17 +2,12 @@ package net.wbz.selectrix4java.device.test;
 
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.data.BusDataChannel;
-import net.wbz.selectrix4java.data.recording.BusDataRecorder;
-import net.wbz.selectrix4java.data.recording.IsRecordable;
-import net.wbz.selectrix4java.data.recording.RecordingException;
 import net.wbz.selectrix4java.device.AbstractDevice;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 
-import java.nio.file.Path;
-
 /**
- * Simple test device which mock an connection.
- * The bus is simulated by the {@link net.wbz.selectrix4java.device.test.TestBus} for read and write operations.
+ * Simple test device which mock an connection. The bus is simulated by the {@link
+ * net.wbz.selectrix4java.device.test.TestBus} for read and write operations.
  *
  * @author Daniel Tuerk
  */
@@ -36,7 +31,7 @@ public class TestDevice extends AbstractDevice {
     }
 
     @Override
-    public void doDisconnect() throws DeviceAccessException {
+    public void doDisconnect() {
         connected = false;
     }
 

@@ -1,20 +1,19 @@
 package net.wbz.selectrix4java.data.recording;
 
 import com.google.gson.Gson;
-import net.wbz.selectrix4java.bus.BusDataReceiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import net.wbz.selectrix4java.bus.BusDataReceiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Recorder to save the bus data during the recording session and save the recording to the output file. This file can
  * be played back by the {@link BusDataPlayer}.
- * <p/>
- * TODO: write immediately by recording with an puffer to avoid {@link java.lang.OutOfMemoryError} for bigger recording sessions
+ * TODO: write immediately by recording with an puffer to avoid {@link java.lang.OutOfMemoryError} for bigger recording
+ * sessions
  *
  * @author Daniel Tuerk
  */
@@ -23,8 +22,8 @@ public class BusDataRecorder implements BusDataReceiver {
     private static final Logger log = LoggerFactory.getLogger(BusDataRecorder.class);
 
     /**
-     * Record model container to store the bus data during recording. Will be serialized and written to the
-     * {@link #outputFile} by calling {@see #getRecordOutput}.
+     * Record model container to store the bus data during recording. Will be serialized and written to the {@link
+     * #outputFile} by calling {@see #getRecordOutput}.
      */
     private BusDataRecord record;
 
@@ -42,8 +41,9 @@ public class BusDataRecorder implements BusDataReceiver {
      * Start the recording to store the received data by the {@link net.wbz.selectrix4java.bus.BusDataReceiver}
      * interface.
      *
-     * @param destinationFolder {@link java.nio.file.Path} for the directory to create the record file and write the
-     *                          data by calling {@see #getRecordOutput}
+     * @param destinationFolder {@link java.nio.file.Path} for the directory to create the record file and write
+     *         the data by calling {@link #getRecordOutput}
+     * @throws RecordingException can't record
      */
     public void start(Path destinationFolder) throws RecordingException {
         log.debug("start recording");
@@ -58,7 +58,8 @@ public class BusDataRecorder implements BusDataReceiver {
 
             if (Files.isDirectory(destinationFolder)) {
                 try {
-                    outputFile = Files.createFile(Paths.get(destinationFolder.toString(), String.format("record_%d", System.nanoTime())));
+                    outputFile = Files.createFile(
+                            Paths.get(destinationFolder.toString(), String.format("record_%d", System.nanoTime())));
                     record = new BusDataRecord();
                     running = true;
                 } catch (IOException e) {
@@ -107,7 +108,8 @@ public class BusDataRecorder implements BusDataReceiver {
     public Path getRecordOutput() {
         if (!isRunning()) {
             try {
-                log.info(String.format("write record entries (%d) to file: %s", record.getEntries().size(), outputFile.toString()));
+                log.info(String.format("write record entries (%d) to file: %s", record.getEntries().size(),
+                        outputFile.toString()));
                 Files.write(outputFile, new Gson().toJson(record).getBytes());
                 return outputFile;
             } catch (IOException e) {

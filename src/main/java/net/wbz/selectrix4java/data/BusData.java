@@ -4,6 +4,7 @@ package net.wbz.selectrix4java.data;
  * @author Daniel Tuerk
  */
 public class BusData {
+
     private final int bus;
     private final int address;
     private final int data;

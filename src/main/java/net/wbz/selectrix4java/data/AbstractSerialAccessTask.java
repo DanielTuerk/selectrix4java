@@ -4,13 +4,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import net.wbz.selectrix4java.bus.BusDataReceiver;
 
 /**
- * Abstract task for the access to the {@link OutputStream} and {@link InputStream} id a
- * {@link net.wbz.selectrix4java.device.Device}.
- * 
+ * Abstract task for the access to the {@link OutputStream} and {@link InputStream} id a {@link
+ * net.wbz.selectrix4java.device.Device}.
+ *
  * @author Daniel Tuerk
  */
 abstract class AbstractSerialAccessTask<T> implements Callable<T> {
@@ -21,7 +20,7 @@ abstract class AbstractSerialAccessTask<T> implements Callable<T> {
 
     /**
      * Create task for given streams.
-     * 
+     *
      * @param inputStream {@link InputStream}
      * @param outputStream {@link OutputStream}
      */

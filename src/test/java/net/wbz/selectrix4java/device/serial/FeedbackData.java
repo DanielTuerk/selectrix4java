@@ -4,6 +4,7 @@ package net.wbz.selectrix4java.device.serial;
  * @author Daniel Tuerk
  */
 class FeedbackData {
+
     int blockNumber;
     boolean enter;
     int train;

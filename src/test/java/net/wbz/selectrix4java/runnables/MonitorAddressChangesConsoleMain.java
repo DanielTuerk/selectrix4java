@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import net.wbz.selectrix4java.block.FeedbackBlockListener;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.device.Device;
@@ -106,10 +105,10 @@ class MonitorAddressChangesConsoleMain {
                         default:
                             try {
                                 String[] parts = line.split(" ");
-                                serialDevice.getBusAddress(Integer.parseInt(parts[0]),
-                                        (byte) Integer.parseInt(parts[1]))
+                                serialDevice
+                                        .getBusAddress(Integer.parseInt(parts[0]), (byte) Integer.parseInt(parts[1]))
                                         .sendData((byte) Integer.parseInt(parts[2]));
-                            } catch (Exception e) {
+                            } catch (Exception ignored) {
 
                             }
                             break;
@@ -125,18 +124,20 @@ class MonitorAddressChangesConsoleMain {
     }
 
     private static void addFeedbackModule(SerialDevice serialDevice, final int address) throws DeviceAccessException {
-        serialDevice.getFeedbackBlockModule(address, address + 2, address + 1).addFeedbackBlockListener(
-                new FeedbackBlockListener() {
+        serialDevice.getFeedbackBlockModule(address, address + 2, address + 1)
+                .addFeedbackBlockListener(new FeedbackBlockListener() {
                     @Override
                     public void trainEnterBlock(int blockNumber, int trainAddress, boolean forward) {
-                        System.out.println(address + " ENTER " + blockNumber + ": " + trainAddress + " ( " + (forward
-                                ? "FORWARD" : "BACKWARD") + ")");
+                        System.out.println(
+                                address + " ENTER " + blockNumber + ": " + trainAddress + " ( " + (forward ? "FORWARD"
+                                        : "BACKWARD") + ")");
                     }
 
                     @Override
                     public void trainLeaveBlock(int blockNumber, int trainAddress, boolean forward) {
-                        System.out.println(address + " EXIT  " + blockNumber + ": " + trainAddress + " ( " + (forward
-                                ? "FORWARD" : "BACKWARD") + ")");
+                        System.out.println(
+                                address + " EXIT  " + blockNumber + ": " + trainAddress + " ( " + (forward ? "FORWARD"
+                                        : "BACKWARD") + ")");
                     }
 
                     @Override
@@ -151,23 +152,15 @@ class MonitorAddressChangesConsoleMain {
                 });
     }
 
-    private static void addBusAddressListener(SerialDevice serialDevice, final int address)
-            throws DeviceAccessException {
-        serialDevice.getBusAddress(1, address).addListener(new BusAddressListener() {
-            @Override
-            public void dataChanged(byte oldValue, byte newValue) {
-                if (oldValue != newValue) {
+    private static void addBusAddressListener(SerialDevice serialDevice, final int address) throws
+            DeviceAccessException {
+        serialDevice.getBusAddress(1, address).addListener((BusAddressListener) (oldValue, newValue) -> {
+            if (oldValue != newValue) {
 
-                    System.out.println(String.format("%s: %s (%d %d %d %d | %d %d %d %d)", address, newValue,
-                            foo(newValue, 7),
-                            foo(newValue, 6),
-                            foo(newValue, 5),
-                            foo(newValue, 4),
-                            foo(newValue, 3),
-                            foo(newValue, 2),
-                            foo(newValue, 1),
-                            foo(newValue, 0)));
-                }
+                System.out.println(
+                        String.format("%s: %s (%d %d %d %d | %d %d %d %d)", address, newValue, foo(newValue, 7),
+                                foo(newValue, 6), foo(newValue, 5), foo(newValue, 4), foo(newValue, 3),
+                                foo(newValue, 2), foo(newValue, 1), foo(newValue, 0)));
             }
         });
     }

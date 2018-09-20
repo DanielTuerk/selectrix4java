@@ -1,13 +1,11 @@
 package net.wbz.selectrix4java.block;
 
+import com.google.common.base.Objects;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.google.common.base.Objects;
-
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
@@ -27,8 +25,8 @@ public class BlockModule implements Module {
     private final BusAddress busAddress;
     private final List<AbstractBusDataConsumer> consumers = new ArrayList<>();
     /**
-     * Storage of the actual occupied states of this block.
-     * Will be initial filled by the consumer after established connection.
+     * Storage of the actual occupied states of this block. Will be initial filled by the consumer after established
+     * connection.
      */
     private final Map<Integer, Boolean> blockStates = new ConcurrentHashMap<>();
 
@@ -135,8 +133,6 @@ public class BlockModule implements Module {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
-                .add("busAddress", busAddress)
-                .toString();
+        return Objects.toStringHelper(this).add("busAddress", busAddress).toString();
     }
 }

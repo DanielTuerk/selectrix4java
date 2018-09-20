@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
-
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,7 +13,7 @@ import org.junit.Before;
  */
 abstract class BaseFeedbackTest<Event> extends BaseRecordingTest {
 
-    private List<AssertionError> exceptions = new ArrayList<>();
+    private final List<AssertionError> exceptions = new ArrayList<>();
 
     /**
      * Queue to execute the tasks as FIFO.

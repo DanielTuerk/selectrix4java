@@ -1,30 +1,26 @@
 package net.wbz.selectrix4java.block;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.Maps;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
-
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
 import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Block which use the feedback address to receive the train address on the block.
- * <p/>
- * Control the block to update the speed of each entering or exiting train on the block.
- * <p/>
- * <h2>Supported Devices:</h2>
+ * <p>
+ * Control the block to update the speed of each entering or exiting train on the block.</p>
+ * <p>Supported Devices:</p>
  * <ul>
- * <li>D&H Belegtmelder 8i</li>
+ * <li>D&amp;H Belegtmelder 8i</li>
  * </ul>
- * <p/>
- * TODO should be the D&H 8i - implementation
+ *
+ * TODO should be the D&amp;H 8i - implementation
  *
  * @author Daniel Tuerk
  */
@@ -95,32 +91,30 @@ public class FeedbackBlockModule extends BlockModule {
 
             boolean isDuplicate = false;
             if (trainAddressLastSend.containsKey(feedbackTrainData.getTrainAddress())) {
-                isDuplicate = trainAddressLastSend.get(feedbackTrainData.getTrainAddress())
-                        .equals(feedbackTrainData);
+                isDuplicate = trainAddressLastSend.get(feedbackTrainData.getTrainAddress()).equals(feedbackTrainData);
             }
             if (!isDuplicate) {
                 trainAddressLastSend.put(feedbackTrainData.getTrainAddress(), feedbackTrainData);
                 if (feedbackTrainData.isEnteringBlock()) {
-                    dispatcher.fireTrainEnterBlock(feedbackTrainData.getBlockNr(),
-                            feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
+                    dispatcher.fireTrainEnterBlock(feedbackTrainData.getBlockNr(), feedbackTrainData.getTrainAddress(),
+                            feedbackTrainData.isTrainDirectionForward());
                 } else {
-                    dispatcher.fireTrainLeaveBlock(feedbackTrainData.getBlockNr(),
-                            feedbackTrainData.getTrainAddress(), feedbackTrainData.isTrainDirectionForward());
+                    dispatcher.fireTrainLeaveBlock(feedbackTrainData.getBlockNr(), feedbackTrainData.getTrainAddress(),
+                            feedbackTrainData.isTrainDirectionForward());
                 }
             } else {
                 log.error("duplicate: {}", feedbackTrainData);
             }
 
         } else {
-            log.error("state ({}) and feedback ({}) not new", stateAddressNewDataValue,
-                    feedbackAddressNewDataValue);
+            log.error("state ({}) and feedback ({}) not new", stateAddressNewDataValue, feedbackAddressNewDataValue);
         }
     }
 
     /**
-     * Rest states and request new states from module.
-     * Sends the request command. New states are received by the consumer and delegated to listeners.
-     * 
+     * Rest states and request new states from module. Sends the request command. New states are received by the
+     * consumer and delegated to listeners.
+     *
      * @see #handleReceivedFeedbackData(Collection)
      */
     public void requestNewFeedbackData() {
@@ -130,8 +124,8 @@ public class FeedbackBlockModule extends BlockModule {
     }
 
     /**
-     * Reset all feedback states which are cached as send state.
-     * This trigger the send of all next states which are received by the address consumers.
+     * Reset all feedback states which are cached as send state. This trigger the send of all next states which are
+     * received by the address consumers.
      */
     @Override
     public void reset() {
@@ -161,15 +155,14 @@ public class FeedbackBlockModule extends BlockModule {
 
     @Override
     public String toString() {
-        return super.toString() + Objects.toStringHelper(this)
-                .add("dispatcher", dispatcher)
-                .toString();
+        return super.toString() + Objects.toStringHelper(this).add("dispatcher", dispatcher).toString();
     }
 
     /**
      * Model to store information about train data on block.
      */
     private class FeedbackTrainData {
+
         private int trainAddress;
         private boolean trainDirectionForward;
         private int blockNr;
@@ -186,11 +179,11 @@ public class FeedbackBlockModule extends BlockModule {
             this.trainAddress = trainAddress;
         }
 
-        public boolean isTrainDirectionForward() {
+        boolean isTrainDirectionForward() {
             return trainDirectionForward;
         }
 
-        public void setTrainDirectionForward(boolean trainDirectionForward) {
+        void setTrainDirectionForward(boolean trainDirectionForward) {
             this.trainDirectionForward = trainDirectionForward;
         }
 
@@ -202,22 +195,18 @@ public class FeedbackBlockModule extends BlockModule {
             this.blockNr = blockNr;
         }
 
-        public boolean isEnteringBlock() {
+        boolean isEnteringBlock() {
             return enteringBlock;
         }
 
-        public void setEnteringBlock(boolean enteringBlock) {
+        void setEnteringBlock(boolean enteringBlock) {
             this.enteringBlock = enteringBlock;
         }
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this)
-                    .add("train", trainAddress)
-                    .add("forward", trainDirectionForward)
-                    .add("blockNr", blockNr)
-                    .add("enteringBlock", enteringBlock)
-                    .toString();
+            return Objects.toStringHelper(this).add("train", trainAddress).add("forward", trainDirectionForward)
+                    .add("blockNr", blockNr).add("enteringBlock", enteringBlock).toString();
         }
 
         @Override
@@ -229,10 +218,9 @@ public class FeedbackBlockModule extends BlockModule {
                 return false;
             }
             FeedbackTrainData that = (FeedbackTrainData) o;
-            return Objects.equal(trainAddress, that.trainAddress) &&
-                    Objects.equal(trainDirectionForward, that.trainDirectionForward) &&
-                    Objects.equal(blockNr, that.blockNr) &&
-                    Objects.equal(enteringBlock, that.enteringBlock);
+            return Objects.equal(trainAddress, that.trainAddress) && Objects
+                    .equal(trainDirectionForward, that.trainDirectionForward) && Objects.equal(blockNr, that.blockNr)
+                    && Objects.equal(enteringBlock, that.enteringBlock);
         }
 
         @Override

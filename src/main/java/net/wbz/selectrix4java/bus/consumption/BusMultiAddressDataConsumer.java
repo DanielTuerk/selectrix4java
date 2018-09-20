@@ -4,15 +4,14 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * Consumers are informed by state changes of the configured bus and addresses.
- * Is called if at least one address data has changed. All other data of configured addresses is send with the old
- * value.
+ * Consumers are informed by state changes of the configured bus and addresses. Is called if at least one address data
+ * has changed. All other data of configured addresses is send with the old value.
  *
  * @author Daniel Tuerk
  */
 abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsumer {
 
-    private int[] addresses;
+    private final int[] addresses;
 
     /**
      * Create consumer for the given bus and addresses.
@@ -26,8 +25,8 @@ abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsume
     }
 
     /**
-     * Data value of the addresses. Each address data value is given by the {@link BusAddressData}.
-     * At least one address with new data value was detected.
+     * Data value of the addresses. Each address data value is given by the {@link BusAddressData}. At least one address
+     * with new data value was detected.
      *
      * @param data collection of {@link BusAddressData}
      */
@@ -39,12 +38,15 @@ abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsume
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
-        if (!super.equals(o))
+        }
+        if (!super.equals(o)) {
             return false;
+        }
 
         BusMultiAddressDataConsumer that = (BusMultiAddressDataConsumer) o;
 
