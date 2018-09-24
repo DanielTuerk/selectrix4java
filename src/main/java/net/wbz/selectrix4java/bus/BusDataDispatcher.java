@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -26,8 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The dispatcher stores all values for each address of the SX bus channels. To receive the values it implements {@link
- * BusDataReceiver}.
- * For each value which has changed, the registered {@link AbstractBusDataConsumer}s are informed.
+ * BusDataReceiver}. For each value which has changed, the registered {@link AbstractBusDataConsumer}s are informed.
  *
  * @author Daniel Tuerk
  */
@@ -46,7 +46,7 @@ public class BusDataDispatcher implements BusDataReceiver {
     /**
      * Consumers to call for bus data changes.
      */
-    private final List<AbstractBusDataConsumer> consumers = Lists.newCopyOnWriteArrayList();
+    private final List<AbstractBusDataConsumer> consumers = new CopyOnWriteArrayList<>();
 
     /**
      * Create dispatcher with executor service for cached thread pool.
@@ -64,7 +64,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @return collection of consumers for the given type or empty collection
      */
     private <T extends AbstractBusDataConsumer> Collection<T> getConsumersOfType(
-            Collection<AbstractBusDataConsumer> consumers, final Class<? extends T> type) {
+        Collection<AbstractBusDataConsumer> consumers, final Class<? extends T> type) {
         List<T> filtered = new ArrayList<>();
         for (AbstractBusDataConsumer consumer : consumers) {
             if (type.isAssignableFrom(consumer.getClass())) {
@@ -172,12 +172,12 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @param initialCall indicate the first call of the given consumers
      */
     private void callConsumers(List<AbstractBusDataConsumer> consumers, int busNr, byte[] data, byte[] oldData,
-            boolean initialCall) {
+        boolean initialCall) {
         final Collection<AbstractBusDataConsumer> consumersToCall = Lists.newArrayList(consumers);
 
         // call the multi address consumers
         Collection<BusMultiAddressDataConsumer> multiAddressConsumers = getConsumersOfType(consumersToCall,
-                BusMultiAddressDataConsumer.class);
+            BusMultiAddressDataConsumer.class);
         for (final BusMultiAddressDataConsumer multiAddressDataConsumer : multiAddressConsumers) {
             fireMultiAddressChange(multiAddressDataConsumer, busNr, oldData, data, initialCall);
         }
@@ -189,18 +189,18 @@ public class BusDataDispatcher implements BusDataReceiver {
             if (address != 111) {
                 if (initialCall || Byte.compare(data[address], oldData[address]) != 0) {
                     log.trace(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
-                            initialCall, busNr, address, oldData[address], data[address]));
+                        initialCall, busNr, address, oldData[address], data[address]));
 
                     for (AbstractBusDataConsumer consumer : consumersToCall) {
                         if (consumer instanceof AllBusDataConsumer) {
                             callAllBusDataConsumers(busNr, address, oldData[address], data[address],
-                                    (AllBusDataConsumer) consumer);
+                                (AllBusDataConsumer) consumer);
                         } else if (consumer instanceof BusBitConsumer) {
                             callBitAddressConsumer((BusBitConsumer) consumer, busNr, address, oldData[address],
-                                    data[address], initialCall);
+                                data[address], initialCall);
                         } else if (consumer instanceof BusAddressDataConsumer) {
                             callBusAddressDataConsumer((BusAddressDataConsumer) consumer, busNr, address,
-                                    oldData[address], data[address]);
+                                oldData[address], data[address]);
                         } else {
                             String errorMsg = "unknown consumer: " + consumer.getClass().getName();
                             log.error(errorMsg);
@@ -222,7 +222,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @param consumer consumer to call
      */
     private void callAllBusDataConsumers(final int busNr, final int address, final int oldData, final int newData,
-            final AllBusDataConsumer consumer) {
+        final AllBusDataConsumer consumer) {
         executorService.submit(() -> consumer.valueChanged(busNr, address, oldData, newData));
     }
 
@@ -237,7 +237,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @param initialCall indicate the first call for the given consumer
      */
     private void callBitAddressConsumer(final BusBitConsumer consumer, final int busNr, final int address,
-            final int oldData, final int newData, boolean initialCall) {
+        final int oldData, final int newData, boolean initialCall) {
         // bit change
         if (consumer.getAddress() == address && consumer.getBus() == busNr) {
             final boolean oldBitState = BigInteger.valueOf(oldData).testBit(consumer.getBit() - 1);
@@ -258,7 +258,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @param consumer consumer to call
      */
     private void callBusAddressDataConsumer(final BusAddressDataConsumer consumer, final int busNr, final int address,
-            final int oldData, final int newData) {
+        final int oldData, final int newData) {
         if (consumer.getAddress() == address && consumer.getBus() == busNr) {
             executorService.submit(() -> consumer.valueChanged(oldData, newData));
         }
@@ -275,7 +275,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @param initialCall {@code true} to fire instead of same old and new data value
      */
     private void fireMultiAddressChange(final BusMultiAddressDataConsumer multiAddressDataConsumer, int busNr,
-            byte[] oldData, byte[] data, boolean initialCall) {
+        byte[] oldData, byte[] data, boolean initialCall) {
         boolean anyAddressDataChanged = false;
         if (busNr == multiAddressDataConsumer.getBus()) {
             // detect change of any address of consumer
@@ -290,7 +290,7 @@ public class BusDataDispatcher implements BusDataReceiver {
                 final Set<BusAddressData> busAddressData = Sets.newHashSet();
                 // iterate again to avoid creation of endless address data objects
                 for (int addressIndex = 0; addressIndex < multiAddressDataConsumer.getAddresses().length;
-                        addressIndex++) {
+                    addressIndex++) {
                     int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
                     busAddressData.add(new BusAddressData(busNr, busAddress, oldData[busAddress], data[busAddress]));
                 }
