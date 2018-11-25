@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java.bus;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.math.BigInteger;
 import java.util.List;
@@ -227,6 +228,6 @@ public class BusAddress {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("bus", bus).add("address", address).toString();
+        return MoreObjects.toStringHelper(this).add("bus", bus).add("address", address).toString();
     }
 }

@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java.block;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -133,6 +134,6 @@ public class BlockModule implements Module {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("busAddress", busAddress).toString();
+        return MoreObjects.toStringHelper(this).add("busAddress", busAddress).toString();
     }
 }

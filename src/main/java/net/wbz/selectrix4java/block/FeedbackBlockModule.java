@@ -1,5 +1,6 @@
 package net.wbz.selectrix4java.block;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import java.math.BigInteger;
@@ -155,7 +156,7 @@ public class FeedbackBlockModule extends BlockModule {
 
     @Override
     public String toString() {
-        return super.toString() + Objects.toStringHelper(this).add("dispatcher", dispatcher).toString();
+        return super.toString() + MoreObjects.toStringHelper(this).add("dispatcher", dispatcher).toString();
     }
 
     /**
@@ -205,7 +206,7 @@ public class FeedbackBlockModule extends BlockModule {
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this).add("train", trainAddress).add("forward", trainDirectionForward)
+            return MoreObjects.toStringHelper(this).add("train", trainAddress).add("forward", trainDirectionForward)
                     .add("blockNr", blockNr).add("enteringBlock", enteringBlock).toString();
         }
 
