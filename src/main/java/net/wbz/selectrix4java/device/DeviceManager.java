@@ -2,6 +2,7 @@ package net.wbz.selectrix4java.device;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import net.wbz.selectrix4java.device.serial.SerialDevice;
@@ -93,19 +94,19 @@ public class DeviceManager {
         throw new RuntimeException("no device found to delete");
     }
 
-
     public void addDeviceConnectionListener(DeviceConnectionListener listener) {
         listeners.add(listener);
-        for (Device device : devices.values()) {
-            device.addDeviceConnectionListener(listener);
-        }
+        devices.values()
+            .stream()
+            // sort by disconnected devices first
+            .sorted(Comparator.comparing(Device::isConnected))
+            // add listeners and receive the initial connection state
+            .forEach(device -> device.addDeviceConnectionListener(listener));
     }
 
     public void removeDeviceConnectionListener(DeviceConnectionListener listener) {
         listeners.remove(listener);
-        for (Device device : devices.values()) {
-            device.removeDeviceConnectionListener(listener);
-        }
+        devices.values().forEach(device -> device.removeDeviceConnectionListener(listener));
     }
 
 }

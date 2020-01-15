@@ -467,6 +467,8 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         listeners.add(listener);
         if (isConnected()) {
             listener.connected(this);
+        } else {
+            listener.disconnected(this);
         }
     }
 
