@@ -72,6 +72,11 @@ public class SerialDevice extends AbstractDevice {
     }
 
     @Override
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    @Override
     protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException {
         System.setProperty("gnu.io.rxtx.SerialPorts", deviceId);
         Enumeration portList = CommPortIdentifier.getPortIdentifiers();

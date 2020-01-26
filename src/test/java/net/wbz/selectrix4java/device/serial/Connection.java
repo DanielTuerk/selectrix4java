@@ -28,7 +28,7 @@ public class Connection {
     }
 
     public Connection(String deviceId, DeviceManager.DEVICE_TYPE deviceType) {
-        device = new DeviceManager().registerDevice(deviceType, deviceId, SerialDevice.DEFAULT_BAUD_RATE_FCC);
+        device = new DeviceManager().createDevice(deviceType, deviceId, SerialDevice.DEFAULT_BAUD_RATE_FCC);
         device.addDeviceConnectionListener(new DeviceConnectionListener() {
             @Override
             public void connected(Device device) {

@@ -21,18 +21,16 @@ public class DeviceManager {
 
     public enum DEVICE_TYPE {SERIAL, TEST}
 
-    public Device registerDevice(DEVICE_TYPE type, String deviceId, int baudRate) {
-        if (!devices.containsKey(deviceId)) {
-            Device device = createDevice(type, deviceId, baudRate);
+    public void registerDevice(Device device) {
+        if (!devices.containsKey(device.getDeviceId())) {
             for (DeviceConnectionListener listener : listeners) {
                 device.addDeviceConnectionListener(listener);
             }
-            devices.put(deviceId, device);
+            devices.put(device.getDeviceId(), device);
         }
-        return devices.get(deviceId);
     }
 
-    private Device createDevice(DEVICE_TYPE type, String deviceId, int baudRate) {
+    public Device createDevice(DEVICE_TYPE type, String deviceId, int baudRate) {
         switch (type) {
             case SERIAL:
                 return new SerialDevice(deviceId, baudRate);

@@ -21,6 +21,11 @@ public class TestDevice extends AbstractDevice {
     }
 
     @Override
+    public String getDeviceId() {
+        return "test";
+    }
+
+    @Override
     protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException {
         if (isConnected()) {
             throw new DeviceAccessException("already connected");

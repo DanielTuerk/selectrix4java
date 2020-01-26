@@ -24,6 +24,13 @@ public interface Device extends Serializable {
     }
 
     /**
+     * Id of the device.
+     *
+     * @return {@link String}
+     */
+    String getDeviceId();
+
+    /**
      * Register the given listener to the device to receive connection state changes.
      *
      * @param listener {@link DeviceConnectionListener}
