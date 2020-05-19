@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Daniel Tuerk
  */
-public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
+public class ReadBlockTask extends AbstractSerialAccessTask {
 
     /**
      * TODO only in SX1?
@@ -45,48 +45,48 @@ public class ReadBlockTask extends AbstractSerialAccessTask<Void> {
     }
 
     @Override
-    public Void call() {
-        try {
-            readBlock(reply);
-        } catch (IOException e) {
-            log.error("can't read block", e);
-            return null;
-        }
+    public Boolean call() {
+        boolean valid = readBlock(reply);
         for (final BusDataReceiver receiver : getReceivers()) {
             // bus 0
             receiver.received(0, Arrays.copyOfRange(reply, 0, 113));
             // bus 1
             receiver.received(1, Arrays.copyOfRange(reply, 113, 226));
         }
-        return null;
+        return valid;
     }
 
-    private void readBlock(byte[] reply) throws IOException {
+    private boolean readBlock(byte[] reply) {
         // request bus data
         try {
             getOutputStream().write(new byte[]{(byte) ADDRESS, (byte) DATA});
             getOutputStream().flush();
+
+            // waiting for full response from FCC
+            long maxWaitingTime = System.currentTimeMillis() + TIMEOUT;
+            while (getInputStream().available() < LENGTH_OF_DATA_REPLY) {
+                try {
+                    Thread.sleep(10L);
+                } catch (InterruptedException e) {
+                    log.error("error to wait for read delay, e");
+                    return false;
+                }
+                if (System.currentTimeMillis() > maxWaitingTime) {
+                    break;
+                }
+            }
+
+            // read response
+            int length = getInputStream().read(reply);
+            if (length != reply.length) {
+                log.error("block length invalid (" + length + ")");
+                return false;
+            }
         } catch (IOException e) {
-            throw new RuntimeException("can't write to output", e);
+            log.error("can't write to output", e);
+            return false;
         }
 
-        // waiting for full response from FCC
-        long maxWaitingTime = System.currentTimeMillis() + TIMEOUT;
-        while (getInputStream().available() < LENGTH_OF_DATA_REPLY) {
-            try {
-                Thread.sleep(10L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (System.currentTimeMillis() > maxWaitingTime) {
-                break;
-            }
-        }
-
-        // read response
-        int length = getInputStream().read(reply);
-        if (length != reply.length) {
-            throw new IOException("block length invalid (" + length + ")");
-        }
+        return true;
     }
 }

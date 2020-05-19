@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The channel communicate with the device to execute read and write operations. Each operation is an {@link
  * net.wbz.selectrix4java.data.AbstractSerialAccessTask}. The tasks can be put into the queue to execute by calling
- * {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}. The queue is polled each timestamp to execute an
+ * {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}. The queue is polled after a delay to execute an
  * task. If no task is present in the queue, the channel send the {@link ReadBlockTask} to read the actual values from
  * the SX bus. State changes of the values are published to the given {@link net.wbz.selectrix4java.bus.BusDataReceiver}.
  *
@@ -30,8 +30,16 @@ import org.slf4j.LoggerFactory;
  */
 public class BusDataChannel {
 
-    public static final long DELAY = 55L;
+    /**
+     * Delay between each task.
+     */
+    public static final long DELAY_IN_MS = 55L;
+
     private static final Logger log = LoggerFactory.getLogger(BusDataChannel.class);
+    /**
+     * Max errors to receive until shutdown channel.
+     */
+    private static final int MAX_ERROR_COUNT = 2;
     /**
      * Queue to execute the tasks as FIFO.
      */
@@ -63,14 +71,18 @@ public class BusDataChannel {
     private transient boolean paused = false;
 
     /**
+     * Count of bus communication errors in a row.
+     */
+    private int errorCount = 0;
+
+    /**
      * Create an new channel for the given IO streams of the connected device. Default {@link
      * net.wbz.selectrix4java.bus.BusDataReceiver} must be set. Additional receivers can be added at runtime. {@link
      * #addBusDataReceiver}
      *
      * @param inputStream opened {@link java.io.InputStream}
      * @param outputStream opened {@link java.io.OutputStream}
-     * @param receiver {@link net.wbz.selectrix4java.bus.BusDataReceiver} to receive the values of the read
-     *         operations
+     * @param receiver {@link net.wbz.selectrix4java.bus.BusDataReceiver} to receive the values of the read operations
      */
     public BusDataChannel(InputStream inputStream, OutputStream outputStream, BusDataReceiver receiver) {
         this.outputStream = outputStream;
@@ -83,9 +95,11 @@ public class BusDataChannel {
     }
 
     /**
-     * Start the channel to schedule to read the stream with the {@link #DELAY}. Or execute an queued send operation.
+     * Start the channel to schedule to read the stream with the {@link #DELAY_IN_MS}. Or execute an queued send
+     * operation.
      */
     public void start() {
+        errorCount = 0;
         final ReadBlockTask readBlockTask = new ReadBlockTask(inputStream, outputStream);
         // poll the queue
         scheduledExecutorService.scheduleWithFixedDelay(() -> {
@@ -100,7 +114,15 @@ public class BusDataChannel {
                     task.setReceivers(receivers);
                 }
                 try {
-                    serialTaskExecutor.submit(task).get();
+                    if (serialTaskExecutor.submit(task).get()) {
+                        errorCount = 0;
+                    } else {
+                        errorCount++;
+                        if (errorCount >= MAX_ERROR_COUNT) {
+                            log.warn("close channel by reaching error count: " + errorCount);
+                            shutdownNow();
+                        }
+                    }
                 } catch (InterruptedException e) {
                     log.error("serial access interrupted", e);
                     shutdownNow();
@@ -109,7 +131,7 @@ public class BusDataChannel {
                     shutdownNow();
                 }
             }
-        }, 200, DELAY, TimeUnit.MILLISECONDS);
+        }, 200, DELAY_IN_MS, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -125,7 +147,6 @@ public class BusDataChannel {
      */
     public void resume() {
         if (paused) {
-
             paused = false;
             log.info("bus data channel resumed");
         } else {

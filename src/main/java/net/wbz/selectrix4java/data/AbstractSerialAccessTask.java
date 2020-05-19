@@ -12,7 +12,7 @@ import net.wbz.selectrix4java.bus.BusDataReceiver;
  *
  * @author Daniel Tuerk
  */
-abstract class AbstractSerialAccessTask<T> implements Callable<T> {
+abstract class AbstractSerialAccessTask implements Callable<Boolean> {
 
     private final InputStream inputStream;
     private final OutputStream outputStream;
