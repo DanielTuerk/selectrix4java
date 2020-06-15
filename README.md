@@ -1,19 +1,23 @@
 selectrix4java
 ===============
 
-####(Java library to communicate with an selectrix bus system.)
+Java library to communicate with an selectrix bus system.
 
-###Supported Format: SX1
+####Supported Format: SX1
 
-*Tested with: FCC, Stärz Interface, Stärz Functionmodule, D&H BM 8i and D&H Decoder*
+Tested with: FCC, Stärz Interface, Stärz Functionmodule, D&H BM 8i and D&H Decoder
 
-**RXTX binaries of target OS are required(!) for serial access to COM and USB interfaces.**
-(http://www.jcontrol.org/download/readme_rxtx_en.html)
+Build project and install to your local maven repository: ```mvn clean install```
 
-Setup project: ```mvn clean validate```
+Afterward you can use the lib in your own project by adding the maven dependency.
 
-The goal "validate" is required to install the shipped RXTX JAR from the "lib" folder to your local maven repository.
+```
+<dependency>
+   <groupId>net.wbz.selectrix4java</groupId>
+   <artifactId>selectrix4java</artifactId>
+   <version>${selectrix.version}</version>
+</dependency>
+```
+As version, please use the one of the "pom.xml" from your local copy of selectrix4java.
 
-Afterwards you can simply use ```mvn clean compile```.
-
-####Take a look into the wiki for usage instructions.
+#### Take a look into the wiki for usage instructions. (https://github.com/DanielTuerk/selectrix4java/wiki)

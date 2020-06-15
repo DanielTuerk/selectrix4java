@@ -1,7 +1,5 @@
 package net.wbz.selectrix4java.device.serial;
 
-import gnu.io.CommPortIdentifier;
-import gnu.io.SerialPort;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +12,8 @@ import net.wbz.selectrix4java.device.AbstractDevice;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import purejavacomm.CommPortIdentifier;
+import purejavacomm.SerialPort;
 
 /**
  * {@link net.wbz.selectrix4java.device.Device} implementation for serial access like COM or USB.
@@ -100,7 +100,6 @@ public class SerialDevice extends AbstractDevice {
 
     /**
      * @see net.wbz.selectrix4java.device.Device#disconnect()
-     *         TODO: RXTX will crash on OSX (Linux and Windows is working)
      */
     @Override
     public void doDisconnect() {

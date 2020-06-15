@@ -18,11 +18,14 @@ import org.slf4j.LoggerFactory;
 public class ReadBlockTask extends AbstractSerialAccessTask {
 
     /**
-     * TODO only in SX1?
+     * Length of the array of the SX 0 and 1 bus.
      */
     public static final int LENGTH_OF_DATA_REPLY = 226;
     private static final Logger log = LoggerFactory.getLogger(ReadBlockTask.class);
-    private static final long TIMEOUT = 5000L;
+    /**
+     * Timeout for read the bus.
+     */
+    private static final long CONNECTION_TIMEOUT = 5000L;
     /**
      * TODO FCC specific
      */
@@ -31,6 +34,10 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
      * TODO FCC specific
      */
     private static final int DATA = 3;
+    /**
+     * Delay to read the SX bus.
+     */
+    public static final long SX_DELAY_IN_MILLIS = 77L;
 
     private final byte[] reply = new byte[LENGTH_OF_DATA_REPLY];
 
@@ -63,10 +70,10 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
             getOutputStream().flush();
 
             // waiting for full response from FCC
-            long maxWaitingTime = System.currentTimeMillis() + TIMEOUT;
+            long maxWaitingTime = System.currentTimeMillis() + CONNECTION_TIMEOUT;
             while (getInputStream().available() < LENGTH_OF_DATA_REPLY) {
                 try {
-                    Thread.sleep(10L);
+                    Thread.sleep(SX_DELAY_IN_MILLIS);
                 } catch (InterruptedException e) {
                     log.error("error to wait for read delay, e");
                     return false;
@@ -75,7 +82,6 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
                     break;
                 }
             }
-
             // read response
             int length = getInputStream().read(reply);
             if (length != reply.length) {
@@ -86,7 +92,6 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
             log.error("can't write to output", e);
             return false;
         }
-
         return true;
     }
 }

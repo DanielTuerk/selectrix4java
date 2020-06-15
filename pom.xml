@@ -149,9 +149,9 @@
 
     <!-- Serial -->
     <dependency>
-      <groupId>org.rxtx</groupId>
-      <artifactId>rxtx</artifactId>
-      <version>2.2.pre</version>
+      <groupId>com.github.purejavacomm</groupId>
+      <artifactId>purejavacomm</artifactId>
+      <version>1.0.1.RELEASE</version>
     </dependency>
 
     <!-- Manager -->
