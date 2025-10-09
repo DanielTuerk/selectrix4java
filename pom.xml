@@ -3,7 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
   <groupId>net.wbz.selectrix4java</groupId>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.2-SNAPSHOT</version>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>selectrix4java</artifactId>
@@ -14,7 +14,7 @@
     <developer>
       <id>dtuerk</id>
       <name>Daniel Türk</name>
-      <email>Daniel.Tuerk@w-b-z.com</email>
+      <email>dtuerk22@gmail.com</email>
     </developer>
   </developers>
 
@@ -152,9 +152,9 @@
 
     <!-- Serial -->
     <dependency>
-      <groupId>com.github.purejavacomm</groupId>
-      <artifactId>purejavacomm</artifactId>
-      <version>1.0.2.RELEASE</version>
+      <groupId>com.fazecast</groupId>
+      <artifactId>jSerialComm</artifactId>
+      <version>2.11.2</version>
     </dependency>
 
     <!-- Manager -->
