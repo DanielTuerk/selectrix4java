@@ -77,7 +77,7 @@ public class SerialDevice extends AbstractDevice {
     @Override
     protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException {
         System.setProperty("gnu.io.rxtx.SerialPorts", deviceId);
-        SerialPort serialPort = SerialPort.getCommPort(deviceId);
+        serialPort = SerialPort.getCommPort(deviceId);
         try {
             serialPort.openPort();
             serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
