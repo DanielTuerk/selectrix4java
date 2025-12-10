@@ -1,19 +1,17 @@
 package net.wbz.selectrix4java.device.serial;
 
+import com.fazecast.jSerialComm.SerialPort;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.device.AbstractDevice;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import purejavacomm.CommPortIdentifier;
-import purejavacomm.SerialPort;
 
 /**
  * {@link net.wbz.selectrix4java.device.Device} implementation for serial access like COM or USB.
@@ -78,24 +76,26 @@ public class SerialDevice extends AbstractDevice {
 
     @Override
     protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException {
-        System.setProperty("gnu.io.rxtx.SerialPorts", deviceId);
-        Enumeration portList = CommPortIdentifier.getPortIdentifiers();
-        if (portList.hasMoreElements()) {
-            CommPortIdentifier portId = (CommPortIdentifier) portList.nextElement();
-            try {
-                serialPort = (SerialPort) portId.open("net.wbz.selectrix4java", 2000);
-                outputStream = serialPort.getOutputStream();
-                inputStream = serialPort.getInputStream();
-                serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_NONE);
-                serialPort.enableReceiveTimeout(1000);
-                serialPort.setSerialPortParams(baudRate, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
-                        SerialPort.PARITY_NONE);
-            } catch (Exception e) {
-                throw new DeviceAccessException(String.format("can't connect to device for id %s", deviceId), e);
+        try {
+            serialPort = SerialPort.getCommPort(deviceId);
+            serialPort.setBaudRate(baudRate);
+            serialPort.setNumDataBits(8);
+            serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
+            serialPort.setParity(SerialPort.NO_PARITY);
+            serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
+            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 1000, 0);
+
+            if (!serialPort.openPort()) {
+                throw new DeviceAccessException("Unable to open serial port: %s".formatted(deviceId));
             }
+
+            outputStream = serialPort.getOutputStream();
+            inputStream = serialPort.getInputStream();
+
             return new BusDataChannel(inputStream, outputStream, busDataDispatcher);
+        } catch (Exception e) {
+            throw new DeviceAccessException("can't connect to device for id %s".formatted(deviceId), e);
         }
-        throw new DeviceAccessException(String.format("no device found for id %s", deviceId));
     }
 
     /**
@@ -116,8 +116,8 @@ public class SerialDevice extends AbstractDevice {
             }
             outputStream = null;
             inputStream = null;
-            serialPort.removeEventListener();
-            serialPort.close();
+            serialPort.removeDataListener();
+            serialPort.closePort();
         }
     }
 

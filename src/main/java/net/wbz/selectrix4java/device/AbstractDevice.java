@@ -103,10 +103,10 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         busDataChannel.setCallback(() -> {
             log.info("device connection lost");
             for (final DeviceConnectionListener listener : listeners) {
-                new FutureTask<>((Callable<Void>) () -> {
+//                new FutureTask<>((Callable<Void>) () -> {
                     listener.disconnected(AbstractDevice.this);
-                    return null;
-                }).run();
+//                    return null;
+//                }).run();
             }
         });
 
