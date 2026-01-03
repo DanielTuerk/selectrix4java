@@ -187,10 +187,11 @@ public class BusDataDispatcher implements BusDataReceiver {
         for (int address = 0; address < data.length; address++) {
             // skip the multiplex counter of FCC TODO refactor to FCCImpl
             if (address != 111) {
-                if (initialCall || Byte.compare(data[address], oldData[address]) != 0) {
-                    log.trace(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
-                        initialCall, busNr, address, oldData[address], data[address]));
-
+                if (initialCall || data[address] != oldData[address]) {
+                    if (log.isDebugEnabled() && (address > 0 && address != 112)) {
+                        log.debug(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
+                            initialCall, busNr, address, oldData[address], data[address]));
+                    }
                     for (AbstractBusDataConsumer consumer : consumersToCall) {
                         if (consumer instanceof AllBusDataConsumer) {
                             callAllBusDataConsumers(busNr, address, oldData[address], data[address],

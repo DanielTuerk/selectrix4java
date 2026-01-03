@@ -78,7 +78,8 @@ public class FeedbackBlockModule extends BlockModule {
         }
 
         if (stateAddressNewDataValue != -1 && feedbackAddressNewDataValue != -1) {
-            int sequenceNr = stateAddressNewDataValue & 0x60;
+            int sequenceNr = (stateAddressNewDataValue >> 5) & 0b11;
+            //int sequenceNr = stateAddressNewDataValue & 0x60;
             log.trace("sequence {}", sequenceNr);
 
             FeedbackTrainData feedbackTrainData = new FeedbackTrainData();
@@ -95,6 +96,9 @@ public class FeedbackBlockModule extends BlockModule {
                 isDuplicate = trainAddressLastSend.get(feedbackTrainData.getTrainAddress()).equals(feedbackTrainData);
             }
             if (!isDuplicate) {
+                if(log.isTraceEnabled()) {
+                    log.trace("{}: value: {}",getBusAddress(), feedbackTrainData);
+                }
                 trainAddressLastSend.put(feedbackTrainData.getTrainAddress(), feedbackTrainData);
                 if (feedbackTrainData.isEnteringBlock()) {
                     dispatcher.fireTrainEnterBlock(feedbackTrainData.getBlockNr(), feedbackTrainData.getTrainAddress(),
@@ -104,11 +108,11 @@ public class FeedbackBlockModule extends BlockModule {
                             feedbackTrainData.isTrainDirectionForward());
                 }
             } else {
-                log.error("duplicate: {}", feedbackTrainData);
+                log.error("duplicate ({}): {}", getBusAddress(), feedbackTrainData);
             }
 
         } else {
-            log.error("state ({}) and feedback ({}) not new", stateAddressNewDataValue, feedbackAddressNewDataValue);
+            log.error("{}: state ({}) and feedback ({}) not new", getBusAddress(), stateAddressNewDataValue, feedbackAddressNewDataValue);
         }
     }
 

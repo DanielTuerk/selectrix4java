@@ -33,7 +33,8 @@ public class BusDataChannel {
     /**
      * Delay between each task.
      */
-    public static final long DELAY_IN_MS = 55L;
+    public static final long DELAY_IN_MS = 77L;
+    //public static final long DELAY_IN_MS = 55L;
 
     private static final Logger log = LoggerFactory.getLogger(BusDataChannel.class);
     /**

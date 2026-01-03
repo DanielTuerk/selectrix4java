@@ -34,6 +34,8 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
      * TODO FCC specific
      */
     private static final int DATA = 3;
+    private static final byte[] WRITE_BYTES = new byte[]{(byte) ADDRESS, (byte) DATA};
+
     /**
      * Delay to read the SX bus.
      */
@@ -66,7 +68,7 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
     private boolean readBlock(byte[] reply) {
         // request bus data
         try {
-            getOutputStream().write(new byte[]{(byte) ADDRESS, (byte) DATA});
+            getOutputStream().write(WRITE_BYTES);
             getOutputStream().flush();
 
             // waiting for full response from FCC

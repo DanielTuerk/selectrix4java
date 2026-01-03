@@ -79,14 +79,20 @@ public class SerialDevice extends AbstractDevice {
         System.setProperty("gnu.io.rxtx.SerialPorts", deviceId);
         serialPort = SerialPort.getCommPort(deviceId);
         try {
-            serialPort.openPort();
-            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
+
+            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 200, 200);
             outputStream = serialPort.getOutputStream();
             inputStream = serialPort.getInputStream();
             serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
             serialPort.setBaudRate(baudRate);
             serialPort.setNumDataBits(8);
             serialPort.setNumStopBits(1);
+            serialPort.setParity(SerialPort.NO_PARITY);
+
+            if(!serialPort.openPort()) throw new Exception("can't open port");
+
+            outputStream = serialPort.getOutputStream();
+            inputStream = serialPort.getInputStream();
         } catch (Exception e) {
             throw new DeviceAccessException(String.format("can't connect to device for id %s", deviceId), e);
         }

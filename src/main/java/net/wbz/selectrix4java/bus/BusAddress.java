@@ -60,7 +60,6 @@ public class BusAddress {
                     if ((byte) newValue != lastReceivedData) {
                         lastReceivedData = (byte) newValue;
                         if (bitsToUpdate.isEmpty()) {
-                            LOG.trace("update data {} to last received {}", data, lastReceivedData);
                             data = lastReceivedData;
                         }
                         /*

@@ -71,7 +71,9 @@ public class WriteTask extends AbstractSerialAccessTask {
             } while (reply < 0);
 
             if (reply == 0) {
-                log.debug("write successful!");
+                if(log.isDebugEnabled()) {
+                    log.debug("write successful, reply: {}", reply);
+                }
             } else {
                 log.warn("write error reply: " + reply);
             }
