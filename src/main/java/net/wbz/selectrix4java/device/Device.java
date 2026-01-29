@@ -139,6 +139,20 @@ public interface Device extends Serializable {
     void removeRailVoltageListener(RailVoltageListener listener);
 
     /**
+     * Add listener for the state change of the rail voltage.
+     *
+     * @param listener {@link SystemFormatListener}
+     */
+    void addSystemFormatListener(SystemFormatListener listener);
+
+    /**
+     * Remove given listener instance.
+     *
+     * @param listener {@link SystemFormatListener}
+     */
+    void removeSystemFormatListener(SystemFormatListener listener);
+
+    /**
      * Send the given byte array to the device output. Not recommended! Instead use the {@link
      * net.wbz.selectrix4java.bus.BusAddress}.
      *

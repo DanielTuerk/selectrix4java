@@ -2,7 +2,6 @@ package net.wbz.selectrix4java.device;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import java.math.BigInteger;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,8 +15,6 @@ import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
-import net.wbz.selectrix4java.bus.BusAddressBitListener;
-import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.data.BusDataChannel;
@@ -39,11 +36,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractDevice implements Device, IsRecordable {
 
-    /**
-     * Default address for the rail voltage. TODO: move later to implementations by device (e.g. FCC)
-     */
-    private static final int RAILVOLTAGE_ADDRESS = 109;
-    private static final int RAILVOLTAGE_BIT = 8;
     private static final Logger log = LoggerFactory.getLogger(AbstractDevice.class);
 
     /**
@@ -81,6 +73,20 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     private final Queue<RailVoltageListener> railVoltageListeners = new ConcurrentLinkedQueue<>();
 
     /**
+     * Registered listener of {@link SystemFormatListener}. Usage of {@link java.util.Queue} for synchronization to
+     * remove listener while event handling is in progress.
+     */
+    private final Queue<SystemFormatListener> systemFormatListeners = new ConcurrentLinkedQueue<>();
+
+    protected Queue<RailVoltageListener> getRailVoltageListeners() {
+        return railVoltageListeners;
+    }
+
+    protected Queue<SystemFormatListener> getSystemFormatListeners() {
+        return systemFormatListeners;
+    }
+
+    /**
      * Open the connection for the device.
      */
     @Override
@@ -93,21 +99,11 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         }
 
         log.info("device connected");
-        for (final DeviceConnectionListener listener : listeners) {
-            new FutureTask<>((Callable<Void>) () -> {
-                listener.connected(AbstractDevice.this);
-                return null;
-            }).run();
-        }
+        listeners.forEach(listener -> listener.connected(AbstractDevice.this));
 
         busDataChannel.setCallback(() -> {
             log.info("device connection lost");
-            for (final DeviceConnectionListener listener : listeners) {
-//                new FutureTask<>((Callable<Void>) () -> {
-                    listener.disconnected(AbstractDevice.this);
-//                    return null;
-//                }).run();
-            }
+            listeners.forEach(listener -> listener.disconnected(AbstractDevice.this));
         });
 
         busDataChannel.start();
@@ -117,45 +113,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         initRailVoltageListener();
     }
 
-    private void initRailVoltageListener() throws DeviceAccessException {
-        getRailVoltageAddress().addListener(new BusAddressBitListener(RAILVOLTAGE_BIT) {
-            @Override
-            public void bitChanged(boolean oldValue, boolean newValue) {
-                if (newValue) {
-                    railVoltageSwitchedOn();
-                } else {
-                    railVoltageSwitchedOff();
-                }
-                // inform listeners
-                for (RailVoltageListener listener : railVoltageListeners) {
-                    listener.changed(newValue);
-                }
-            }
-        });
-    }
-
-    /**
-     * Handle turned on rail voltage.
-     */
-    private void railVoltageSwitchedOn() {
-        for (FeedbackBlockModule feedbackBlockModule : getFeedbackBlockModules()) {
-            feedbackBlockModule.requestNewFeedbackData();
-        }
-    }
-
-    /**
-     * Handle turned off rail voltage.
-     */
-    private void railVoltageSwitchedOff() {
-        resetFeedbackModules();
-
-    }
-
-    private void resetFeedbackModules() {
-        for (FeedbackBlockModule feedbackBlockModule : getFeedbackBlockModules()) {
-            feedbackBlockModule.reset();
-        }
-    }
+    abstract protected void initRailVoltageListener() throws DeviceAccessException;
 
     /**
      * Return all registered {@link FeedbackBlockModule}s.
@@ -187,70 +145,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         return feedbackBlockModules;
     }
 
-    private void initSystemFormatListener() throws DeviceAccessException {
-        getBusAddress(1, (byte) 110).addListener(new BusAddressListener() {
-
-            @Override
-            public void dataChanged(byte oldValue, byte newValue) {
-
-                BigInteger wrappedOldValue = BigInteger.valueOf(oldValue);
-                BigInteger wrappedNewValue = BigInteger.valueOf(newValue);
-                int oldSystemFormat = wrappedOldValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
-                int newSystemFormat = wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
-
-                if (oldSystemFormat != newSystemFormat) {
-                    fireSystemFormat(convertSystemFormat(newSystemFormat));
-                }
-            }
-
-            private void fireSystemFormat(final SYSTEM_FORMAT systemFormat) {
-                for (final DeviceConnectionListener listener : listeners) {
-                    if (listener instanceof DeviceListener) {
-                        new FutureTask<>((Callable<Void>) () -> {
-                            ((DeviceListener) listener).systemFormatChanged(systemFormat);
-                            return null;
-                        }).run();
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * Convert the given data value for bits 1-4 to the {@link net.wbz.selectrix4java.device.Device.SYSTEM_FORMAT}.
-     *
-     * @param newSystemFormat integer value of the system format
-     * @return {@link net.wbz.selectrix4java.device.Device.SYSTEM_FORMAT}
-     */
-    private SYSTEM_FORMAT convertSystemFormat(int newSystemFormat) {
-        SYSTEM_FORMAT systemFormat;
-        switch (newSystemFormat) {
-            case 0:
-                systemFormat = SYSTEM_FORMAT.ONLY_SX1;
-                break;
-            case 2:
-                systemFormat = SYSTEM_FORMAT.SX1_SX2;
-                break;
-            case 4:
-                systemFormat = SYSTEM_FORMAT.SX1_SX2_DCC;
-                break;
-            case 6:
-                systemFormat = SYSTEM_FORMAT.ONLY_DCC;
-                break;
-            case 5:
-                systemFormat = SYSTEM_FORMAT.SX1_SX2_MM;
-                break;
-            case 7:
-                systemFormat = SYSTEM_FORMAT.ONLY_MM;
-                break;
-            case 11:
-                systemFormat = SYSTEM_FORMAT.SX1_SX2_DCC_MM;
-                break;
-            default:
-                systemFormat = SYSTEM_FORMAT.UNKNOWN;
-        }
-        return systemFormat;
-    }
+    abstract protected void initSystemFormatListener() throws DeviceAccessException;
 
     /**
      * Establish the connection to the OS and return the {@link net.wbz.selectrix4java.data.BusDataChannel} for the open
@@ -347,7 +242,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
             if (additionalAddresses != null) {
                 busAddressIdentifier += "-additional: " + Arrays.toString(additionalAddresses);
             }
-            if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
+            if (!modules.containsKey(busAddressIdentifier)) {
                 List<BusAddress> additionalBusAddresses = Lists.newArrayList();
                 if (additionalAddresses != null) {
                     for (int additionalAddress : additionalAddresses) {
@@ -367,7 +262,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     public synchronized BlockModule getBlockModule(int address) throws DeviceAccessException {
         int bus = 1;
         String busAddressIdentifier = createIdentifier(bus, address, BlockModule.class);
-        if (!modules.containsKey(String.valueOf(busAddressIdentifier))) {
+        if (!modules.containsKey(busAddressIdentifier)) {
             BlockModule blockModule = new BlockModule(getBusAddress(bus, address));
             busDataDispatcher.registerConsumers(blockModule.getConsumers());
             modules.put(busAddressIdentifier, blockModule);
@@ -389,34 +284,6 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         return (FeedbackBlockModule) modules.get(busAddressIdentifier);
     }
 
-    /**
-     * Read the actual value of the rail voltage.
-     *
-     * @return {@link boolean} state
-     */
-    @Override
-    public boolean getRailVoltage() throws DeviceAccessException {
-        return BigInteger.valueOf(getRailVoltageAddress().getData()).testBit(RAILVOLTAGE_BIT);
-    }
-
-    /**
-     * Change rail voltage.
-     *
-     * @param state {@link java.lang.Boolean} state
-     */
-    public void setRailVoltage(boolean state) throws DeviceAccessException {
-        BusAddress busAddress = getBusAddress(1, (byte) 255);
-        if (state) {
-            busAddress.sendData((byte) 1);
-        } else {
-            busAddress.sendData((byte) 0);
-        }
-    }
-
-    @Override
-    public BusAddress getRailVoltageAddress() throws DeviceAccessException {
-        return getBusAddress(1, (byte) RAILVOLTAGE_ADDRESS);
-    }
 
     @Override
     public void addRailVoltageListener(RailVoltageListener listener) {
@@ -429,19 +296,18 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     }
 
     @Override
+    public void addSystemFormatListener(SystemFormatListener listener) {
+        systemFormatListeners.add(listener);
+    }
+
+    @Override
+    public void removeSystemFormatListener(SystemFormatListener listener) {
+        systemFormatListeners.remove(listener);
+    }
+
+    @Override
     public void sendNative(byte[] data) {
         busDataChannel.send(data);
-    }
-
-    @Override
-    public void switchDeviceSystemFormat() {
-        sendNative(new byte[]{(byte) 131, (byte) 160, (byte) 0, (byte) 0, (byte) 0});
-    }
-
-    @Override
-    public SYSTEM_FORMAT getActualSystemFormat() throws DeviceAccessException {
-        BigInteger wrappedData = BigInteger.valueOf(getBusAddress(0, (byte) 110).getData());
-        return convertSystemFormat(wrappedData.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff);
     }
 
     @Override
