@@ -3,7 +3,6 @@ package net.wbz.selectrix4java.bus;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +14,6 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
@@ -52,8 +50,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * Create dispatcher with executor service for cached thread pool.
      */
     public BusDataDispatcher() {
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("bus-data-dispatcher-%d").build();
-        executorService = Executors.newCachedThreadPool(namedThreadFactory);
+        executorService = Executors.newVirtualThreadPerTaskExecutor();
     }
 
     /**

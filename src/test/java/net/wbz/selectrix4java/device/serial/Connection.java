@@ -9,6 +9,8 @@ import net.wbz.selectrix4java.device.Device;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.DeviceConnectionListener;
 import net.wbz.selectrix4java.device.DeviceManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Tuerk
@@ -17,6 +19,7 @@ public class Connection {
 
     public final static String DEVICE_ID_TEST = "test";
     private static final int TIMEOUT = 5;
+    private static final Logger log = LoggerFactory.getLogger(Connection.class);
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -50,7 +53,7 @@ public class Connection {
                 try {
                     device.connect();
                 } catch (DeviceAccessException e) {
-                    e.printStackTrace();
+                    log.error("can't connect to device", e);
                     return false;
                 }
                 while (!connectedCallbackResult) {
@@ -59,7 +62,7 @@ public class Connection {
                 return true;
             }).get(TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+            log.error("can't connect to device", e);
         }
         return false;
     }
@@ -71,7 +74,7 @@ public class Connection {
                     try {
                         device.disconnect();
                     } catch (DeviceAccessException e) {
-                        e.printStackTrace();
+                        log.error("can't disconnect to device", e);
                         return false;
                     }
                     while (connectedCallbackResult) {
@@ -80,7 +83,7 @@ public class Connection {
                     return true;
                 }).get(TIMEOUT, TimeUnit.SECONDS);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                e.printStackTrace();
+                log.error("can't disconnect to device", e);
             }
             return false;
         }
