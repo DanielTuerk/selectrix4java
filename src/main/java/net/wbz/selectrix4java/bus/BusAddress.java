@@ -1,7 +1,6 @@
 package net.wbz.selectrix4java.bus;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -153,8 +152,7 @@ public class BusAddress {
     }
 
     /**
-     * Add listener to receive data changes. After call of this method the listener will immediately receive the actual
-     * data from the {@link net.wbz.selectrix4java.bus.BusAddress}.
+     * Add listener to receive data changes.
      *
      * @param listener {@link net.wbz.selectrix4java.bus.BusListener}
      */

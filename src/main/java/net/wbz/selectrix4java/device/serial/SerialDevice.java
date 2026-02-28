@@ -259,6 +259,10 @@ public class SerialDevice extends AbstractDevice {
         return convertSystemFormat(wrappedData.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff);
     }
 
+    @Override
+    public String toString() {
+        return "SerialDevice{deviceId='%s', connected='%s'}".formatted(deviceId, isConnected());
+    }
 
     /**
      * Test main method to send commands by console and print the output.

@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import net.wbz.selectrix4java.device.serial.SerialDevice;
 import net.wbz.selectrix4java.device.test.TestDevice;
 
@@ -31,14 +32,10 @@ public class DeviceManager {
     }
 
     public Device createDevice(DEVICE_TYPE type, String deviceId, int baudRate) {
-        switch (type) {
-            case SERIAL:
-                return new SerialDevice(deviceId, baudRate);
-            case TEST:
-                return new TestDevice();
-            default:
-                throw new RuntimeException("no device found for type " + type.name());
-        }
+        return switch (type) {
+            case SERIAL -> new SerialDevice(deviceId, baudRate);
+            case TEST -> new TestDevice();
+        };
     }
 
     public String getDeviceId(Device device) {
@@ -64,22 +61,17 @@ public class DeviceManager {
         return Lists.newArrayList(devices.keySet());
     }
 
-    public Device getConnectedDevice() throws DeviceAccessException {
+    public Optional<Device> getConnectedDevice() {
         for (Device device : devices.values()) {
             if (device.isConnected()) {
-                return device;
+                return Optional.of(device);
             }
         }
-        throw new DeviceAccessException("no device connected");
+        return Optional.empty();
     }
 
     public boolean isConnected() {
-        try {
-            getConnectedDevice();
-            return true;
-        } catch (DeviceAccessException e) {
-            return false;
-        }
+        return getConnectedDevice().isPresent();
     }
 
     public void removeDevice(Device device) {

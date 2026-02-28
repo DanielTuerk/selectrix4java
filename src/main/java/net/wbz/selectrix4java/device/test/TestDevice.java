@@ -91,4 +91,9 @@ public class TestDevice extends AbstractDevice {
     public SYSTEM_FORMAT getActualSystemFormat() {
         return actualSystemFormat;
     }
+
+    @Override
+    public String toString() {
+        return "TestDevice{deviceId=%s, connected=%s}".formatted(getDeviceId(), connected);
+    }
 }
