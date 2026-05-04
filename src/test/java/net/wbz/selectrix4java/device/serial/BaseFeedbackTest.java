@@ -37,7 +37,7 @@ abstract class BaseFeedbackTest<Event> extends BaseRecordingTest {
     @After
     public void afterTest() {
         if (!exceptions.isEmpty()) {
-            throw exceptions.iterator().next();
+            throw exceptions.getFirst();
         }
         Assert.assertEquals("data remaining in queue", 0, queue.size());
     }

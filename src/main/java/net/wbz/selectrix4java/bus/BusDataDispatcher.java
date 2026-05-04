@@ -1,16 +1,15 @@
 package net.wbz.selectrix4java.bus;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +38,7 @@ public class BusDataDispatcher implements BusDataReceiver {
     /**
      * Hold the actual data of the bus. Used to compare old and new bit data for each bus to identify changes.
      */
-    private final Map<Integer, byte[]> busData = Maps.newConcurrentMap();
+    private final Map<Integer, byte[]> busData = new ConcurrentHashMap<>();
 
     /**
      * Consumers to call for bus data changes.
@@ -92,7 +91,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      * @param consumer {@link AbstractBusDataConsumer}
      */
     public void registerConsumer(final AbstractBusDataConsumer consumer) {
-        registerConsumers(Lists.newArrayList(consumer));
+        registerConsumers(List.of(consumer));
     }
 
     /**
@@ -170,7 +169,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      */
     private void callConsumers(List<AbstractBusDataConsumer> consumers, int busNr, byte[] data, byte[] oldData,
         boolean initialCall) {
-        final Collection<AbstractBusDataConsumer> consumersToCall = Lists.newArrayList(consumers);
+        final Collection<AbstractBusDataConsumer> consumersToCall = new ArrayList<>(consumers);
 
         // call the multi address consumers
         Collection<BusMultiAddressDataConsumer> multiAddressConsumers = getConsumersOfType(consumersToCall,
@@ -184,9 +183,8 @@ public class BusDataDispatcher implements BusDataReceiver {
         for (int address = 0; address < data.length; address++) {
             // skip the multiplex counter of FCC TODO refactor to FCCImpl
             if (address != 111) {
-                if (initialCall || Byte.compare(data[address], oldData[address]) != 0) {
-                    log.trace(String.format("data changed (initial: %s) - bus: %d, address: %d, old: %d, new: %d",
-                        initialCall, busNr, address, oldData[address], data[address]));
+                if (initialCall || data[address] != oldData[address]) {
+                    log.trace("data changed (initial: {}) - bus: {}, address: {}, old: {}, new: {}", initialCall, busNr, address, oldData[address], data[address]);
 
                     for (AbstractBusDataConsumer consumer : consumersToCall) {
                         if (consumer instanceof AllBusDataConsumer) {
@@ -278,13 +276,13 @@ public class BusDataDispatcher implements BusDataReceiver {
             // detect change of any address of consumer
             for (int addressIndex = 0; addressIndex < multiAddressDataConsumer.getAddresses().length; addressIndex++) {
                 int busAddress = multiAddressDataConsumer.getAddresses()[addressIndex];
-                if (Byte.compare(data[busAddress], oldData[busAddress]) != 0) {
+                if (data[busAddress] != oldData[busAddress]) {
                     anyAddressDataChanged = true;
                 }
             }
             if (anyAddressDataChanged || initialCall) {
                 // collect data for all addresses to send data
-                final Set<BusAddressData> busAddressData = Sets.newHashSet();
+                final Set<BusAddressData> busAddressData = new HashSet<>();
                 // iterate again to avoid creation of endless address data objects
                 for (int addressIndex = 0; addressIndex < multiAddressDataConsumer.getAddresses().length;
                     addressIndex++) {

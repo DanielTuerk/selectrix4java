@@ -1,13 +1,14 @@
 package net.wbz.selectrix4java.device;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
+import net.wbz.selectrix4java.device.serial.SerialDevice;
+import net.wbz.selectrix4java.device.test.TestDevice;
+
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import net.wbz.selectrix4java.device.serial.SerialDevice;
-import net.wbz.selectrix4java.device.test.TestDevice;
 
 /**
  * Manager to access the {@link Device} by device id.
@@ -16,9 +17,9 @@ import net.wbz.selectrix4java.device.test.TestDevice;
  */
 public class DeviceManager {
 
-    private final Map<String, Device> devices = Maps.newHashMap();
+    private final Map<String, Device> devices = new HashMap<>();
 
-    private final List<DeviceConnectionListener> listeners = Lists.newArrayList();
+    private final List<DeviceConnectionListener> listeners = new ArrayList<>();
 
     public enum DEVICE_TYPE {SERIAL, TEST}
 
@@ -50,7 +51,7 @@ public class DeviceManager {
     }
 
     public List<Device> getDevices() {
-        return Lists.newArrayList(devices.values());
+        return new ArrayList<>(devices.values());
     }
 
     public Device getDeviceById(String deviceId) {
@@ -58,7 +59,7 @@ public class DeviceManager {
     }
 
     public List<String> getDeviceIds() {
-        return Lists.newArrayList(devices.keySet());
+        return new ArrayList<>(devices.keySet());
     }
 
     public Optional<Device> getConnectedDevice() {

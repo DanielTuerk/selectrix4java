@@ -1,16 +1,16 @@
 package net.wbz.selectrix4java.bus;
 
-import com.google.common.base.MoreObjects;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
 import net.wbz.selectrix4java.data.BusData;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Address of an bus. Wrap the data value and send state change events.
@@ -226,6 +226,9 @@ public class BusAddress {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("bus", bus).add("address", address).toString();
+        return "BusAddress{" +
+                "address=" + address +
+                ", bus=" + bus +
+                '}';
     }
 }

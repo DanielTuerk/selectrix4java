@@ -1,16 +1,16 @@
 package net.wbz.selectrix4java.block;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressDataConsumer;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Retrieve the occupied state of the track blocks.
@@ -124,7 +124,7 @@ public class BlockModule implements Module {
             return false;
         }
         BlockModule that = (BlockModule) o;
-        return Objects.equal(busAddress, that.busAddress);
+        return Objects.equals(busAddress, that.busAddress);
     }
 
     @Override
@@ -134,6 +134,8 @@ public class BlockModule implements Module {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("busAddress", busAddress).toString();
+        return "BlockModule{" +
+                "busAddress=" + busAddress +
+                '}';
     }
 }

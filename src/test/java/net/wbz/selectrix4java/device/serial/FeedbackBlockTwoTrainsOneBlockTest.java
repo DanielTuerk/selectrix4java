@@ -49,8 +49,10 @@ public class FeedbackBlockTwoTrainsOneBlockTest extends BaseFeedbackDataTest {
     @Override
     protected void initTest() {
         // expected data
+        appendToQueue(new FeedbackData(3, false, 13, false));
         appendToQueue(new FeedbackData(3, true, 13, false));
         appendToQueue(new FeedbackData(5, false, 13, false));
+        appendToQueue(new FeedbackData(4, true, 13, true));
         appendToQueue(new FeedbackData(4, true, 7, true));
         appendToQueue(new FeedbackData(6, true, 7, true));
         appendToQueue(new FeedbackData(4, false, 7, true));

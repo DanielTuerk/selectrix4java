@@ -1,6 +1,5 @@
 package net.wbz.selectrix4java.data;
 
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,8 +29,7 @@ public class RecorderPlayerTest extends BaseTest {
 
     @Test
     public void test1Recording() throws DeviceAccessException, InterruptedException, RecordingException {
-        List<TestDataSet> testDataSets = Lists
-                .newArrayList(new TestDataSet(0, 3, 2), new TestDataSet(1, 2, 4), new TestDataSet(1, 4, 8));
+        List<TestDataSet> testDataSets = List.of(new TestDataSet(0, 3, 2), new TestDataSet(1, 2, 4), new TestDataSet(1, 4, 8));
         IsRecordable recordableDevice = (IsRecordable) getDevice();
         recordableDevice.startRecording(RECORD_PATH_DIR);
 

@@ -1,6 +1,10 @@
 package net.wbz.selectrix4java.data;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import net.wbz.selectrix4java.bus.BusDataReceiver;
+import net.wbz.selectrix4java.data.recording.BusDataRecorder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -12,12 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import net.wbz.selectrix4java.bus.BusDataReceiver;
-import net.wbz.selectrix4java.data.recording.BusDataRecorder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The channel communicate with the device to execute read and write operations. Each operation is an {@link
@@ -89,9 +88,8 @@ public class BusDataChannel {
         this.inputStream = inputStream;
         this.receivers.add(receiver);
 
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("serial-io-executor-%d").build();
-        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(namedThreadFactory);
-        serialTaskExecutor = Executors.newSingleThreadExecutor(namedThreadFactory);
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        serialTaskExecutor = Executors.newSingleThreadExecutor();
     }
 
     /**

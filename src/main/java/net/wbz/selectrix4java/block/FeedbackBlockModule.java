@@ -1,16 +1,16 @@
 package net.wbz.selectrix4java.block;
 
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
-import com.google.common.collect.Maps;
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Map;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
 import net.wbz.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Block which use the feedback address to receive the train address on the block.
@@ -35,7 +35,7 @@ public class FeedbackBlockModule extends BlockModule {
      * Mapping of trains which where detected in this feedback block. Each train map to the last received train data.
      * Used to avoid duplicated events.
      */
-    private final Map<Integer, FeedbackTrainData> trainAddressLastSend = Maps.newConcurrentMap();
+    private final Map<Integer, FeedbackTrainData> trainAddressLastSend = new ConcurrentHashMap<>();
     private final BusAddress feedbackAddress;
     private final BusAddress additionalAddress;
 
@@ -156,13 +156,16 @@ public class FeedbackBlockModule extends BlockModule {
 
     @Override
     public String toString() {
-        return super.toString() + MoreObjects.toStringHelper(this).add("dispatcher", dispatcher).toString();
+        return "FeedbackBlockModule{" +
+                "feedbackAddress=" + feedbackAddress +
+                ", dispatcher=" + dispatcher +
+                '}';
     }
 
     /**
      * Model to store information about train data on block.
      */
-    private class FeedbackTrainData {
+    private static class FeedbackTrainData {
 
         private int trainAddress;
         private boolean trainDirectionForward;
@@ -206,27 +209,27 @@ public class FeedbackBlockModule extends BlockModule {
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(this).add("train", trainAddress).add("forward", trainDirectionForward)
-                    .add("blockNr", blockNr).add("enteringBlock", enteringBlock).toString();
+            return "FeedbackTrainData{" +
+                    "trainAddress=" + trainAddress +
+                    ", trainDirectionForward=" + trainDirectionForward +
+                    ", blockNr=" + blockNr +
+                    ", enteringBlock=" + enteringBlock +
+                    '}';
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
+            if (o == null || getClass() != o.getClass()) return false;
             FeedbackTrainData that = (FeedbackTrainData) o;
-            return Objects.equal(trainAddress, that.trainAddress) && Objects
-                    .equal(trainDirectionForward, that.trainDirectionForward) && Objects.equal(blockNr, that.blockNr)
-                    && Objects.equal(enteringBlock, that.enteringBlock);
+            return trainAddress == that.trainAddress
+                    && trainDirectionForward == that.trainDirectionForward
+                    && blockNr == that.blockNr
+                    && enteringBlock == that.enteringBlock;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(trainAddress, trainDirectionForward, blockNr, enteringBlock);
+            return Objects.hash(trainAddress, trainDirectionForward, blockNr, enteringBlock);
         }
     }
 

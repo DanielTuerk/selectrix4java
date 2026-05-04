@@ -1,11 +1,10 @@
 package net.wbz.selectrix4java.data.recording;
 
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +34,7 @@ public class BusDataPlayer {
     private final BusDataChannel busDataChannel;
 
     private final ExecutorService executorService;
-    private final List<BusDataPlayerListener> listeners = Lists.newArrayList();
+    private final List<BusDataPlayerListener> listeners = new ArrayList<>();
     private final int playbackSpeedMultiplication;
     private transient boolean running = false;
 
@@ -62,8 +61,7 @@ public class BusDataPlayer {
         assert playbackSpeedMultiplication >= 0;
         this.playbackSpeedMultiplication = playbackSpeedMultiplication;
 
-        ThreadFactory namedThreadFactory = new ThreadFactoryBuilder().setNameFormat("bus-data-player-%d").build();
-        executorService = Executors.newSingleThreadExecutor(namedThreadFactory);
+        executorService = Executors.newSingleThreadExecutor();
     }
 
     /**
@@ -97,7 +95,7 @@ public class BusDataPlayer {
             busDataChannel.pause();
             fireStartEvent();
             executorService.submit(() -> {
-                long lastReceivedTime = record.getEntries().get(0).getTimestamp();
+                long lastReceivedTime = record.getEntries().getFirst().getTimestamp();
 
                 for (BusDataRecordEntry recordEntry : record.getEntries()) {
                     if (!running) {

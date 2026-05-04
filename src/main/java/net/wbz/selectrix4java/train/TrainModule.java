@@ -1,7 +1,7 @@
 package net.wbz.selectrix4java.train;
 
-import com.google.common.collect.Lists;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
@@ -91,7 +91,7 @@ public class TrainModule implements Module {
                 initialCall = false;
             }
         });
-        this.additionalAddresses = Lists.newArrayList(additionalAddresses);
+        this.additionalAddresses = new ArrayList<>(List.of(additionalAddresses));
         for (final BusAddress additionalAddress : additionalAddresses) {
             registerAdditionalAddress(additionalAddress);
         }

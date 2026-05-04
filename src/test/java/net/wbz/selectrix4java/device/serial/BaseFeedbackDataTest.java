@@ -17,12 +17,18 @@ public class BaseFeedbackDataTest extends BaseFeedbackTest<FeedbackData> {
 
             Assert.assertNotNull("no more data in queue", data);
 
-            Assert.assertEquals(data.blockNumber, blockNumber);
-            Assert.assertEquals(data.enter, enter);
-            Assert.assertEquals(data.train, train);
-            Assert.assertEquals(data.forward, forward);
+            Assert.assertEquals(msg("blockNumber", enter, blockNumber, train, forward, data), data.blockNumber, blockNumber);
+            Assert.assertEquals(msg("enter", enter, blockNumber, train, forward, data), data.enter, enter);
+            Assert.assertEquals(msg("train", enter, blockNumber, train, forward, data), data.train, train);
+            Assert.assertEquals(msg("forward", enter, blockNumber, train, forward, data), data.forward, forward);
         } catch (AssertionError e) {
             add(e);
         }
+    }
+
+    private static String msg(String msg, boolean enter, int blockNumber, int train, boolean forward, FeedbackData data) {
+        return ("%s failed, expected:%%s - actual:%%s".formatted(msg))
+                .formatted(data, "(train: %d, forward: %s, block: %d, enter: %s)"
+                        .formatted(train, forward, blockNumber, enter));
     }
 }

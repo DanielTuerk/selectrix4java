@@ -1,10 +1,10 @@
 package net.wbz.selectrix4java.data.recording;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Container for an recording session of the {@link BusDataRecorder} which can be played back by the {@link
+ * Container for a recording session of the {@link BusDataRecorder} which can be played back by the {@link
  * BusDataPlayer}.
  *
  * Each single entry representing an bus value change of the buses.
@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class BusDataRecord {
 
-    private final List<BusDataRecordEntry> entries = Lists.newArrayList();
+    private final List<BusDataRecordEntry> entries = new ArrayList<>();
 
     public void addEntry(BusDataRecordEntry entry) {
         entries.add(entry);

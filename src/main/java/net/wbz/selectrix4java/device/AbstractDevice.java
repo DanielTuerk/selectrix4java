@@ -1,14 +1,14 @@
 package net.wbz.selectrix4java.device;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.FutureTask;
 import net.wbz.selectrix4java.Module;
@@ -50,12 +50,12 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String} in the format
      * 'bus:address'. Single instance of each address to prevent event-traffic.
      */
-    private final Map<String, BusAddress> busAddresses = Maps.newConcurrentMap();
+    private final Map<String, BusAddress> busAddresses = new ConcurrentHashMap<>();
     /**
      * Used {@link net.wbz.selectrix4java.bus.BusAddress}s with descriptor as {@link java.lang.String} in the format
      * 'bus:address'. Single instance of each module to prevent event-traffic.
      */
-    private final Map<String, Module> modules = Maps.newHashMap();
+    private final Map<String, Module> modules = new HashMap<>();
     /**
      * Channel to send signals to the connected bus.
      */
@@ -243,7 +243,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
                 busAddressIdentifier += "-additional: " + Arrays.toString(additionalAddresses);
             }
             if (!modules.containsKey(busAddressIdentifier)) {
-                List<BusAddress> additionalBusAddresses = Lists.newArrayList();
+                List<BusAddress> additionalBusAddresses = new ArrayList<>();
                 if (additionalAddresses != null) {
                     for (int additionalAddress : additionalAddresses) {
                         additionalBusAddresses.add(getBusAddress(bus, additionalAddress));

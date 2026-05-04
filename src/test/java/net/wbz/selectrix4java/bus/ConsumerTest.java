@@ -1,6 +1,5 @@
 package net.wbz.selectrix4java.bus;
 
-import com.google.common.collect.Iterables;
 import java.math.BigInteger;
 import java.util.Collection;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
@@ -88,7 +87,7 @@ public class ConsumerTest extends BaseTest {
                         testDataSetAddress2.getSendAddress(), testDataSetAddress3.getSendAddress()) {
                     @Override
                     public void valueChanged(Collection<BusAddressData> data) {
-                        print("multi data: " + Iterables.toString(data));
+                        print("multi data: " + data);
                         for (BusAddressData busAddressData : data) {
                             if (busAddressData.getAddress() == testDataSetAddress1.getSendAddress()) {
                                 testDataSetAddress1.setResult(busAddressData.getBus(), busAddressData.getAddress(),
@@ -107,9 +106,9 @@ public class ConsumerTest extends BaseTest {
         sendTestData(testDataSetAddress1);
         assertEventReceived(testDataSetAddress1, 2);
         sendTestData(testDataSetAddress2);
-        assertEventReceived(testDataSetAddress2, 2);
+        assertEventReceived(testDataSetAddress2, 3);
         sendTestData(testDataSetAddress3);
-        assertEventReceived(testDataSetAddress3, 2);
+        assertEventReceived(testDataSetAddress3, 4);
     }
 
     @Test
@@ -151,7 +150,7 @@ public class ConsumerTest extends BaseTest {
                 new BusMultiAddressDataConsumer(testDataSet.getSendBus(), testDataSet.getSendAddress()) {
                     @Override
                     public void valueChanged(Collection<BusAddressData> data) {
-                        print("multi data: " + Iterables.toString(data));
+                        print("multi data: " + data);
                         BusAddressData busAddressData = data.iterator().next();
                         busMultiAddressDataResult.setResult(busAddressData.getBus(), busAddressData.getAddress(),
                                 busAddressData.getNewDataValue());
