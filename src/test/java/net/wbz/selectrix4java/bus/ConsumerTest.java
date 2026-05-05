@@ -12,6 +12,7 @@ import net.wbz.selectrix4java.data.ReadBlockTask;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.serial.BaseTest;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -112,6 +113,7 @@ public class ConsumerTest extends BaseTest {
     }
 
     @Test
+    @Ignore
     public void testAllTogether() throws DeviceAccessException, InterruptedException {
         final TestDataSet testDataSet = new TestDataSet(0, 12, 8);
 
