@@ -89,25 +89,6 @@ public class SerialDevice extends AbstractDevice {
                     .parity(Parity.NONE)
                     .build()
             );
-
-//            serialPort = SerialPort.getCommPort(deviceId);
-//            serialPort.setBaudRate(baudRate);
-//            serialPort.setNumDataBits(8);
-//            serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
-//            serialPort.setParity(SerialPort.NO_PARITY);
-//            serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
-//            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 1000, 0);
-
-//            if (!serialPort.openPort()) {
-//                throw new DeviceAccessException("Unable to open serial port: %s".formatted(deviceId));
-//            }
-
-//             inputStream = new SerialInputStream(port);
-//             outputStream = new SerialOutputStream(port);
-
-//            outputStream = serialPort.getOutputStream();
-//            inputStream = serialPort.getInputStream();
-
             return new BusDataChannel(serialPort, busDataDispatcher);
         } catch (Exception e) {
             throw new DeviceAccessException("can't connect to device for id %s".formatted(deviceId), e);
@@ -120,29 +101,14 @@ public class SerialDevice extends AbstractDevice {
     @Override
     public void doDisconnect() {
         if (serialPort != null) {
-//            try {
             serialPort.close();
-//            } catch (IOException e) {
-//                log.error("can't close output stream", e);
-//            }
-//            try {
-//                serialPort.getInputStream().close();
-//            } catch (IOException e) {
-//                log.error("can't close input stream", e);
-//            }
-//            outputStream = null;
-//            inputStream = null;
-//            serialPort.removeDataListener();
-//            serialPort.closePort();
         }
     }
-
 
     @Override
     public boolean isConnected() {
         return serialPort != null;
     }
-
 
     @Override
     protected void initSystemFormatListener() throws DeviceAccessException {
@@ -151,8 +117,8 @@ public class SerialDevice extends AbstractDevice {
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
 
-                BigInteger wrappedOldValue = BigInteger.valueOf(oldValue);
-                BigInteger wrappedNewValue = BigInteger.valueOf(newValue);
+                var wrappedOldValue = BigInteger.valueOf(oldValue);
+                var wrappedNewValue = BigInteger.valueOf(newValue);
                 int oldSystemFormat = wrappedOldValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
                 int newSystemFormat = wrappedNewValue.clearBit(5).clearBit(6).clearBit(7).intValue() & 0xff;
 
@@ -277,7 +243,7 @@ public class SerialDevice extends AbstractDevice {
         System.out.println("devices:");
         SerialPortLister.list().forEach(System.out::println);
 
-        String deviceId1 = "COM4";
+        String deviceId1 = "COM5";
 //        String deviceId1 = "/dev/tty.usbserial-145";
         SerialDevice serialDevice = new SerialDevice(deviceId1, SerialDevice.DEFAULT_BAUD_RATE_FCC);
         try {
@@ -309,10 +275,10 @@ public class SerialDevice extends AbstractDevice {
                 }
                 serialDevice.disconnect();
             } catch (IOException e) {
-                e.printStackTrace(System.out);
+                log.error("I/O error", e);
             }
         } catch (DeviceAccessException e) {
-            e.printStackTrace(System.out);
+            log.error("device connection error", e);
         }
     }
 }
