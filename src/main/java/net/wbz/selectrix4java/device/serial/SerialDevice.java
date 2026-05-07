@@ -1,12 +1,5 @@
 package net.wbz.selectrix4java.device.serial;
 
-import com.fazecast.jSerialComm.SerialPort;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.math.BigInteger;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressBitListener;
@@ -16,8 +9,17 @@ import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.device.AbstractDevice;
 import net.wbz.selectrix4java.device.DeviceAccessException;
 import net.wbz.selectrix4java.device.RailVoltageListener;
+import net.wbz.selectrix4java.jna.Parity;
+import net.wbz.selectrix4java.jna.SerialConfig;
+import net.wbz.selectrix4java.jna.SerialPortImpl;
+import net.wbz.selectrix4java.jna.SerialPortLister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigInteger;
 
 /**
  * {@link net.wbz.selectrix4java.device.Device} implementation for serial access like COM or USB.
@@ -46,19 +48,9 @@ public class SerialDevice extends AbstractDevice {
     public static final int DEFAULT_BAUD_RATE_STAERZ_INTERFACE = 19200;
 
     /**
-     * I/O write access of the connected bus.
-     */
-    private OutputStream outputStream = null;
-
-    /**
-     * I/O read access of the connected bus.
-     */
-    private InputStream inputStream = null;
-
-    /**
      * OS port for the device to handle the I/O operations.
      */
-    private SerialPort serialPort = null;
+    private SerialPortImpl serialPort = null;
 
     /**
      * Id of the device in the OS. (e.g. COM4)
@@ -89,22 +81,34 @@ public class SerialDevice extends AbstractDevice {
     @Override
     protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException {
         try {
-            serialPort = SerialPort.getCommPort(deviceId);
-            serialPort.setBaudRate(baudRate);
-            serialPort.setNumDataBits(8);
-            serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
-            serialPort.setParity(SerialPort.NO_PARITY);
-            serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
-            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 1000, 0);
+            serialPort = SerialPortImpl.open(deviceId,
+                SerialConfig.builder()
+                    .baudRate(baudRate)
+                    .dataBits(8)
+                    .stopBits(1)
+                    .parity(Parity.NONE)
+                    .build()
+            );
 
-            if (!serialPort.openPort()) {
-                throw new DeviceAccessException("Unable to open serial port: %s".formatted(deviceId));
-            }
+//            serialPort = SerialPort.getCommPort(deviceId);
+//            serialPort.setBaudRate(baudRate);
+//            serialPort.setNumDataBits(8);
+//            serialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
+//            serialPort.setParity(SerialPort.NO_PARITY);
+//            serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
+//            serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 1000, 0);
 
-            outputStream = serialPort.getOutputStream();
-            inputStream = serialPort.getInputStream();
+//            if (!serialPort.openPort()) {
+//                throw new DeviceAccessException("Unable to open serial port: %s".formatted(deviceId));
+//            }
 
-            return new BusDataChannel(inputStream, outputStream, busDataDispatcher);
+//             inputStream = new SerialInputStream(port);
+//             outputStream = new SerialOutputStream(port);
+
+//            outputStream = serialPort.getOutputStream();
+//            inputStream = serialPort.getInputStream();
+
+            return new BusDataChannel(serialPort, busDataDispatcher);
         } catch (Exception e) {
             throw new DeviceAccessException("can't connect to device for id %s".formatted(deviceId), e);
         }
@@ -116,27 +120,27 @@ public class SerialDevice extends AbstractDevice {
     @Override
     public void doDisconnect() {
         if (serialPort != null) {
-            try {
-                serialPort.getOutputStream().close();
-            } catch (IOException e) {
-                log.error("can't close output stream", e);
-            }
-            try {
-                serialPort.getInputStream().close();
-            } catch (IOException e) {
-                log.error("can't close input stream", e);
-            }
-            outputStream = null;
-            inputStream = null;
-            serialPort.removeDataListener();
-            serialPort.closePort();
+//            try {
+            serialPort.close();
+//            } catch (IOException e) {
+//                log.error("can't close output stream", e);
+//            }
+//            try {
+//                serialPort.getInputStream().close();
+//            } catch (IOException e) {
+//                log.error("can't close input stream", e);
+//            }
+//            outputStream = null;
+//            inputStream = null;
+//            serialPort.removeDataListener();
+//            serialPort.closePort();
         }
     }
 
 
     @Override
     public boolean isConnected() {
-        return outputStream != null && inputStream != null;
+        return serialPort != null;
     }
 
 
@@ -270,7 +274,12 @@ public class SerialDevice extends AbstractDevice {
      * @param args ignored
      */
     public static void main(String[] args) {
-        SerialDevice serialDevice = new SerialDevice("/dev/tty.usbserial-145", SerialDevice.DEFAULT_BAUD_RATE_FCC);
+        System.out.println("devices:");
+        SerialPortLister.list().forEach(System.out::println);
+
+        String deviceId1 = "COM4";
+//        String deviceId1 = "/dev/tty.usbserial-145";
+        SerialDevice serialDevice = new SerialDevice(deviceId1, SerialDevice.DEFAULT_BAUD_RATE_FCC);
         try {
             serialDevice.connect();
 
@@ -300,10 +309,10 @@ public class SerialDevice extends AbstractDevice {
                 }
                 serialDevice.disconnect();
             } catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(System.out);
             }
         } catch (DeviceAccessException e) {
-            e.printStackTrace();
+            e.printStackTrace(System.out);
         }
     }
 }

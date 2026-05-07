@@ -1,10 +1,9 @@
 package net.wbz.selectrix4java.data;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import net.wbz.selectrix4java.bus.BusDataReceiver;
+import net.wbz.selectrix4java.jna.SerialPort;
+import net.wbz.selectrix4java.jna.SerialPortImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +43,10 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
     /**
      * Create new task.
      *
-     * @param inputStream open {@link java.io.InputStream}
-     * @param outputStream open {@link java.io.OutputStream}
+     * @param serialPort open {@link SerialPort}
      */
-    ReadBlockTask(InputStream inputStream, OutputStream outputStream) {
-        super(inputStream, outputStream);
+    ReadBlockTask(SerialPort serialPort) {
+        super(serialPort);
     }
 
     @Override
@@ -65,13 +63,13 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
 
     private boolean readBlock(byte[] reply) {
         // request bus data
-        try {
-            getOutputStream().write(new byte[]{(byte) ADDRESS, (byte) DATA});
-            getOutputStream().flush();
+//        try {
+            getSerialPort().write(new byte[]{(byte) ADDRESS, (byte) DATA});
+//            getOutputStream().flush();
 
             // waiting for full response from FCC
             long maxWaitingTime = System.currentTimeMillis() + CONNECTION_TIMEOUT;
-            while (getInputStream().available() < LENGTH_OF_DATA_REPLY) {
+            while (getSerialPort().available() < LENGTH_OF_DATA_REPLY) {
                 try {
                     Thread.sleep(SX_DELAY_IN_MILLIS);
                 } catch (InterruptedException e) {
@@ -83,15 +81,16 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
                 }
             }
             // read response
-            int length = getInputStream().read(reply);
-            if (length != reply.length) {
+            int length = getSerialPort().read(reply, 1000);
+            // TODO der 0 check ist neu und war vorher nicht
+            if (length>0 && length != reply.length) {
                 log.error("block length invalid (" + length + ")");
                 return false;
             }
-        } catch (IOException e) {
-            log.error("can't write to output", e);
-            return false;
-        }
+//        } catch (IOException e) {
+//            log.error("can't write to output", e);
+//            return false;
+//        }
         return true;
     }
 }

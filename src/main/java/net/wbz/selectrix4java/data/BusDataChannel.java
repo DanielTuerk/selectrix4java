@@ -2,11 +2,10 @@ package net.wbz.selectrix4java.data;
 
 import net.wbz.selectrix4java.bus.BusDataReceiver;
 import net.wbz.selectrix4java.data.recording.BusDataRecorder;
+import net.wbz.selectrix4java.jna.SerialPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -47,14 +46,10 @@ public class BusDataChannel {
     private final ExecutorService serialTaskExecutor;
 
     /**
-     * Output stream of the connected device to write data.
+     * Connected device to read and write.
      */
-    private final OutputStream outputStream;
+    private final SerialPort serialPort;
 
-    /**
-     * Input stream of the connected device to read the data.
-     */
-    private final InputStream inputStream;
     /**
      * Receivers which are called by reading the input stream of the device by the {@link
      * net.wbz.selectrix4java.data.ReadBlockTask}.
@@ -75,17 +70,15 @@ public class BusDataChannel {
     private int errorCount = 0;
 
     /**
-     * Create an new channel for the given IO streams of the connected device. Default {@link
+     * Create a new channel for the given IO streams of the connected device. Default {@link
      * net.wbz.selectrix4java.bus.BusDataReceiver} must be set. Additional receivers can be added at runtime. {@link
      * #addBusDataReceiver}
      *
-     * @param inputStream opened {@link java.io.InputStream}
-     * @param outputStream opened {@link java.io.OutputStream}
+     * @param serialPort opened {@link SerialPort}
      * @param receiver {@link net.wbz.selectrix4java.bus.BusDataReceiver} to receive the values of the read operations
      */
-    public BusDataChannel(InputStream inputStream, OutputStream outputStream, BusDataReceiver receiver) {
-        this.outputStream = outputStream;
-        this.inputStream = inputStream;
+    public BusDataChannel(SerialPort serialPort, BusDataReceiver receiver) {
+        this.serialPort = serialPort;
         this.receivers.add(receiver);
 
         scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
@@ -98,7 +91,7 @@ public class BusDataChannel {
      */
     public void start() {
         errorCount = 0;
-        final ReadBlockTask readBlockTask = new ReadBlockTask(inputStream, outputStream);
+        final ReadBlockTask readBlockTask = new ReadBlockTask(serialPort);
         // poll the queue
         scheduledExecutorService.scheduleWithFixedDelay(() -> {
             if (!paused) {
@@ -159,7 +152,7 @@ public class BusDataChannel {
      * @param busData {@link net.wbz.selectrix4java.data.BusData} to send
      */
     public void send(BusData busData) {
-        queue.offer(new WriteTask(inputStream, outputStream, busData));
+        queue.offer(new WriteTask(serialPort, busData));
     }
 
     /**
@@ -168,7 +161,7 @@ public class BusDataChannel {
      * @param data bytes to send
      */
     public void send(byte[] data) {
-        queue.offer(new WriteTask(inputStream, outputStream, data));
+        queue.offer(new WriteTask(serialPort, data));
     }
 
     /**

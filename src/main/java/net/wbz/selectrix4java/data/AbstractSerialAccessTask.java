@@ -1,10 +1,13 @@
 package net.wbz.selectrix4java.data;
 
+import net.wbz.selectrix4java.bus.BusDataReceiver;
+import net.wbz.selectrix4java.jna.SerialPort;
+import net.wbz.selectrix4java.jna.SerialPortImpl;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.Callable;
-import net.wbz.selectrix4java.bus.BusDataReceiver;
 
 /**
  * Abstract task for the access to the {@link OutputStream} and {@link InputStream} id a {@link
@@ -14,27 +17,20 @@ import net.wbz.selectrix4java.bus.BusDataReceiver;
  */
 abstract class AbstractSerialAccessTask implements Callable<Boolean> {
 
-    private final InputStream inputStream;
-    private final OutputStream outputStream;
+    private final SerialPort serialPort;
     private List<BusDataReceiver> receivers;
 
     /**
-     * Create task for given streams.
+     * Create task for given port.
      *
-     * @param inputStream {@link InputStream}
-     * @param outputStream {@link OutputStream}
+     * @param serialPort {@link SerialPortImpl}
      */
-    AbstractSerialAccessTask(InputStream inputStream, OutputStream outputStream) {
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
+    AbstractSerialAccessTask(SerialPort serialPort) {
+        this.serialPort = serialPort;
     }
 
-    protected InputStream getInputStream() {
-        return inputStream;
-    }
-
-    protected OutputStream getOutputStream() {
-        return outputStream;
+    protected SerialPort getSerialPort() {
+        return serialPort;
     }
 
     protected List<BusDataReceiver> getReceivers() {
