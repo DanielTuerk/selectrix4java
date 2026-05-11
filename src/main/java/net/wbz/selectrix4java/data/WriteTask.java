@@ -44,7 +44,6 @@ public class WriteTask extends AbstractSerialAccessTask {
 
     @Override
     public Boolean call() {
-        // write to output
         if (data == null && busData != null) {
             log.debug("write: bus={} address={} data={}", busData.getBus(), busData.getAddress(), busData.getData());
             byte address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
@@ -56,16 +55,15 @@ public class WriteTask extends AbstractSerialAccessTask {
             throw new RuntimeException("invalid data to send! Only byte array or BusData are valid!");
         }
 
+        // TODO reply depends on write command, need to be given as parameter and response handled
+        byte[] buf = new byte[1];
 
-        byte[] buf = new byte[256];
         int reply = getSerialPort().read(buf, 1000);
-
-        if (reply == 1) {
+        if (reply == 1 && buf[0] == 0x00) {
             log.debug("write successful!");
         } else {
-            log.warn("write error reply: {}", reply);
+            log.warn("write error reply: {} ({})", reply, buf);
         }
-
         return true;
     }
 }
