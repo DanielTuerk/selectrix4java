@@ -20,6 +20,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * {@link net.wbz.selectrix4java.device.Device} implementation for serial access like COM or USB.
@@ -239,17 +243,34 @@ public class SerialDevice extends AbstractDevice {
      * @param args ignored
      */
     public static void main(String[] args) {
-        System.out.println("devices:");
-        SerialPortLister.list().forEach(System.out::println);
+        List<SerialPortLister.PortInfo> list = SerialPortLister.list();
+        var i = new AtomicInteger(1);
+        log.info("available serial devices:\n{}",
+            list.stream()
+                .map(x -> String.format("%d\t%s\t%s", i.getAndIncrement(), x.path(), x.name()))
+                .collect(Collectors.joining("\n")));
 
-        String deviceId1 = "COM5";
-//        String deviceId1 = "/dev/tty.usbserial-145";
-        SerialDevice serialDevice = new SerialDevice(deviceId1, SerialDevice.DEFAULT_BAUD_RATE_FCC);
+
+        Scanner scanner = new Scanner(System.in);
+
+        log.info("Enter device ID (or number from list): ");
+        var input = scanner.nextLine();
+
+        String deviceId;
+        try {
+            int i1 = Integer.parseInt(input);
+            deviceId = list.get(i1 - 1).path();
+        } catch (NumberFormatException e) {
+            deviceId = input;
+        }
+
+        log.info("connect to: {}", deviceId);
+        SerialDevice serialDevice = new SerialDevice(deviceId, SerialDevice.DEFAULT_BAUD_RATE_FCC);
         try {
             serialDevice.connect();
 
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print("Geben Sie etwas ein: ");
+            log.info("Please enter command with <bus> <address> <value>: ");
             String line;
             try {
                 boolean running = true;

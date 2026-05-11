@@ -2,7 +2,7 @@
 <configuration>
     <property name="LOG_PATTERN" value="%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n"/>
 
-    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <encoder>
             <pattern>${LOG_PATTERN}</pattern>
@@ -11,9 +11,8 @@
 
     <logger name="net.wbz" level="DEBUG"/>
     <logger name="net.wbz.selectrix4java.block" level="TRACE"/>
-    <logger name="net.wbz.selectrix4java.block.FeedbackBlockModule" level="TRACE"/>
 
     <root level="DEBUG">
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 </configuration>

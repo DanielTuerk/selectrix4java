@@ -113,6 +113,18 @@
   <profiles>
 
     <profile>
+      <id>standalone</id>
+      <dependencies>
+        <!-- Logback für Standalone-Ausführung -->
+        <dependency>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+          <version>1.5.13</version>
+        </dependency>
+      </dependencies>
+    </profile>
+
+    <profile>
       <id>windows</id>
       <activation>
         <os>
