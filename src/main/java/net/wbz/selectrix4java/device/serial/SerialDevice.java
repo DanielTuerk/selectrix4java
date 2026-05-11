@@ -23,7 +23,6 @@ import java.math.BigInteger;
 
 /**
  * {@link net.wbz.selectrix4java.device.Device} implementation for serial access like COM or USB.
- * Usage of the RXTX library. In the lib path of the JRE must be present the DLL or SO file for the native access.
  *
  * @author Daniel Tuerk
  */
