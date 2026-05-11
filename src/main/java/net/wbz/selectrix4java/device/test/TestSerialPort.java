@@ -4,6 +4,8 @@ import net.wbz.selectrix4java.jna.SerialPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 /**
  * Test implementation which stores the written values into a byte array and read the byte array. Simulates a SX1 bus.
  *
@@ -41,7 +43,11 @@ class TestSerialPort implements SerialPort {
 
     @Override
     public int read(byte[] buffer, int timeoutMs) {
-        System.arraycopy(busData, 0, buffer, 0, busData.length);
+        if (buffer.length == busData.length) {
+            System.arraycopy(busData, 0, buffer, 0, busData.length);
+        } else {
+            Arrays.fill(buffer, (byte) 0x00);
+        }
         return buffer.length;
     }
 

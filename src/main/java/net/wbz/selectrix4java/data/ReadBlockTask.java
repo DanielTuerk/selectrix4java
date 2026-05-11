@@ -1,11 +1,11 @@
 package net.wbz.selectrix4java.data;
 
-import java.util.Arrays;
 import net.wbz.selectrix4java.bus.BusDataReceiver;
 import net.wbz.selectrix4java.jna.SerialPort;
-import net.wbz.selectrix4java.jna.SerialPortImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * This task read the bus 0 and 1 the hole timestamp and delegate the result to the {@link
@@ -63,34 +63,30 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
 
     private boolean readBlock(byte[] reply) {
         // request bus data
-//        try {
-            getSerialPort().write(new byte[]{(byte) ADDRESS, (byte) DATA});
-//            getOutputStream().flush();
+        getSerialPort().write(new byte[]{(byte) ADDRESS, (byte) DATA});
 
-            // waiting for full response from FCC
-            long maxWaitingTime = System.currentTimeMillis() + CONNECTION_TIMEOUT;
-            while (getSerialPort().available() < LENGTH_OF_DATA_REPLY) {
-                try {
-                    Thread.sleep(SX_DELAY_IN_MILLIS);
-                } catch (InterruptedException e) {
-                    log.error("error to wait for read delay, e");
-                    return false;
-                }
-                if (System.currentTimeMillis() > maxWaitingTime) {
-                    break;
-                }
-            }
-            // read response
-            int length = getSerialPort().read(reply, 1000);
-            // TODO der 0 check ist neu und war vorher nicht
-            if (length>0 && length != reply.length) {
-                log.error("block length invalid (" + length + ")");
+        // waiting for full response from FCC
+        // TODO verify with connectd FCC if this is really needed, because the FCC should reply immediately and the read method should wait for the data. Maybe only needed for the test implementation?
+        long maxWaitingTime = System.currentTimeMillis() + CONNECTION_TIMEOUT;
+        while (getSerialPort().available() < LENGTH_OF_DATA_REPLY) {
+            try {
+                Thread.sleep(SX_DELAY_IN_MILLIS);
+            } catch (InterruptedException e) {
+                log.error("error to wait for read delay, e");
                 return false;
             }
-//        } catch (IOException e) {
-//            log.error("can't write to output", e);
-//            return false;
-//        }
+            if (System.currentTimeMillis() > maxWaitingTime) {
+                log.error("timeout reached to wait for bus data reply");
+                break;
+            }
+        }
+        // read response
+        int length = getSerialPort().read(reply, 1000);
+        // TODO der 0 check ist neu und war vorher nicht
+        if (length > 0 && length != reply.length) {
+            log.error("block length invalid ({})", length);
+            return false;
+        }
         return true;
     }
 }
