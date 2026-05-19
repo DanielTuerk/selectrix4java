@@ -35,7 +35,7 @@ public class DeviceManager {
     public Device createDevice(DEVICE_TYPE type, String deviceId, int baudRate) {
         return switch (type) {
             case SERIAL -> new SerialDevice(deviceId, baudRate);
-            case TEST -> new TestDevice();
+            case TEST -> new TestDevice(deviceId);
         };
     }
 
@@ -54,8 +54,8 @@ public class DeviceManager {
         return new ArrayList<>(devices.values());
     }
 
-    public Device getDeviceById(String deviceId) {
-        return devices.get(deviceId);
+    public Optional<Device> getDeviceById(String deviceId) {
+        return Optional.ofNullable(devices.get(deviceId));
     }
 
     public List<String> getDeviceIds() {

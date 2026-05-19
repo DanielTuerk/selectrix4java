@@ -14,9 +14,14 @@ import net.wbz.selectrix4java.device.DeviceAccessException;
  */
 public class TestDevice extends AbstractDevice {
 
+    private final String deviceId;
     private boolean connected = false;
     private boolean railvoltage = false;
     private SYSTEM_FORMAT actualSystemFormat = SYSTEM_FORMAT.ONLY_SX1;
+
+    public TestDevice(String deviceId) {
+        this.deviceId = deviceId;
+    }
 
     @Override
     public boolean isConnected() {
@@ -25,7 +30,7 @@ public class TestDevice extends AbstractDevice {
 
     @Override
     public String getDeviceId() {
-        return "test";
+        return deviceId;
     }
 
     @Override

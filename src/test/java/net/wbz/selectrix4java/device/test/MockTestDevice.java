@@ -20,7 +20,7 @@ public class MockTestDevice {
         final byte valueUnderTest = (byte) 50;
         final byte addressUnderTest = (byte) 10;
         final int busUnderTest = 1;
-        Device device = new TestDevice();
+        Device device = new TestDevice("test");
         device.getBusDataDispatcher().registerConsumer(new AllBusDataConsumer() {
             @Override
             public void valueChanged(int bus, int address, int oldValue, int newValue) {
