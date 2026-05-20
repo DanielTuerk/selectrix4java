@@ -255,7 +255,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
             }
             return (TrainModule) modules.get(busAddressIdentifier);
         }
-        throw new DeviceAccessException("train with id lower than zero is invalid!");
+        throw new DeviceAccessException("train with address lower than zero is invalid!");
     }
 
     @Override
