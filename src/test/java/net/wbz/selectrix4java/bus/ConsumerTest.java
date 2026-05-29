@@ -2,6 +2,8 @@ package net.wbz.selectrix4java.bus;
 
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.AllBusDataConsumer;
 import net.wbz.selectrix4java.bus.consumption.BusAddressData;
@@ -26,7 +28,7 @@ public class ConsumerTest extends BaseTest {
 
     @Test
     public void testAllBusDataConsumer() throws DeviceAccessException, InterruptedException {
-        final int[] amountOfOverallEvents = {0};
+        var amountOfOverallEvents = new AtomicInteger(0);
         final TestDataSet testDataSet = new TestDataSet(1, 2, 10);
         getDevice().getBusDataDispatcher().registerConsumer(new AllBusDataConsumer() {
             @Override
@@ -35,16 +37,16 @@ public class ConsumerTest extends BaseTest {
                 if (bus == testDataSet.getSendBus() && address == testDataSet.getSendAddress()) {
                     testDataSet.setResult(bus, address, newValue);
                 }
-                amountOfOverallEvents[0]++;
+                amountOfOverallEvents.getAndIncrement();
             }
         });
         sendAndAssertEventReceived(testDataSet);
         assertEventReceived(testDataSet, 2);
 
-        Thread.sleep(500L);
+        Thread.sleep(1000L);
         // - 2 for the ignored address 111 on bus 0 and 1
         Assert.assertEquals("amount of overall event wrong", ReadBlockTask.LENGTH_OF_DATA_REPLY + 1 - (2),
-                amountOfOverallEvents[0]);
+                amountOfOverallEvents.get());
     }
 
     @Test
