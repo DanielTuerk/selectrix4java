@@ -79,6 +79,13 @@ public class FeedbackBlockModule extends BlockModule {
 
         if (stateAddressNewDataValue != -1 && feedbackAddressNewDataValue != -1) {
             int sequenceNr = (stateAddressNewDataValue >> 5) & 0b11;
+            /*
+            TODO request new data (bit 7 = 1)
+            TODO use sequence:
+             Durch Vergleich der Sequenznummer kann auf Seiten der PC-Software ein Datenverlust erkannt werden.
+In diesem Falle kann durch eine Anforderung der Komplettausgabe wieder ein konsistenter Zustand
+hergestellt werden. (Bit 7 wird durch den Rückmelder automatisch wieder gelöscht!)
+Jede Sequenz bleibt für mindestens zwei SX-Busumläufe vorhanden. */
             //int sequenceNr = stateAddressNewDataValue & 0x60;
             log.trace("sequence {}", sequenceNr);
 
