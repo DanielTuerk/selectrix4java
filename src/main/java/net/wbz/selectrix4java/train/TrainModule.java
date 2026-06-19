@@ -1,12 +1,13 @@
 package net.wbz.selectrix4java.train;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.bus.BusAddress;
 import net.wbz.selectrix4java.bus.BusAddressListener;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This module is an wrapper for {@link net.wbz.selectrix4java.bus.BusAddress}s from an function decoder of an train.
@@ -103,10 +104,10 @@ public class TrainModule implements Module {
 
             @Override
             public void dataChanged(byte oldValue, byte newValue) {
-                for (int i = 1; i < 9; i++) {
+                for (int i = 0; i < 8; i++) {
                     boolean newBitState = BigInteger.valueOf(newValue).testBit(i);
                     if (initialCall || BigInteger.valueOf(oldValue).testBit(i) != newBitState) {
-                        dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i, newBitState);
+                        dispatcher.fireFunctionStateChanged(additionalAddress.getAddress(), i + 1, newBitState);
                     }
                 }
                 initialCall = false;
@@ -114,7 +115,15 @@ public class TrainModule implements Module {
         });
     }
 
-    public void setFunctionState(BusAddress address, int bit, boolean state) {
+    /**
+     * Toggle the function state.
+     *
+     * @param address {@link BusAddress} of the function decoder.
+     * @param bit the bit number of the function (1-8)
+     * @param state {@code true} for on, {@code false} for off.
+     * @return {@link net.wbz.selectrix4java.train.TrainModule}
+     */
+    public TrainModule setFunctionState(BusAddress address, int bit, boolean state) {
         if (!additionalAddresses.contains(address)) {
             additionalAddresses.add(address);
             registerAdditionalAddress(address);
@@ -125,6 +134,7 @@ public class TrainModule implements Module {
             address.clearBit(bit);
         }
         address.send();
+        return this;
     }
 
     /**
