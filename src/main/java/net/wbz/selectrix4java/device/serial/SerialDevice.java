@@ -105,6 +105,7 @@ public class SerialDevice extends AbstractDevice {
     public void doDisconnect() {
         if (serialPort != null) {
             serialPort.close();
+            serialPort = null;
         }
     }
 
