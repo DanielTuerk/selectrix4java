@@ -50,9 +50,11 @@ public class WriteTask extends AbstractSerialAccessTask {
 
             getSerialPort().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
         } else if (data != null && busData == null) {
-            throw new RuntimeException("wtf? why no address byte?");
+            log.error("wtf? why no address byte?");
+            return false;
         } else {
-            throw new RuntimeException("invalid data to send! Only byte array or BusData are valid!");
+            log.error("invalid data to send! Only byte array or BusData are valid!");
+            return false;
         }
 
         // TODO reply depends on write command, need to be given as parameter and response handled
