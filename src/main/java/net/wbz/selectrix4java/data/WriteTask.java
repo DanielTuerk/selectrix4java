@@ -60,7 +60,7 @@ public class WriteTask extends AbstractSerialAccessTask {
         // TODO reply depends on write command, need to be given as parameter and response handled
         byte[] buf = new byte[1];
 
-        int reply = getSerialPort().read(buf, 1000);
+        int reply = getSerialPort().read(buf, 250);
         if (reply == 1 && buf[0] == 0x00) {
             log.debug("write successful!");
         } else {
