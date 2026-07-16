@@ -36,7 +36,7 @@ public class WriteTask extends AbstractSerialAccessTask {
             log.error("invalid data to send!");
             return false;
         }
-
+        log.debug("write: {}", data);
         getSerialPort().write(data);
 
         var buf = new byte[expectedAnswer.length];
