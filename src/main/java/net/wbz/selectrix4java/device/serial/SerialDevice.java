@@ -224,7 +224,8 @@ public class SerialDevice extends AbstractDevice {
 
     @Override
     public void switchDeviceSystemFormat() {
-        sendNative(new byte[]{(byte) 131, (byte) 160, (byte) 0, (byte) 0, (byte) 0});
+        sendNative(new byte[]{(byte) 131, (byte) 160, (byte) 0, (byte) 0, (byte) 0},
+                new byte[]{(byte) 0, (byte) 0, (byte) 0});
     }
 
     @Override

@@ -10,17 +10,12 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * The channel communicate with the device to execute read and write operations. Each operation is an {@link
  * net.wbz.selectrix4java.data.AbstractSerialAccessTask}. The tasks can be put into the queue to execute by calling
- * {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}. The queue is polled after a delay to execute an
+ * {@link net.wbz.selectrix4java.data.BusDataChannel#send(BusData)}. The queue is polled after a delay to execute a
  * task. If no task is present in the queue, the channel send the {@link ReadBlockTask} to read the actual values from
  * the SX bus. State changes of the values are published to the given {@link net.wbz.selectrix4java.bus.BusDataReceiver}.
  *
@@ -87,8 +82,8 @@ public class BusDataChannel {
     }
 
     /**
-     * Start the channel to schedule to read the stream with the {@link #DELAY_IN_MS}. Or execute an queued send
-     * operation.
+     * Start the channel to schedule to read the stream with the {@link #DELAY_IN_MS}.
+     * Or execute a queued send operation.
      */
     public void start() {
         errorCount = 0;
@@ -111,7 +106,7 @@ public class BusDataChannel {
                     } else {
                         errorCount++;
                         if (errorCount >= MAX_ERROR_COUNT) {
-                            log.warn("close channel by reaching error count: " + errorCount);
+                            log.warn("close channel by reaching error count: {}", errorCount);
                             shutdownNow();
                         }
                     }
@@ -153,7 +148,7 @@ public class BusDataChannel {
      * @param busData {@link net.wbz.selectrix4java.data.BusData} to send
      */
     public void send(BusData busData) {
-        queue.offer(new WriteTask(serialPort, busData));
+        queue.offer(new BusDataWriteTask(serialPort, busData));
     }
 
     /**
@@ -161,12 +156,12 @@ public class BusDataChannel {
      *
      * @param data bytes to send
      */
-    public void send(byte[] data) {
-        queue.offer(new WriteTask(serialPort, data));
+    public void send(byte[] data, byte[] expectedAnswer) {
+        queue.offer(new WriteTask(serialPort, data, expectedAnswer));
     }
 
     /**
-     * Stop the asnyc executions.
+     * Stop the async executions.
      */
     public void shutdownNow() {
         serialTaskExecutor.shutdownNow();

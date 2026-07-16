@@ -4,10 +4,10 @@ import net.wbz.selectrix4java.jna.SerialPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
- * Write {@link net.wbz.selectrix4java.data.BusData} to the {@link java.io.OutputStream} of the connected device.
+ * Write data to the {@link java.io.OutputStream} of the connected device.
  *
  * @author Daniel Tuerk
  */
@@ -15,8 +15,8 @@ public class WriteTask extends AbstractSerialAccessTask {
 
     private static final Logger log = LoggerFactory.getLogger(WriteTask.class);
 
-    private final BusData busData;
     private final byte[] data;
+    private final byte[] expectedAnswer;
 
     /**
      * Create new task for an execution
@@ -24,48 +24,29 @@ public class WriteTask extends AbstractSerialAccessTask {
      * @param serialPort {@link net.wbz.selectrix4java.jna.SerialPort}
      * @param data       bytes to send
      */
-    public WriteTask(SerialPort serialPort, byte[] data) {
+    public WriteTask(SerialPort serialPort, byte[] data, byte[] expectedAnswer) {
         super(serialPort);
-        this.busData = null;
+        this.expectedAnswer = expectedAnswer;
         this.data = data;
-    }
-
-    /**
-     * Create new task for an execution
-     *
-     * @param serialPort {@link SerialPort}
-     * @param busData    {@link net.wbz.selectrix4java.data.BusData}
-     */
-    public WriteTask(SerialPort serialPort, BusData busData) {
-        super(serialPort);
-        this.busData = busData;
-        this.data = null;
     }
 
     @Override
     public Boolean call() {
-        if (data == null && busData != null) {
-            log.debug("write: bus={} address={} data={}", busData.getBus(), busData.getAddress(), busData.getData());
-            byte address = BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue();
-
-            getSerialPort().write(new byte[]{(byte) busData.getBus(), address, (byte) busData.getData()});
-        } else if (data != null && busData == null) {
-            log.error("wtf? why no address byte?");
-            return false;
-        } else {
-            log.error("invalid data to send! Only byte array or BusData are valid!");
+        if (data == null) {
+            log.error("invalid data to send!");
             return false;
         }
 
-        // TODO reply depends on write command, need to be given as parameter and response handled
-        byte[] buf = new byte[1];
+        getSerialPort().write(data);
 
+        var buf = new byte[expectedAnswer.length];
         int reply = getSerialPort().read(buf, 250);
-        if (reply == 1 && buf[0] == 0x00) {
+        if (reply == expectedAnswer.length && Arrays.equals(buf, expectedAnswer)) {
             log.debug("write successful!");
         } else {
             log.warn("write error reply: {} ({})", reply, buf);
         }
+
         return true;
     }
 }

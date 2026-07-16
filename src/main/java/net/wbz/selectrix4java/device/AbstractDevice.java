@@ -1,16 +1,5 @@
 package net.wbz.selectrix4java.device;
 
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.FutureTask;
 import net.wbz.selectrix4java.Module;
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
@@ -24,6 +13,13 @@ import net.wbz.selectrix4java.data.recording.RecordingException;
 import net.wbz.selectrix4java.train.TrainModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.FutureTask;
 
 /**
  * The device implementation manage the connection.
@@ -306,8 +302,8 @@ public abstract class AbstractDevice implements Device, IsRecordable {
     }
 
     @Override
-    public void sendNative(byte[] data) {
-        busDataChannel.send(data);
+    public void sendNative(byte[] data, byte[] expectedAnswer) {
+        busDataChannel.send(data, expectedAnswer);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package net.wbz.selectrix4java.device;
 
-import java.io.Serializable;
 import net.wbz.selectrix4java.block.BlockModule;
 import net.wbz.selectrix4java.block.FeedbackBlockModule;
 import net.wbz.selectrix4java.bus.BusAddress;
@@ -8,6 +7,8 @@ import net.wbz.selectrix4java.bus.BusDataDispatcher;
 import net.wbz.selectrix4java.bus.consumption.AbstractBusDataConsumer;
 import net.wbz.selectrix4java.data.BusDataChannel;
 import net.wbz.selectrix4java.train.TrainModule;
+
+import java.io.Serializable;
 
 /**
  * Device to establish connection. The connected device have the access to {@link BusAddress} to read and write data.
@@ -158,7 +159,7 @@ public interface Device extends Serializable {
      *
      * @param data bytes to send
      */
-    void sendNative(byte[] data);
+    void sendNative(byte[] data, byte[] expectedAnswer);
 
     /**
      * Switch the device to the next system format.
