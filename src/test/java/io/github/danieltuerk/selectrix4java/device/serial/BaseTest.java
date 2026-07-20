@@ -71,9 +71,23 @@ public class BaseTest {
     }
 
     @Before
-    public void setup() throws InterruptedException {
+    public void setup() {
         Assert.assertTrue("no connection", connection.connect());
-        Thread.sleep(200L);
+        // The first read cycle of BusDataChannel and this fixed wait both start counting from the
+        // same "connected" moment with the same 200ms delay, so a plain Thread.sleep(200L) here raced
+        // the background read against consumer registration below - depending on which won, a
+        // consumer registering while the first cycle was mid-flight could miss one bus's initial
+        // dump. Waiting for both buses to actually have data avoids the race entirely.
+        awaitCondition(() -> hasBusData(0) && hasBusData(1));
+    }
+
+    private boolean hasBusData(int busNr) {
+        try {
+            getDevice().getBusDataDispatcher().getData(busNr);
+            return true;
+        } catch (RuntimeException e) {
+            return false;
+        }
     }
 
     @After
