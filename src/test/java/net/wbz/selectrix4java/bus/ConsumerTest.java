@@ -43,10 +43,10 @@ public class ConsumerTest extends BaseTest {
         sendAndAssertEventReceived(testDataSet);
         assertEventReceived(testDataSet, 2);
 
-        Thread.sleep(1000L);
         // - 2 for the ignored address 111 on bus 0 and 1
-        Assert.assertEquals("amount of overall event wrong", ReadBlockTask.LENGTH_OF_DATA_REPLY + 1 - (2),
-                amountOfOverallEvents.get());
+        int expectedOverallEvents = ReadBlockTask.LENGTH_OF_DATA_REPLY + 1 - (2);
+        awaitCondition(() -> amountOfOverallEvents.get() >= expectedOverallEvents);
+        Assert.assertEquals("amount of overall event wrong", expectedOverallEvents, amountOfOverallEvents.get());
     }
 
     @Test
@@ -178,7 +178,6 @@ public class ConsumerTest extends BaseTest {
         Thread.sleep(200L);
         getDevice().getBusAddress(testDataSet.getSendBus(), (byte) testDataSet.getSendAddress())
                 .sendData((byte) testDataSet.getSendValue());
-        Thread.sleep(200L);
     }
 
 }

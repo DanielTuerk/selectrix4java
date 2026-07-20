@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.function.BooleanSupplier;
 import net.wbz.selectrix4java.bus.TestDataSet;
 import net.wbz.selectrix4java.device.Device;
 import org.junit.After;
@@ -19,6 +20,14 @@ import org.junit.Before;
 public class BaseTest {
 
     public final static String DEVICE_ID = "/dev/tty.usbserial-141";
+
+    /**
+     * Bus data is delivered asynchronously by a background poll cycle, whose timing depends on
+     * the machine running the test. Assertions therefore poll for the expected outcome up to this
+     * timeout instead of relying on a fixed sleep, which was flaky on slower/shared CI runners.
+     */
+    private static final long AWAIT_TIMEOUT_MS = 5000L;
+    private static final long AWAIT_POLL_INTERVAL_MS = 50L;
 
     private final Connection connection;
 
@@ -78,12 +87,34 @@ public class BaseTest {
 
     protected void assertEventReceived(TestDataSet testDataSet, int expectedResultCount) {
         if (expectedResultCount == -1) {
+            awaitCondition(() -> testDataSet.getResultCallCount() > 0);
             Assert.assertTrue("no event received", testDataSet.getResultCallCount() > 0);
         } else {
+            awaitCondition(() -> testDataSet.getResultCallCount() >= expectedResultCount);
             Assert.assertEquals("amount of events wrong", expectedResultCount, testDataSet.getResultCallCount());
         }
         assertTestData(testDataSet.getSendBus(), testDataSet.getReceivedBus(), testDataSet.getSendAddress(),
                 testDataSet.getReceivedAddress(), testDataSet.getSendValue(), testDataSet.getReceivedValue());
+    }
+
+    /**
+     * Poll {@code condition} until it becomes true or {@link #AWAIT_TIMEOUT_MS} elapses, instead of
+     * sleeping a fixed duration. Leaves the actual pass/fail decision to the caller's assertion so a
+     * genuinely wrong result still fails clearly instead of being masked by the wait.
+     */
+    protected static void awaitCondition(BooleanSupplier condition) {
+        long deadline = System.currentTimeMillis() + AWAIT_TIMEOUT_MS;
+        while (System.currentTimeMillis() < deadline) {
+            if (condition.getAsBoolean()) {
+                return;
+            }
+            try {
+                Thread.sleep(AWAIT_POLL_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return;
+            }
+        }
     }
 
     protected void assertTestData(int expectedBus, int receivedBus, int expectedAddress, int receivedAddress,
