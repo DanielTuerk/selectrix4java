@@ -3,7 +3,7 @@ selectrix4java
 
 Java library to communicate with an selectrix bus system.
 
-####Supported Format: SX1
+#### Supported Format: SX1
 
 Tested with: FCC, Stärz Interface, Stärz Functionmodule, D&H BM 8i and D&H Decoder
 
