@@ -125,6 +125,18 @@
       <version>2.13.2</version>
     </dependency>
 
+    <!-- Serial port access on Windows and Linux, implementation chosen at runtime -->
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>${jna.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna-platform</artifactId>
+      <version>${jna.version}</version>
+    </dependency>
+
   </dependencies>
 
   <profiles>
@@ -139,52 +151,6 @@
           <version>1.5.13</version>
         </dependency>
       </dependencies>
-    </profile>
-
-    <profile>
-      <id>windows</id>
-      <activation>
-        <os>
-          <family>windows</family>
-        </os>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>net.java.dev.jna</groupId>
-          <artifactId>jna-platform</artifactId>
-          <version>5.14.0</version>
-        </dependency>
-      </dependencies>
-    </profile>
-
-    <profile>
-      <id>linux</id>
-      <activation>
-        <os>
-          <family>unix</family>
-        </os>
-      </activation>
-      <dependencies>
-        <dependency>
-          <groupId>net.java.dev.jna</groupId>
-          <artifactId>jna</artifactId>
-          <version>5.14.0</version>
-        </dependency>
-      </dependencies>
-
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**/jna/win/**</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-
     </profile>
 
     <!-- activate with -Prelease when deploying to Maven Central -->
