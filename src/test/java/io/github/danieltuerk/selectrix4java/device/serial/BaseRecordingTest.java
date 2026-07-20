@@ -30,7 +30,7 @@ public class BaseRecordingTest extends BaseTest {
     }
 
     @Override
-    public void setup() throws InterruptedException {
+    public void setup() {
         super.setup();
 
         busDataPlayer = new BusDataPlayer(getDevice().getBusDataDispatcher(), getDevice().getBusDataChannel(),
