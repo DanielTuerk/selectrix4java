@@ -13,7 +13,7 @@ Afterward you can use the lib in your own project by adding the maven dependency
 
 ```
 <dependency>
-   <groupId>net.wbz.selectrix4java</groupId>
+   <groupId>io.github.danieltuerk</groupId>
    <artifactId>selectrix4java</artifactId>
    <version>${selectrix.version}</version>
 </dependency>
