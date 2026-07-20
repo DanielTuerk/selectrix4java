@@ -9,9 +9,9 @@
         </encoder>
     </appender>
 
-    <logger name="net.wbz" level="DEBUG"/>
-    <logger name="net.wbz.selectrix4java.block" level="TRACE"/>
-    <logger name="net.wbz.selectrix4java.block.FeedbackBlockModule" level="TRACE"/>
+    <logger name="io.github.danieltuerk" level="DEBUG"/>
+    <logger name="io.github.danieltuerk.selectrix4java.block" level="TRACE"/>
+    <logger name="io.github.danieltuerk.selectrix4java.block.FeedbackBlockModule" level="TRACE"/>
 
     <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
