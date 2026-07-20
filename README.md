@@ -15,7 +15,7 @@ Afterward you can use the lib in your own project by adding the maven dependency
 <dependency>
    <groupId>io.github.danieltuerk</groupId>
    <artifactId>selectrix4java</artifactId>
-   <version>${selectrix.version}</version>
+   <version></version>
 </dependency>
 ```
 As version, please use the one of the "pom.xml" from your local copy of selectrix4java.
