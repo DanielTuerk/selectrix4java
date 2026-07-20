@@ -21,3 +21,7 @@ Afterward you can use the lib in your own project by adding the maven dependency
 As version, please use the one of the "pom.xml" from your local copy of selectrix4java.
 
 #### Take a look into the wiki for usage instructions. (https://github.com/DanielTuerk/selectrix4java/wiki)
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).

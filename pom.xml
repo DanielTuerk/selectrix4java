@@ -10,6 +10,14 @@
   <name>Selectrix4Java</name>
   <packaging>jar</packaging>
 
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <developers>
     <developer>
       <id>dtuerk</id>
