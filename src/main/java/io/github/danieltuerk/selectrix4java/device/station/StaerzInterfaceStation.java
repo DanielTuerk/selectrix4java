@@ -8,7 +8,7 @@ import io.github.danieltuerk.selectrix4java.device.serial.SerialDevice;
 public class StaerzInterfaceStation extends SerialDevice {
 
     /**
-     * Create device to connect to an serial interface.
+     * Create device to connect to a serial interface.
      *
      * @param deviceId {@link String} OS device id
      * @param baudRate {@link int} baud rate of the device

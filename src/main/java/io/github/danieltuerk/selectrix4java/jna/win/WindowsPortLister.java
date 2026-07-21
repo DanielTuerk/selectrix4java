@@ -3,10 +3,13 @@ package io.github.danieltuerk.selectrix4java.jna.win;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.WinReg;
 import io.github.danieltuerk.selectrix4java.jna.SerialPortLister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class WindowsPortLister {
+    private static final Logger log = LoggerFactory.getLogger(WindowsPortLister.class);
 
     public static List<SerialPortLister.PortInfo> list() {
 
@@ -22,8 +25,7 @@ public class WindowsPortLister {
                 .toList();
 
         } catch (Exception e) {
-            // TODO
-            e.printStackTrace();
+            log.error("can't list ports", e);
             return List.of();
         }
     }

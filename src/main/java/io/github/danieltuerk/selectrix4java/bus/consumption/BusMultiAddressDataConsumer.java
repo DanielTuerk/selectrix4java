@@ -5,7 +5,7 @@ import java.util.Collection;
 
 /**
  * Consumers are informed by state changes of the configured bus and addresses. Is called if at least one address data
- * has changed. All other data of configured addresses is send with the old value.
+ * has changed. All other data of configured addresses is sent with the old value.
  *
  * @author Daniel Tuerk
  */

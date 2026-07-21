@@ -46,7 +46,7 @@ public class SerialDevice extends AbstractDevice {
     public static final int DEFAULT_BAUD_RATE_FCC = 230400;
 
     /**
-     * Default baud rate for the Stärz Interface.
+     * Default baud rate for the Staerz Interface.
      */
     public static final int DEFAULT_BAUD_RATE_STAERZ_INTERFACE = 19200;
 
@@ -56,7 +56,7 @@ public class SerialDevice extends AbstractDevice {
     private SerialPortImpl serialPort = null;
 
     /**
-     * Id of the device in the OS. (e.g. COM4)
+     * ID of the device in the OS. (e.g. COM4)
      */
     private final String deviceId;
 
@@ -66,7 +66,7 @@ public class SerialDevice extends AbstractDevice {
     private final int baudRate;
 
     /**
-     * Create device to connect to an serial interface.
+     * Create device to connect to a serial interface.
      *
      * @param deviceId {@link java.lang.String} OS device id
      * @param baudRate {@link int} baud rate of the device

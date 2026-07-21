@@ -71,12 +71,7 @@ public class Connection {
         if (device != null && device.isConnected()) {
             try {
                 return executorService.submit(() -> {
-                    try {
-                        device.disconnect();
-                    } catch (DeviceAccessException e) {
-                        log.error("can't disconnect to device", e);
-                        return false;
-                    }
+                    device.disconnect();
                     while (connectedCallbackResult) {
                         Thread.sleep(200L);
                     }

@@ -64,7 +64,6 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
 
         // read response
         int length = getSerialPort().read(reply, 1000);
-        // TODO der 0 check ist neu und war vorher nicht
         if (length > 0 && length != reply.length) {
             log.error("block length invalid ({})", length);
             return false;

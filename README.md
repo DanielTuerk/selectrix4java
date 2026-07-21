@@ -1,7 +1,7 @@
 selectrix4java
 ===============
 
-Java library to communicate with an selectrix bus system.
+Java library to communicate with a selectrix bus system.
 
 #### Supported Format: SX1
 

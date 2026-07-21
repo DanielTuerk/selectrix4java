@@ -34,7 +34,7 @@ class TestSerialPort implements SerialPort {
             // write address value
             int address = (toUnsignedInt(data[0]) * 113) + (data[1] < 0 ? data[1] + 128 : data[1]);
             if (address >= busData.length) {
-                LOG.debug("ignore address " + address + " for test bus (max :" + busData.length + ")");
+                LOG.debug("ignore address {} for test bus (max :{})", address, busData.length);
             } else {
                 busData[address] = data[2];
             }

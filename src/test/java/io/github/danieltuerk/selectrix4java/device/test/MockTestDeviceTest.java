@@ -6,17 +6,18 @@ import io.github.danieltuerk.selectrix4java.device.DeviceAccessException;
 import io.github.danieltuerk.selectrix4java.device.DeviceConnectionListener;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Daniel Tuerk
  */
-public class MockTestDevice {
-
+public class MockTestDeviceTest {
+    private static final Logger log = LoggerFactory.getLogger(MockTestDeviceTest.class);
     boolean callbackReceived = false;
 
     @Test
     public void test() throws DeviceAccessException, InterruptedException {
-
         final byte valueUnderTest = (byte) 50;
         final byte addressUnderTest = (byte) 10;
         final int busUnderTest = 1;
@@ -36,7 +37,7 @@ public class MockTestDevice {
                 try {
                     device.getBusAddress(busUnderTest, addressUnderTest).sendData(valueUnderTest);
                 } catch (DeviceAccessException e) {
-                    e.printStackTrace();
+                    log.error("can't get bus address", e);
                     assert false;
                 }
 

@@ -48,11 +48,6 @@ public class FeedbackBlockMultiTrainTest extends BaseFeedbackDataTest {
 
         final int blockAddress = 58;
 
-        // final LinkedBlockingDeque<Integer> train7EnterBlocks = new LinkedBlockingDeque<>(
-        // List.of(4, 3, 4, 4, 3, 2, 3, 4));
-        // final LinkedBlockingDeque<Integer> train13EnterBlocks = new LinkedBlockingDeque<>(
-        // List.of(4, 3, 4));
-
         FeedbackBlockModule feedbackBlockModule = getDevice()
                 .getFeedbackBlockModule((byte) blockAddress, (byte) (blockAddress + 2), (byte) (blockAddress + 1));
         feedbackBlockModule.addFeedbackBlockListener(new FeedbackBlockListener() {

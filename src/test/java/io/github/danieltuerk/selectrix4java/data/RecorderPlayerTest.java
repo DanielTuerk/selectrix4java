@@ -1,10 +1,5 @@
 package io.github.danieltuerk.selectrix4java.data;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 import io.github.danieltuerk.selectrix4java.bus.TestDataSet;
 import io.github.danieltuerk.selectrix4java.bus.consumption.BusAddressDataConsumer;
 import io.github.danieltuerk.selectrix4java.data.recording.BusDataPlayer;
@@ -16,6 +11,14 @@ import io.github.danieltuerk.selectrix4java.device.serial.BaseTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Test to record the bus of the device and playback the record as device data.
@@ -23,6 +26,7 @@ import org.junit.Test;
  * @author Daniel Tuerk
  */
 public class RecorderPlayerTest extends BaseTest {
+    private static final Logger log = LoggerFactory.getLogger(RecorderPlayerTest.class);
 
     private final static Path RECORD_PATH_DIR = Paths.get(System.getProperty("java.io.tmpdir"), "selectrix-test");
     private static final long PLAYER_TIMEOUT = 10000L;
@@ -104,7 +108,7 @@ public class RecorderPlayerTest extends BaseTest {
         try {
             Files.delete(recordDestination);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("can't delete recording destination", e);
         }
     }
 }

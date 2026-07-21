@@ -1,23 +1,11 @@
 package io.github.danieltuerk.selectrix4java.bus;
 
-import io.github.danieltuerk.selectrix4java.bus.consumption.AbstractBusDataConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.AllBusDataConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusAddressData;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusAddressDataConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusBitConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
+import io.github.danieltuerk.selectrix4java.bus.consumption.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -85,7 +73,7 @@ public class BusDataDispatcher implements BusDataReceiver {
     }
 
     /**
-     * Register an new consumer to get state changed of for the values of an address from an SX bus. To get the values
+     * Register a new consumer to get state changed of for the values of an address from an SX bus. To get the values
      * of all addresses use the {@link io.github.danieltuerk.selectrix4java.bus.consumption.AllBusDataConsumer}. Consumer is called
      * initially with the actual data values after registration.
      *
@@ -247,7 +235,7 @@ public class BusDataDispatcher implements BusDataReceiver {
      */
     private void callBitAddressConsumer(final BusBitConsumer consumer, final int busNr, final int address,
         final int oldData, final int newData, boolean initialCall) {
-        // bit change
+        // detect change of bit
         if (consumer.getAddress() == address && consumer.getBus() == busNr) {
             final boolean oldBitState = BigInteger.valueOf(oldData).testBit(consumer.getBit() - 1);
             final boolean newBitState = BigInteger.valueOf(newData).testBit(consumer.getBit() - 1);

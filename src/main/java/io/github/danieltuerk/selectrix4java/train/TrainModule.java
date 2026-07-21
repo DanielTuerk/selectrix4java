@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This module is an wrapper for {@link io.github.danieltuerk.selectrix4java.bus.BusAddress}s from an function decoder of an train.
+ * This module is a wrapper for {@link io.github.danieltuerk.selectrix4java.bus.BusAddress}s from a function decoder of a train.
  * The train can have several addresses for multiple decoders.
  *
  * @author Daniel Tuerk
@@ -40,7 +40,7 @@ public class TrainModule implements Module {
      */
     private final BusAddress address;
     /**
-     * Additional function addresses of the train or even an second decoder.
+     * Additional function addresses of the train or even a second decoder.
      */
     private final List<BusAddress> additionalAddresses;
     /**

@@ -24,9 +24,9 @@ public class BusDataWriteTask extends WriteTask {
      */
     public BusDataWriteTask(SerialPort serialPort, BusData busData) {
         super(serialPort,
-                new byte[]{(byte) busData.getBus(),
-                        BigInteger.valueOf(busData.getAddress()).setBit(7).byteValue(),
-                        (byte) busData.getData()},
+                new byte[]{(byte) busData.bus(),
+                        BigInteger.valueOf(busData.address()).setBit(7).byteValue(),
+                        (byte) busData.data()},
                 new byte[]{0x00});
         this.busData = busData;
     }

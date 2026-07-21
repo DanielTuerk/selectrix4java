@@ -1,21 +1,16 @@
 package io.github.danieltuerk.selectrix4java.bus;
 
-import java.math.BigInteger;
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import io.github.danieltuerk.selectrix4java.bus.consumption.AbstractBusDataConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.AllBusDataConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusAddressData;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusAddressDataConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusBitConsumer;
-import io.github.danieltuerk.selectrix4java.bus.consumption.BusMultiAddressDataConsumer;
+import io.github.danieltuerk.selectrix4java.bus.consumption.*;
 import io.github.danieltuerk.selectrix4java.data.ReadBlockTask;
 import io.github.danieltuerk.selectrix4java.device.DeviceAccessException;
 import io.github.danieltuerk.selectrix4java.device.serial.BaseTest;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test to check all {@link AbstractBusDataConsumer} implementations. Check received values and number of calls.
@@ -92,15 +87,15 @@ public class ConsumerTest extends BaseTest {
                     public void valueChanged(Collection<BusAddressData> data) {
                         print("multi data: " + data);
                         for (BusAddressData busAddressData : data) {
-                            if (busAddressData.getAddress() == testDataSetAddress1.getSendAddress()) {
-                                testDataSetAddress1.setResult(busAddressData.getBus(), busAddressData.getAddress(),
-                                        busAddressData.getNewDataValue());
-                            } else if (busAddressData.getAddress() == testDataSetAddress2.getSendAddress()) {
-                                testDataSetAddress2.setResult(busAddressData.getBus(), busAddressData.getAddress(),
-                                        busAddressData.getNewDataValue());
-                            } else if (busAddressData.getAddress() == testDataSetAddress3.getSendAddress()) {
-                                testDataSetAddress3.setResult(busAddressData.getBus(), busAddressData.getAddress(),
-                                        busAddressData.getNewDataValue());
+                            if (busAddressData.address() == testDataSetAddress1.getSendAddress()) {
+                                testDataSetAddress1.setResult(busAddressData.bus(), busAddressData.address(),
+                                        busAddressData.newDataValue());
+                            } else if (busAddressData.address() == testDataSetAddress2.getSendAddress()) {
+                                testDataSetAddress2.setResult(busAddressData.bus(), busAddressData.address(),
+                                        busAddressData.newDataValue());
+                            } else if (busAddressData.address() == testDataSetAddress3.getSendAddress()) {
+                                testDataSetAddress3.setResult(busAddressData.bus(), busAddressData.address(),
+                                        busAddressData.newDataValue());
                             }
                         }
                     }
@@ -156,8 +151,8 @@ public class ConsumerTest extends BaseTest {
                     public void valueChanged(Collection<BusAddressData> data) {
                         print("multi data: " + data);
                         BusAddressData busAddressData = data.iterator().next();
-                        busMultiAddressDataResult.setResult(busAddressData.getBus(), busAddressData.getAddress(),
-                                busAddressData.getNewDataValue());
+                        busMultiAddressDataResult.setResult(busAddressData.bus(), busAddressData.address(),
+                                busAddressData.newDataValue());
                     }
                 });
 

@@ -67,12 +67,12 @@ public class FeedbackBlockModule extends BlockModule {
         int feedbackAddressNewDataValue = -1;
 
         for (BusAddressData addressData : data) {
-            if (addressData.getAddress() == FeedbackBlockModule.this.additionalAddress.getAddress()) {
-                stateAddressNewDataValue = addressData.getNewDataValue();
-            } else if (addressData.getAddress() == FeedbackBlockModule.this.feedbackAddress.getAddress()) {
-                if (addressData.getNewDataValue() > 0 && addressData.getNewDataValue() < 127) {
+            if (addressData.address() == FeedbackBlockModule.this.additionalAddress.getAddress()) {
+                stateAddressNewDataValue = addressData.newDataValue();
+            } else if (addressData.address() == FeedbackBlockModule.this.feedbackAddress.getAddress()) {
+                if (addressData.newDataValue() > 0 && addressData.newDataValue() < 127) {
                     // initial 0 is called
-                    feedbackAddressNewDataValue = addressData.getNewDataValue();
+                    feedbackAddressNewDataValue = addressData.newDataValue();
                 }
             }
         }
@@ -136,7 +136,7 @@ Jede Sequenz bleibt für mindestens zwei SX-Busumläufe vorhanden. */
     }
 
     /**
-     * Reset all feedback states which are cached as send state. This trigger the send of all next states which are
+     * Reset all feedback states which are cached as send state. This trigger to send of all next states which are
      * received by the address consumers.
      */
     @Override

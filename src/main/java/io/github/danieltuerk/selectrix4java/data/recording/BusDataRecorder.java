@@ -1,13 +1,14 @@
 package io.github.danieltuerk.selectrix4java.data.recording;
 
 import com.google.gson.Gson;
+import io.github.danieltuerk.selectrix4java.bus.BusDataReceiver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import io.github.danieltuerk.selectrix4java.bus.BusDataReceiver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Recorder to save the bus data during the recording session and save the recording to the output file. This file can
@@ -52,7 +53,7 @@ public class BusDataRecorder implements BusDataReceiver {
                 try {
                     Files.createDirectory(destinationFolder);
                 } catch (IOException e) {
-                    throw new RecordingException("can't create diretory for the recording output file");
+                    throw new RecordingException("can't create directory for the recording output file");
                 }
             }
 
@@ -108,8 +109,7 @@ public class BusDataRecorder implements BusDataReceiver {
     public Path getRecordOutput() {
         if (!isRunning()) {
             try {
-                log.info(String.format("write record entries (%d) to file: %s", record.getEntries().size(),
-                        outputFile.toString()));
+                log.info("write record entries ({}) to file: {}", record.getEntries().size(), outputFile.toString());
                 Files.write(outputFile, new Gson().toJson(record).getBytes());
                 return outputFile;
             } catch (IOException e) {

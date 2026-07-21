@@ -1,19 +1,18 @@
 package io.github.danieltuerk.selectrix4java.runnables;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigInteger;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import io.github.danieltuerk.selectrix4java.block.FeedbackBlockListener;
-import io.github.danieltuerk.selectrix4java.bus.BusAddressListener;
 import io.github.danieltuerk.selectrix4java.device.Device;
 import io.github.danieltuerk.selectrix4java.device.DeviceAccessException;
 import io.github.danieltuerk.selectrix4java.device.DeviceConnectionListener;
 import io.github.danieltuerk.selectrix4java.device.serial.SerialDevice;
 import io.github.danieltuerk.selectrix4java.train.TrainModule;
 import io.github.danieltuerk.selectrix4java.train.TrainModule.DRIVING_DIRECTION;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Main to add listener for value changes to address for connected serial device.
@@ -56,7 +55,7 @@ class MonitorAddressChangesConsoleMain {
             trainModuleB.setLight(true);
 
             BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Geben Sie etwas ein: ");
+            System.out.println("Input: ");
             String line;
             try {
                 boolean running = true;
@@ -116,10 +115,10 @@ class MonitorAddressChangesConsoleMain {
                 }
                 serialDevice.disconnect();
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         } catch (DeviceAccessException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -152,20 +151,4 @@ class MonitorAddressChangesConsoleMain {
                 });
     }
 
-    private static void addBusAddressListener(SerialDevice serialDevice, final int address) throws
-            DeviceAccessException {
-        serialDevice.getBusAddress(1, address).addListener((BusAddressListener) (oldValue, newValue) -> {
-            if (oldValue != newValue) {
-
-                System.out.println(
-                        String.format("%s: %s (%d %d %d %d | %d %d %d %d)", address, newValue, foo(newValue, 7),
-                                foo(newValue, 6), foo(newValue, 5), foo(newValue, 4), foo(newValue, 3),
-                                foo(newValue, 2), foo(newValue, 1), foo(newValue, 0)));
-            }
-        });
-    }
-
-    private static int foo(int byteValue, int bit) {
-        return BigInteger.valueOf(byteValue).testBit(bit) ? 1 : 0;
-    }
 }

@@ -5,27 +5,6 @@ package io.github.danieltuerk.selectrix4java.data.recording;
  *
  * @author Daniel Tuerk
  */
-public class BusDataRecordEntry {
+public record BusDataRecordEntry(long timestamp, int bus, byte[] data) {
 
-    private final long timestamp;
-    private final int bus;
-    private final byte[] data;
-
-    public BusDataRecordEntry(long timestamp, int bus, byte[] data) {
-        this.timestamp = timestamp;
-        this.bus = bus;
-        this.data = data;
-    }
-
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public int getBus() {
-        return bus;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
 }

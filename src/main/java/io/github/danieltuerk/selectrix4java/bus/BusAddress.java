@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Address of an bus. Wrap the data value and send state change events.
+ * Address of a bus. Wrap the data value and send state change events.
  *
  * @author Daniel Tuerk
  */
@@ -34,7 +34,7 @@ public class BusAddress {
     private final AbstractBusDataConsumer busDataConsumer;
     private final BusAddressDataDispatcher dispatcher = new BusAddressDataDispatcher();
     /**
-     * Bit state to toggle by next {#send} call. Set the state of bit by {#setBit} and {#clearBit}.
+     * The bit state to toggle by next {#send} call. Set the state of bit by {#setBit} and {#clearBit}.
      */
     private final Map<Integer, Boolean> bitsToUpdate = new ConcurrentHashMap<>(8);
     /**
@@ -96,7 +96,7 @@ public class BusAddress {
      * Send the actual data of this address to the bus.
      */
     public synchronized void send() {
-        LOG.trace("{} -> send - data {}", this.toString(), data);
+        LOG.trace("{} -> send - data {}", this, data);
         BigInteger dataToSend = BigInteger.valueOf(data);
         // check for bit manipulation to send for current data value
         if (!bitsToUpdate.isEmpty()) {
@@ -114,7 +114,7 @@ public class BusAddress {
     }
 
     /**
-     * Turn bit on.
+     * Turn the bit on.
      *
      * @param bit number of bit (1-8)
      * @return {@link io.github.danieltuerk.selectrix4java.bus.BusAddress}

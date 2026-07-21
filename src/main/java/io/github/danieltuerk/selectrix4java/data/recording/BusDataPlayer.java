@@ -1,24 +1,20 @@
 package io.github.danieltuerk.selectrix4java.data.recording;
 
 import com.google.gson.Gson;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import io.github.danieltuerk.selectrix4java.bus.BusDataReceiver;
 import io.github.danieltuerk.selectrix4java.data.BusDataChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
 /**
- * Player to playback an record to an {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver}.
+ * Player to playback a record to an {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver}.
  *
  * @author Daniel Tuerk
  */
@@ -39,7 +35,7 @@ public class BusDataPlayer {
     private transient boolean running = false;
 
     /**
-     * Creating new player to call the given {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver} by playing an record.
+     * Creating new player to call the given {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver} by playing a record.
      *
      * @param receiver {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver}
      * @param busDataChannel {@link io.github.danieltuerk.selectrix4java.data.BusDataChannel}
@@ -49,7 +45,7 @@ public class BusDataPlayer {
     }
 
     /**
-     * Creating new player to call the given {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver} by playing an record.
+     * Creating new player to call the given {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver} by playing a record.
      *
      * @param receiver {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver}
      * @param busDataChannel {@link io.github.danieltuerk.selectrix4java.data.BusDataChannel}
@@ -80,7 +76,7 @@ public class BusDataPlayer {
                 throw new RecordingException("can't start playback", e);
             }
         } else {
-            throw new RecordingException(String.format("record file doesn't exists! (%s)", recordFile.toString()));
+            throw new RecordingException(String.format("record file doesn't exists! (%s)", recordFile));
         }
     }
 
@@ -95,27 +91,27 @@ public class BusDataPlayer {
             busDataChannel.pause();
             fireStartEvent();
             executorService.submit(() -> {
-                long lastReceivedTime = record.getEntries().getFirst().getTimestamp();
+                long lastReceivedTime = record.getEntries().getFirst().timestamp();
 
                 for (BusDataRecordEntry recordEntry : record.getEntries()) {
                     if (!running) {
                         break;
                     }
                     // simulate delay of recorded data by sleeping for the timestamp difference between record
-                    long durationInMs = TimeUnit.NANOSECONDS.toMillis(recordEntry.getTimestamp() - lastReceivedTime);
+                    long durationInMs = TimeUnit.NANOSECONDS.toMillis(recordEntry.timestamp() - lastReceivedTime);
                     durationInMs = durationInMs / playbackSpeedMultiplication;
 
                     if (durationInMs > 0) {
                         try {
                             Thread.sleep(durationInMs);
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            log.error("player interrupted", e);
                         }
                     }
-                    lastReceivedTime = recordEntry.getTimestamp();
+                    lastReceivedTime = recordEntry.timestamp();
 
                     // handle data
-                    receiver.received(recordEntry.getBus(), recordEntry.getData());
+                    receiver.received(recordEntry.bus(), recordEntry.data());
                 }
                 stop();
             });

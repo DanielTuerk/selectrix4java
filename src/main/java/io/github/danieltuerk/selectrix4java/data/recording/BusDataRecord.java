@@ -6,8 +6,8 @@ import java.util.List;
 /**
  * Container for a recording session of the {@link BusDataRecorder} which can be played back by the {@link
  * BusDataPlayer}.
- *
- * Each single entry representing an bus value change of the buses.
+ * <p>
+ * Each single entry representing a bus value change of the buses.
  *
  * @author Daniel Tuerk
  */

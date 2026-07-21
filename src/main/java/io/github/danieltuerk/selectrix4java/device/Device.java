@@ -25,7 +25,7 @@ public interface Device extends Serializable {
     }
 
     /**
-     * Id of the device.
+     * ID of the device.
      *
      * @return {@link String}
      */
@@ -68,10 +68,8 @@ public interface Device extends Serializable {
 
     /**
      * Disconnect the open connection.
-     *
-     * @throws DeviceAccessException no access
      */
-    void disconnect() throws DeviceAccessException;
+    void disconnect();
 
     /**
      * Check connection state.
@@ -154,7 +152,7 @@ public interface Device extends Serializable {
     void removeSystemFormatListener(SystemFormatListener listener);
 
     /**
-     * Send the given byte array to the device output. Not recommended! Instead use the {@link
+     * Send the given byte array to the device output. Not recommended! Instead, use the {@link
      * io.github.danieltuerk.selectrix4java.bus.BusAddress}.
      *
      * @param data bytes to send

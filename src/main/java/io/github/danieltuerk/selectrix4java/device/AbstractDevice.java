@@ -23,7 +23,7 @@ import java.util.concurrent.FutureTask;
 
 /**
  * The device implementation manage the connection.
- * Abstract device handle all state information for the bus. Common functions and delegates to access the bus within an
+ * Abstract device handle all state information for the bus. Common functions and delegates to access the bus within a
  * functional layer. Address values are wrapped by the {@link io.github.danieltuerk.selectrix4java.bus.BusAddress} and the
  * functionality by {@link io.github.danieltuerk.selectrix4java.Module} implementations (e.g. {@link
  * io.github.danieltuerk.selectrix4java.train.TrainModule}) instead of reading and writing byte arrays to the bus.
@@ -157,7 +157,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      * Close the active connection of the device and clear all caches.
      */
     @Override
-    public void disconnect() throws DeviceAccessException {
+    public void disconnect() {
         log.debug("close channel");
         if (busDataChannel != null) {
             busDataChannel.shutdownNow();
@@ -313,7 +313,7 @@ public abstract class AbstractDevice implements Device, IsRecordable {
 
     /**
      * Dispatcher for the read and write operation of the device. Used to register {@link AbstractBusDataConsumer}s.
-     * Dispatcher is also available in offline mode and will inform all consumers after an connection is established.
+     * Dispatcher is also available in offline mode and will inform all consumers after a connection is established.
      *
      * @return {@link io.github.danieltuerk.selectrix4java.bus.BusDataDispatcher}
      */

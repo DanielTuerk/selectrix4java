@@ -1,15 +1,16 @@
 package io.github.danieltuerk.selectrix4java.device.serial;
 
-import static org.junit.Assert.assertEquals;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.function.BooleanSupplier;
 import io.github.danieltuerk.selectrix4java.bus.TestDataSet;
 import io.github.danieltuerk.selectrix4java.device.Device;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.function.BooleanSupplier;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Base test class to test the communication of a device. Connection for the device is established in {@see #setup} and
@@ -73,11 +74,13 @@ public class BaseTest {
     @Before
     public void setup() {
         Assert.assertTrue("no connection", connection.connect());
-        // The first read cycle of BusDataChannel and this fixed wait both start counting from the
-        // same "connected" moment with the same 200ms delay, so a plain Thread.sleep(200L) here raced
-        // the background read against consumer registration below - depending on which won, a
-        // consumer registering while the first cycle was mid-flight could miss one bus's initial
-        // dump. Waiting for both buses to actually have data avoids the race entirely.
+        /*
+         The first read cycle of BusDataChannel and this fixed wait both start counting from the
+         same "connected" moment with the same 200ms delay, so a plain Thread.sleep(200L) here raced
+         the background read against consumer registration below - depending on which won, a
+         consumer registering while the first cycle was mid-flight could miss one bus's initial dump.
+          Waiting for both buses to actually have data avoids the race entirely.
+        */
         awaitCondition(() -> hasBusData(0) && hasBusData(1));
     }
 

@@ -1,10 +1,6 @@
 package io.github.danieltuerk.selectrix4java.jna.linux;
 
-import io.github.danieltuerk.selectrix4java.jna.LibC;
-import io.github.danieltuerk.selectrix4java.jna.SerialConfig;
-import io.github.danieltuerk.selectrix4java.jna.SerialPortService;
-import io.github.danieltuerk.selectrix4java.jna.Termios;
-import io.github.danieltuerk.selectrix4java.jna.TermiosConst;
+import io.github.danieltuerk.selectrix4java.jna.*;
 
 public class LinuxSerialService implements SerialPortService {
 
@@ -72,12 +68,9 @@ public class LinuxSerialService implements SerialPortService {
     @Override
     public int available() {
         byte[] buf = new byte[1024];
-
-        int oldTimeout = 0;
-        int read = read(buf, 0);
-
-        return read;
+        return read(buf, 0);
     }
+
     @Override
     public void write(byte[] data) {
         int result = LibC.INSTANCE.write(fd, data, data.length);
@@ -85,6 +78,7 @@ public class LinuxSerialService implements SerialPortService {
             throw new RuntimeException("Write failed");
         }
     }
+
     @Override
     public int read(byte[] buffer, int timeoutMs) {
 
