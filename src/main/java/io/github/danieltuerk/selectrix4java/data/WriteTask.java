@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * Write data to the {@link java.io.OutputStream} of the connected device.
@@ -14,6 +15,7 @@ import java.util.Arrays;
 public class WriteTask extends AbstractSerialAccessTask {
 
     private static final Logger log = LoggerFactory.getLogger(WriteTask.class);
+    private static final int READ_TIMEOUT_MS = 250;
 
     private final byte[] data;
     private final byte[] expectedAnswer;
@@ -36,11 +38,11 @@ public class WriteTask extends AbstractSerialAccessTask {
             log.error("invalid data to send!");
             return false;
         }
-        log.debug("write: {}", data);
+        log.debug("write: {}", IntStream.range(0, data.length).map(i -> Byte.toUnsignedInt(data[i])).toArray());
         getSerialPort().write(data);
 
         var buf = new byte[expectedAnswer.length];
-        int reply = getSerialPort().read(buf, 250);
+        int reply = getSerialPort().read(buf, READ_TIMEOUT_MS);
         if (reply == expectedAnswer.length && Arrays.equals(buf, expectedAnswer)) {
             log.debug("write successful!");
         } else {
