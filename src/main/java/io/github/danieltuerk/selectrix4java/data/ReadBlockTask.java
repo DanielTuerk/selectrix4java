@@ -29,11 +29,6 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
      * TODO FCC specific
      */
     private static final int DATA = 3;
-    /**
-     * Delay to read the SX bus.
-     * TODO verify before delete, if we need to let the bus relax before sending next read task in a row
-     */
-    public static final long SX_DELAY_IN_MILLIS = 77L;
 
     private final byte[] reply = new byte[LENGTH_OF_DATA_REPLY];
 

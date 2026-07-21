@@ -20,8 +20,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class BaseTest {
 
-    public final static String DEVICE_ID = "/dev/tty.usbserial-141";
-
     /**
      * Bus data is delivered asynchronously by a background poll cycle, whose timing depends on
      * the machine running the test. Assertions therefore poll for the expected outcome up to this
@@ -96,10 +94,6 @@ public class BaseTest {
     @After
     public void tearDown() {
         Assert.assertTrue("can't disconnect", connection.disconnect());
-    }
-
-    protected void assertEventReceived(TestDataSet testDataSet) {
-        assertEventReceived(testDataSet, -1);
     }
 
     protected void assertEventReceived(TestDataSet testDataSet, int expectedResultCount) {
