@@ -16,7 +16,10 @@ public class TermiosConst {
 
     // Flags
     public static final int CS8 = 0x30;
+    public static final int CSTOPB = 0x40;
     public static final int CREAD = 0x80;
+    public static final int PARENB = 0x100;
+    public static final int PARODD = 0x200;
     public static final int CLOCAL = 0x800;
 
     public static final int ICANON = 0x0002;

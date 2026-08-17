@@ -41,6 +41,20 @@ public class LinuxSerialService implements SerialPortService {
             default -> throw new IllegalArgumentException("Only 8 data bits supported now");
         };
 
+        // Parity
+        t.c_cflag |= switch (cfg.parity()) {
+            case NONE -> 0;
+            case EVEN -> TermiosConst.PARENB;
+            case ODD -> TermiosConst.PARENB | TermiosConst.PARODD;
+        };
+
+        // Stop bits
+        t.c_cflag |= switch (cfg.stopBits()) {
+            case 1 -> 0;
+            case 2 -> TermiosConst.CSTOPB;
+            default -> throw new IllegalArgumentException("Invalid stop bits");
+        };
+
         // Baudrate
         int baud = mapBaud(cfg.baudRate());
         t.c_ispeed = baud;
