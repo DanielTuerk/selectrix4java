@@ -1,4 +1,4 @@
-package io.github.danieltuerk.selectrix4java.jna;
+package io.github.danieltuerk.selectrix4java.device.serial.ffm;
 
 public class SerialConfig {
 

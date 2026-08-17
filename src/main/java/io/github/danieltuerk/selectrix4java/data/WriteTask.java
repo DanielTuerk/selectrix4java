@@ -1,6 +1,6 @@
 package io.github.danieltuerk.selectrix4java.data;
 
-import io.github.danieltuerk.selectrix4java.jna.SerialPort;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class WriteTask extends AbstractSerialAccessTask {
     /**
      * Create new task for an execution
      *
-     * @param serialPort {@link io.github.danieltuerk.selectrix4java.jna.SerialPort}
+     * @param serialPort {@link SerialPort}
      * @param data       bytes to send
      */
     public WriteTask(SerialPort serialPort, byte[] data, byte[] expectedAnswer) {

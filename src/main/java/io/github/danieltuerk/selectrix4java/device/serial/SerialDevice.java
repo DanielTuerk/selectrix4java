@@ -9,10 +9,9 @@ import io.github.danieltuerk.selectrix4java.data.BusDataChannel;
 import io.github.danieltuerk.selectrix4java.device.AbstractDevice;
 import io.github.danieltuerk.selectrix4java.device.DeviceAccessException;
 import io.github.danieltuerk.selectrix4java.device.RailVoltageListener;
-import io.github.danieltuerk.selectrix4java.jna.Parity;
-import io.github.danieltuerk.selectrix4java.jna.SerialConfig;
-import io.github.danieltuerk.selectrix4java.jna.SerialPortImpl;
-import io.github.danieltuerk.selectrix4java.jna.SerialPortLister;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.Parity;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialConfig;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPortImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

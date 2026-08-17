@@ -1,4 +1,4 @@
-package io.github.danieltuerk.selectrix4java.jna.win;
+package io.github.danieltuerk.selectrix4java.device.serial.ffm.win;
 
 public class WinConst {
 
@@ -20,4 +20,10 @@ public class WinConst {
     // Stop bits
     public static final byte ONESTOPBIT = 0;
     public static final byte TWOSTOPBITS = 2;
+
+    // Registry
+    public static final long HKEY_LOCAL_MACHINE = 0x80000002L;
+    public static final int KEY_READ = 0x20019;
+    public static final int REG_SZ = 1;
+    public static final int ERROR_NO_MORE_ITEMS = 259;
 }

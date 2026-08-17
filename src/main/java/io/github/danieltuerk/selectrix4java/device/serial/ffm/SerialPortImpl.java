@@ -1,4 +1,6 @@
-package io.github.danieltuerk.selectrix4java.jna;
+package io.github.danieltuerk.selectrix4java.device.serial.ffm;
+
+import io.github.danieltuerk.selectrix4java.device.serial.SerialServiceFactory;
 
 public class SerialPortImpl implements SerialPort {
 

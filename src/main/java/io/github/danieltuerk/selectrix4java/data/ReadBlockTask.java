@@ -1,7 +1,7 @@
 package io.github.danieltuerk.selectrix4java.data;
 
 import io.github.danieltuerk.selectrix4java.bus.BusDataReceiver;
-import io.github.danieltuerk.selectrix4java.jna.SerialPort;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

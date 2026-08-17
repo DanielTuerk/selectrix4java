@@ -1,6 +1,6 @@
-package io.github.danieltuerk.selectrix4java.jna.linux;
+package io.github.danieltuerk.selectrix4java.device.serial.ffm.linux;
 
-import io.github.danieltuerk.selectrix4java.jna.SerialPortLister;
+import io.github.danieltuerk.selectrix4java.device.serial.SerialPortLister;
 
 import java.io.File;
 import java.util.Arrays;

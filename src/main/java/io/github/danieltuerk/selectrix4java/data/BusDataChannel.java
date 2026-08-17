@@ -2,7 +2,7 @@ package io.github.danieltuerk.selectrix4java.data;
 
 import io.github.danieltuerk.selectrix4java.bus.BusDataReceiver;
 import io.github.danieltuerk.selectrix4java.data.recording.BusDataRecorder;
-import io.github.danieltuerk.selectrix4java.jna.SerialPort;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,7 +10,12 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The channel communicate with the device to execute read and write operations. Each operation is an {@link
