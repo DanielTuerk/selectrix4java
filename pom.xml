@@ -124,6 +124,16 @@
 
   </dependencies>
 
+  <!-- used by the snapshot-publish workflow to deploy master-branch SNAPSHOT builds;
+       Maven Central releases go through the "release" profile's central-publishing-maven-plugin instead -->
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub Packages</name>
+      <url>https://maven.pkg.github.com/DanielTuerk/selectrix4java</url>
+    </repository>
+  </distributionManagement>
+
   <profiles>
 
     <profile>
