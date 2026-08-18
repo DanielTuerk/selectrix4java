@@ -44,6 +44,10 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
     @Override
     public Boolean call() {
         boolean valid = readBlock(reply);
+        if (valid && log.isDebugEnabled()) {
+            log.debug("block ok, hash={}, bus1 addr 50-62={}", Arrays.hashCode(reply),
+                Arrays.toString(Arrays.copyOfRange(reply, 113 + 50, 113 + 63)));
+        }
         for (final BusDataReceiver receiver : getReceivers()) {
             // bus 0
             receiver.received(0, Arrays.copyOfRange(reply, 0, 113));
