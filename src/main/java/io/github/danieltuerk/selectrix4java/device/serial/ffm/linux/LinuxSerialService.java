@@ -5,6 +5,8 @@ import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialConfig;
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPortService;
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.Termios;
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.TermiosConst;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -13,9 +15,12 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 
 public class LinuxSerialService implements SerialPortService {
 
+    private static final Logger log = LoggerFactory.getLogger(LinuxSerialService.class);
+
     private Arena arena;
     private int fd;
     private Termios termios;
+    private String port;
 
     @Override
     public void open(String port, SerialConfig config) {
@@ -32,6 +37,7 @@ public class LinuxSerialService implements SerialPortService {
             throw new RuntimeException("Cannot open port: " + port + " errno=" + openResult.errno());
         }
 
+        this.port = port;
         termios = new Termios(arena);
         configurePort(config);
     }
@@ -86,6 +92,9 @@ public class LinuxSerialService implements SerialPortService {
         if (setResult.value() != 0) {
             throw new RuntimeException("tcsetattr failed errno=" + setResult.errno());
         }
+
+        log.info("serial port {} configured: {} baud, {} data bits, parity {}, {} stop bits",
+            port, cfg.baudRate(), cfg.dataBits(), cfg.parity(), cfg.stopBits());
     }
 
     private int mapBaud(int baud) {
@@ -176,7 +185,7 @@ public class LinuxSerialService implements SerialPortService {
         } else {
             // Timeout (VTIME in 100ms units!). Round up so a remaining budget under 100ms
             // doesn't collapse to VTIME=0, which would mean "block forever" instead.
-            int vtimeUnits = Math.min(255, Math.max(1, (timeoutMs + 99) / 100));
+            int vtimeUnits = Math.clamp((timeoutMs + 99) / 100, 1, 255);
             termios.cc(TermiosConst.VMIN, (byte) 0);
             termios.cc(TermiosConst.VTIME, (byte) vtimeUnits);
         }

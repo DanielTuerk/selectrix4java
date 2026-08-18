@@ -2,6 +2,8 @@ package io.github.danieltuerk.selectrix4java.device.serial.ffm.win;
 
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialConfig;
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPortService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
@@ -10,9 +12,12 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 
 public class WindowsSerialService implements SerialPortService {
 
+    private static final Logger log = LoggerFactory.getLogger(WindowsSerialService.class);
+
     private Arena arena;
     private MemorySegment handle;
     private COMMTIMEOUTS timeouts;
+    private String port;
 
     @Override
     public void open(String port, SerialConfig config) {
@@ -42,6 +47,7 @@ public class WindowsSerialService implements SerialPortService {
             throw new RuntimeException("Cannot open port: " + port + " error=" + result.lastError());
         }
 
+        this.port = port;
         timeouts = new COMMTIMEOUTS(arena);
         configurePort(config);
     }
@@ -74,6 +80,9 @@ public class WindowsSerialService implements SerialPortService {
         if (!setResult.value()) {
             throw new RuntimeException("SetCommState failed error=" + setResult.lastError());
         }
+
+        log.info("serial port {} configured: {} baud, {} data bits, parity {}, {} stop bits",
+            port, cfg.baudRate(), cfg.dataBits(), cfg.parity(), cfg.stopBits());
     }
 
     @Override
