@@ -92,6 +92,21 @@ public class BusDataChannel {
      */
     public void start() {
         errorCount = 0;
+
+        /*
+         * Establish a deterministic initial state before the first real read: dispatch an
+         * all-zeros block for both buses so every consumer receives its initial callback
+         * (e.g. rail voltage off, blocks free). The first real block then arrives as plain
+         * data changes against this zero baseline. Historically this zero baseline was
+         * delivered by accident - the first read returned no/partial data and the stale
+         * zero-filled reply buffer was dispatched anyway - which broke once the serial
+         * implementations delivered a complete block on the first read.
+         */
+        for (BusDataReceiver receiver : receivers) {
+            receiver.received(0, new byte[ReadBlockTask.LENGTH_OF_DATA_REPLY / 2]);
+            receiver.received(1, new byte[ReadBlockTask.LENGTH_OF_DATA_REPLY / 2]);
+        }
+
         final ReadBlockTask readBlockTask = new ReadBlockTask(serialPort);
         // poll the queue
         scheduledExecutorService.scheduleWithFixedDelay(() -> {

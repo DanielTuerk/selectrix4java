@@ -44,7 +44,12 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
     @Override
     public Boolean call() {
         boolean valid = readBlock(reply);
-        if (valid && log.isDebugEnabled()) {
+        if (!valid) {
+            // never dispatch a partial or stale buffer - the initial zero baseline is
+            // established explicitly by BusDataChannel#start
+            return false;
+        }
+        if (log.isDebugEnabled()) {
             log.debug("block ok, hash={}, bus1 addr 50-62={}", Arrays.hashCode(reply),
                 Arrays.toString(Arrays.copyOfRange(reply, 113 + 50, 113 + 63)));
         }
@@ -54,7 +59,7 @@ public class ReadBlockTask extends AbstractSerialAccessTask {
             // bus 1
             receiver.received(1, Arrays.copyOfRange(reply, 113, 226));
         }
-        return valid;
+        return true;
     }
 
     private boolean readBlock(byte[] reply) {
