@@ -7,8 +7,18 @@ package io.github.danieltuerk.selectrix4java.block;
  */
 public interface BlockListener {
 
+    /**
+     * The given block is occupied.
+     *
+     * @param blockNr number of the block
+     */
     void blockOccupied(int blockNr);
 
+    /**
+     * The given block is freed.
+     *
+     * @param blockNr number of the block
+     */
     void blockFreed(int blockNr);
 
 }

@@ -69,7 +69,7 @@ public class SerialDevice extends AbstractDevice {
      * Create device to connect to a serial interface.
      *
      * @param deviceId {@link java.lang.String} OS device id
-     * @param baudRate {@link int} baud rate of the device
+     * @param baudRate baud rate of the device
      */
     public SerialDevice(String deviceId, int baudRate) {
         this.deviceId = deviceId;
@@ -196,7 +196,7 @@ public class SerialDevice extends AbstractDevice {
     /**
      * Read the actual value of the rail voltage.
      *
-     * @return {@link boolean} state
+     * @return state
      */
     @Override
     public boolean getRailVoltage() throws DeviceAccessException {

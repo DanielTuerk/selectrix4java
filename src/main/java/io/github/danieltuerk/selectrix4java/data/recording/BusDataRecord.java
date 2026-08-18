@@ -15,10 +15,26 @@ public class BusDataRecord {
 
     private final List<BusDataRecordEntry> entries = new ArrayList<>();
 
+    /**
+     * Create empty record.
+     */
+    public BusDataRecord() {
+    }
+
+    /**
+     * Add the given entry to the record.
+     *
+     * @param entry entry to add
+     */
     public void addEntry(BusDataRecordEntry entry) {
         entries.add(entry);
     }
 
+    /**
+     * Recorded entries.
+     *
+     * @return entries
+     */
     public List<BusDataRecordEntry> getEntries() {
         return entries;
     }

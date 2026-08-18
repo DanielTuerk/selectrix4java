@@ -28,14 +28,29 @@ abstract class AbstractSerialAccessTask implements Callable<Boolean> {
         this.serialPort = serialPort;
     }
 
+    /**
+     * Port to access.
+     *
+     * @return {@link SerialPort}
+     */
     protected SerialPort getSerialPort() {
         return serialPort;
     }
 
+    /**
+     * Receivers to inform about read data.
+     *
+     * @return receivers
+     */
     protected List<BusDataReceiver> getReceivers() {
         return receivers;
     }
 
+    /**
+     * Set the receivers to inform about read data.
+     *
+     * @param receivers receivers to inform
+     */
     public void setReceivers(List<BusDataReceiver> receivers) {
         this.receivers = receivers;
     }

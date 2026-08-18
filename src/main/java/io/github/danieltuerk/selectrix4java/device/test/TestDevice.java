@@ -14,11 +14,28 @@ import io.github.danieltuerk.selectrix4java.device.DeviceAccessException;
  */
 public class TestDevice extends AbstractDevice {
 
+    /**
+     * ID of the simulated device.
+     */
     private final String deviceId;
+    /**
+     * Simulated connection state.
+     */
     private boolean connected = false;
+    /**
+     * Simulated rail voltage state.
+     */
     private boolean railvoltage = false;
+    /**
+     * Simulated system format.
+     */
     private SYSTEM_FORMAT actualSystemFormat = SYSTEM_FORMAT.ONLY_SX1;
 
+    /**
+     * Create test device with the given id.
+     *
+     * @param deviceId id of the simulated device
+     */
     public TestDevice(String deviceId) {
         this.deviceId = deviceId;
     }

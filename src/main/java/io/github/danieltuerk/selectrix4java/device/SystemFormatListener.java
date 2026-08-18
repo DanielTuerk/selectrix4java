@@ -9,6 +9,11 @@ import io.github.danieltuerk.selectrix4java.device.Device.SYSTEM_FORMAT;
  */
 public interface SystemFormatListener {
 
+    /**
+     * The system format has changed.
+     *
+     * @param systemFormat new system format
+     */
     void systemFormatChanged(SYSTEM_FORMAT systemFormat);
 
 }

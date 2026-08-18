@@ -11,6 +11,18 @@ import java.math.BigInteger;
  */
 public class BusAddressDataDispatcher extends AbstractModuleDataDispatcher<BusListener> {
 
+    /**
+     * Create new dispatcher without registered listeners.
+     */
+    public BusAddressDataDispatcher() {
+    }
+
+    /**
+     * Inform all listeners about the changed value.
+     *
+     * @param oldValue old value
+     * @param newValue new value
+     */
     public void fireValueChanged(final int oldValue, final int newValue) {
         for (BusListener listener : getListeners()) {
             if (listener instanceof BusAddressListener) {

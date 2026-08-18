@@ -15,7 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -74,10 +79,26 @@ public abstract class AbstractDevice implements Device, IsRecordable {
      */
     private final Queue<SystemFormatListener> systemFormatListeners = new ConcurrentLinkedQueue<>();
 
+    /**
+     * Create new device without an established connection.
+     */
+    protected AbstractDevice() {
+    }
+
+    /**
+     * Registered rail voltage listeners.
+     *
+     * @return listeners
+     */
     protected Queue<RailVoltageListener> getRailVoltageListeners() {
         return railVoltageListeners;
     }
 
+    /**
+     * Registered system format listeners.
+     *
+     * @return listeners
+     */
     protected Queue<SystemFormatListener> getSystemFormatListeners() {
         return systemFormatListeners;
     }
@@ -109,6 +130,11 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         initRailVoltageListener();
     }
 
+    /**
+     * Register the listener that translates bus changes into rail voltage events.
+     *
+     * @throws DeviceAccessException no access
+     */
     abstract protected void initRailVoltageListener() throws DeviceAccessException;
 
     /**
@@ -141,6 +167,11 @@ public abstract class AbstractDevice implements Device, IsRecordable {
         return feedbackBlockModules;
     }
 
+    /**
+     * Register the listener that translates bus changes into system format events.
+     *
+     * @throws DeviceAccessException no access
+     */
     abstract protected void initSystemFormatListener() throws DeviceAccessException;
 
     /**

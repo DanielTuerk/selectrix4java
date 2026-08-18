@@ -28,6 +28,11 @@ abstract public class BusAddressDataConsumer extends AbstractBusDataConsumer {
      */
     abstract public void valueChanged(int oldValue, int newValue);
 
+    /**
+     * Observed address.
+     *
+     * @return address
+     */
     public int getAddress() {
         return address;
     }

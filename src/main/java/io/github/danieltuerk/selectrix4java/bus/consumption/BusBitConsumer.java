@@ -1,17 +1,31 @@
 package io.github.danieltuerk.selectrix4java.bus.consumption;
 
 /**
+ * Consumer for a single bit of an address on a bus.
+ *
  * @author Daniel Tuerk
  */
 abstract public class BusBitConsumer extends BusAddressDataConsumer {
 
     private final int bit;
 
+    /**
+     * Create consumer for given bus, address and bit.
+     *
+     * @param bus     bus number
+     * @param address address of bus
+     * @param bit     bit number (1-8)
+     */
     public BusBitConsumer(int bus, int address, int bit) {
         super(bus, address);
         this.bit = bit;
     }
 
+    /**
+     * Observed bit number.
+     *
+     * @return bit number
+     */
     public int getBit() {
         return bit;
     }

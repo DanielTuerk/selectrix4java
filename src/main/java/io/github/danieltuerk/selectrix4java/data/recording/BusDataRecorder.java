@@ -39,6 +39,12 @@ public class BusDataRecorder implements BusDataReceiver {
     private boolean running = false;
 
     /**
+     * Create recorder without a running recording.
+     */
+    public BusDataRecorder() {
+    }
+
+    /**
      * Start the recording to store the received data by the {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver}
      * interface.
      *
@@ -88,6 +94,8 @@ public class BusDataRecorder implements BusDataReceiver {
 
 
     /**
+     * State of the recording.
+     *
      * @return {@code true} for active recording
      */
     public boolean isRunning() {

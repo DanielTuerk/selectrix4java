@@ -7,7 +7,13 @@ package io.github.danieltuerk.selectrix4java.data.recording;
  */
 public interface BusDataPlayerListener {
 
+    /**
+     * Playback has started.
+     */
     void playbackStarted();
 
+    /**
+     * Playback has stopped.
+     */
     void playbackStopped();
 }

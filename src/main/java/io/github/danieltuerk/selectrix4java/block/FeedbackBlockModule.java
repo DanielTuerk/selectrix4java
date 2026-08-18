@@ -39,6 +39,13 @@ public class FeedbackBlockModule extends BlockModule {
     private final BusAddress feedbackAddress;
     private final BusAddress additionalAddress;
 
+    /**
+     * Create module for the given block, feedback and additional address.
+     *
+     * @param busAddress        address of the block
+     * @param feedbackAddress   address for the feedback data
+     * @param additionalAddress additional address to receive block states
+     */
     public FeedbackBlockModule(BusAddress busAddress, final BusAddress feedbackAddress, BusAddress additionalAddress) {
         super(busAddress);
         this.feedbackAddress = feedbackAddress;

@@ -32,6 +32,11 @@ abstract public class BusMultiAddressDataConsumer extends AbstractBusDataConsume
      */
     abstract public void valueChanged(Collection<BusAddressData> data);
 
+    /**
+     * Observed addresses.
+     *
+     * @return addresses
+     */
     public int[] getAddresses() {
         return addresses;
     }

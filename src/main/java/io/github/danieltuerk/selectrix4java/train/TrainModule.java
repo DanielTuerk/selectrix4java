@@ -21,7 +21,14 @@ public class TrainModule implements Module {
      * Driving direction of the train.
      */
     public enum DRIVING_DIRECTION {
-        FORWARD, BACKWARD
+        /**
+         * Forward.
+         */
+        FORWARD,
+        /**
+         * Backward.
+         */
+        BACKWARD
     }
     /**
      * Driving direction of the train: bit 6

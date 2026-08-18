@@ -21,7 +21,38 @@ public interface Device extends Serializable {
      * Possible system formats for the device.
      */
     enum SYSTEM_FORMAT {
-        UNKNOWN, ONLY_SX1, SX1_SX2, SX1_SX2_DCC, ONLY_DCC, SX1_SX2_MM, ONLY_MM, SX1_SX2_DCC_MM
+        /**
+         * No system format detected yet.
+         */
+        UNKNOWN,
+        /**
+         * Only SX1.
+         */
+        ONLY_SX1,
+        /**
+         * SX1 and SX2.
+         */
+        SX1_SX2,
+        /**
+         * SX1, SX2 and DCC.
+         */
+        SX1_SX2_DCC,
+        /**
+         * Only DCC.
+         */
+        ONLY_DCC,
+        /**
+         * SX1, SX2 and MM.
+         */
+        SX1_SX2_MM,
+        /**
+         * Only MM.
+         */
+        ONLY_MM,
+        /**
+         * SX1, SX2, DCC and MM.
+         */
+        SX1_SX2_DCC_MM
     }
 
     /**
@@ -156,6 +187,7 @@ public interface Device extends Serializable {
      * io.github.danieltuerk.selectrix4java.bus.BusAddress}.
      *
      * @param data bytes to send
+     * @param expectedAnswer expected reply bytes
      */
     void sendNative(byte[] data, byte[] expectedAnswer);
 

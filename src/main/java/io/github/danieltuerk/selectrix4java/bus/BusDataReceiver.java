@@ -7,5 +7,11 @@ package io.github.danieltuerk.selectrix4java.bus;
  */
 public interface BusDataReceiver {
 
+    /**
+     * Data was received for the given bus.
+     *
+     * @param busNr number of the bus
+     * @param data  received data
+     */
     void received(int busNr, byte[] data);
 }

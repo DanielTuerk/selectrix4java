@@ -46,6 +46,13 @@ public class BusAddress {
      */
     private volatile byte lastReceivedData = -1;
 
+    /**
+     * Create new bus address bound to the given channel.
+     *
+     * @param bus            bus number
+     * @param address        address on the bus
+     * @param busDataChannel channel to send and receive data
+     */
     public BusAddress(final int bus, final int address, BusDataChannel busDataChannel) {
         this.bus = bus;
         this.address = address;
@@ -168,18 +175,33 @@ public class BusAddress {
         dispatcher.removeListener(listener);
     }
 
+    /**
+     * Add listeners to receive data changes.
+     *
+     * @param listeners {@link io.github.danieltuerk.selectrix4java.bus.BusListener}s
+     */
     public void addListeners(List<BusListener> listeners) {
         for (BusListener listener : listeners) {
             addListener(listener);
         }
     }
 
+    /**
+     * Remove the given listeners.
+     *
+     * @param listeners {@link io.github.danieltuerk.selectrix4java.bus.BusListener}s
+     */
     public void removeListeners(List<BusListener> listeners) {
         for (BusListener listener : listeners) {
             removeListener(listener);
         }
     }
 
+    /**
+     * Bus number of the address.
+     *
+     * @return bus number
+     */
     public int getBus() {
         return bus;
     }

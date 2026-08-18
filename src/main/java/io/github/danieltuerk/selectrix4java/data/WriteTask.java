@@ -25,6 +25,7 @@ public class WriteTask extends AbstractSerialAccessTask {
      *
      * @param serialPort {@link SerialPort}
      * @param data       bytes to send
+     * @param expectedAnswer expected reply bytes
      */
     public WriteTask(SerialPort serialPort, byte[] data, byte[] expectedAnswer) {
         super(serialPort);

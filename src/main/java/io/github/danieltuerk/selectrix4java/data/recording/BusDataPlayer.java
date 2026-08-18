@@ -11,7 +11,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Player to playback a record to an {@link io.github.danieltuerk.selectrix4java.bus.BusDataReceiver}.
@@ -154,10 +158,20 @@ public class BusDataPlayer {
         }
     }
 
+    /**
+     * Add listener to receive playback state changes.
+     *
+     * @param listener {@link BusDataPlayerListener}
+     */
     public void addListener(BusDataPlayerListener listener) {
         listeners.add(listener);
     }
 
+    /**
+     * Remove the given, already registered listener.
+     *
+     * @param listener {@link BusDataPlayerListener}
+     */
     public void removeListener(BusDataPlayerListener listener) {
         listeners.remove(listener);
     }

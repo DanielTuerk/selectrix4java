@@ -1,7 +1,8 @@
 package io.github.danieltuerk.selectrix4java.data.recording;
 
-import java.nio.file.Path;
 import io.github.danieltuerk.selectrix4java.device.DeviceAccessException;
+
+import java.nio.file.Path;
 
 /**
  * Indicate a {@link io.github.danieltuerk.selectrix4java.device.Device} as recordable with the {@link BusDataRecorder}.
@@ -27,6 +28,8 @@ public interface IsRecordable {
     Path stopRecording() throws DeviceAccessException;
 
     /**
+     * State of the recording.
+     *
      * @return {@code true} if recording is running, otherwise {@code false}
      */
     boolean isRecording();

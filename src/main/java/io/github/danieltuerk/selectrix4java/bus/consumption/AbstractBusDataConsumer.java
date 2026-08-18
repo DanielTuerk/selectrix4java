@@ -9,10 +9,20 @@ abstract public class AbstractBusDataConsumer {
 
     private final int bus;
 
+    /**
+     * Create consumer for the given bus.
+     *
+     * @param bus bus number
+     */
     protected AbstractBusDataConsumer(int bus) {
         this.bus = bus;
     }
 
+    /**
+     * Bus number of the consumer.
+     *
+     * @return bus number
+     */
     public int getBus() {
         return bus;
     }

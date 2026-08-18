@@ -160,6 +160,7 @@ public class BusDataChannel {
      * Send the given byte array to the output of the device. This call is asynchronously executed from the queue.
      *
      * @param data bytes to send
+     * @param expectedAnswer expected reply bytes
      */
     public void send(byte[] data, byte[] expectedAnswer) {
         queue.offer(new WriteTask(serialPort, data, expectedAnswer));
@@ -176,28 +177,60 @@ public class BusDataChannel {
         }
     }
 
+    /**
+     * Set the callback to be informed about the state of the channel.
+     *
+     * @param callback {@link ChannelStateCallback}
+     */
     public void setCallback(ChannelStateCallback callback) {
         this.callback = callback;
     }
 
+    /**
+     * Add the given recorder to receive read data.
+     *
+     * @param busDataRecorder recorder to add
+     */
     public void addBusDataReceiver(BusDataRecorder busDataRecorder) {
         receivers.add(busDataRecorder);
     }
 
+    /**
+     * Remove the given, already registered recorder.
+     *
+     * @param busDataRecorder recorder to remove
+     */
     public void removeBusDataReceiver(BusDataRecorder busDataRecorder) {
         receivers.remove(busDataRecorder);
     }
 
+    /**
+     * Check whether the given recorder is registered.
+     *
+     * @param busDataRecorder recorder to check
+     * @return {@code true} if registered
+     */
     public boolean containsBusDataReceiver(BusDataRecorder busDataRecorder) {
         return receivers.contains(busDataRecorder);
     }
 
+    /**
+     * Registered receivers.
+     *
+     * @return receivers
+     */
     protected List<BusDataReceiver> getReceivers() {
         return receivers;
     }
 
+    /**
+     * Callback for the state of the channel.
+     */
     public interface ChannelStateCallback {
 
+        /**
+         * The channel was closed.
+         */
         void channelClosed();
     }
 }

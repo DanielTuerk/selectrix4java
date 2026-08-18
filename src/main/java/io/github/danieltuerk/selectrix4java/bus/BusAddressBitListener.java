@@ -19,6 +19,11 @@ abstract public class BusAddressBitListener implements BusListener {
         this.bitNr = bitNr;
     }
 
+    /**
+     * Observed bit number.
+     *
+     * @return bit number
+     */
     public int getBitNr() {
         return bitNr;
     }
@@ -32,12 +37,19 @@ abstract public class BusAddressBitListener implements BusListener {
     abstract public void bitChanged(boolean oldValue, boolean newValue);
 
     /**
+     * State of the listener.
+     *
      * @return {@code true} if the listener was called since construction
      */
     public boolean isCalled() {
         return called;
     }
 
+    /**
+     * Set whether the listener was called since construction.
+     *
+     * @param called new state
+     */
     public void setCalled(boolean called) {
         this.called = called;
     }

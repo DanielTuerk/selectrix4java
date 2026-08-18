@@ -9,6 +9,11 @@ public abstract class BlockNumberListener implements BlockListener {
 
     private final int blockNumber;
 
+    /**
+     * Create listener for the given block number.
+     *
+     * @param blockNumber number of the observed block
+     */
     public BlockNumberListener(int blockNumber) {
         this.blockNumber = blockNumber;
     }
