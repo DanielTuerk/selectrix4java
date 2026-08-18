@@ -9,6 +9,7 @@ import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
+import java.util.List;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
@@ -21,8 +22,25 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 public final class LibC {
 
     private static final Linker LINKER = Linker.nativeLinker();
-    private static final SymbolLookup LOOKUP =
-            Linker.nativeLinker().defaultLookup().or(SymbolLookup.libraryLookup("c", Arena.global()));
+    private static final SymbolLookup LOOKUP = buildLookup();
+
+    /**
+     * HotSpot special-cases the bare library name "c" to resolve to the C runtime already
+     * loaded into the process. GraalVM native image does not replicate that hack, so
+     * {@code SymbolLookup.libraryLookup("c", ...)} throws there. Falling through a list of
+     * real glibc/musl sonames makes symbol resolution work under both runtimes.
+     */
+    private static SymbolLookup buildLookup() {
+        SymbolLookup defaultLookup = Linker.nativeLinker().defaultLookup();
+        for (String libcName : List.of("c", "libc.so.6", "libc.so", "libc.musl-x86_64.so.1")) {
+            try {
+                return defaultLookup.or(SymbolLookup.libraryLookup(libcName, Arena.global()));
+            } catch (IllegalArgumentException | UnsatisfiedLinkError ignored) {
+                // try next candidate
+            }
+        }
+        return defaultLookup;
+    }
 
     private static final StructLayout CAPTURE_STATE_LAYOUT = Linker.Option.captureStateLayout();
     private static final VarHandle ERRNO_HANDLE =
