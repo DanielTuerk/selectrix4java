@@ -122,6 +122,15 @@
       <version>2.13.2</version>
     </dependency>
 
+    <!-- compile-time only: hosted Feature/RuntimeForeignAccess API used to register FFM downcalls
+         for native-image ahead of time (see ffm.nativeimage.SerialFfmFeature) -->
+    <dependency>
+      <groupId>org.graalvm.sdk</groupId>
+      <artifactId>nativeimage</artifactId>
+      <version>25.0.4</version>
+      <scope>provided</scope>
+    </dependency>
+
   </dependencies>
 
   <!-- used by the snapshot-publish workflow to deploy master-branch SNAPSHOT builds;

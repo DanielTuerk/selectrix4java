@@ -2,6 +2,9 @@ module io.github.danieltuerk.selectrix4java {
 
     requires org.slf4j;
     requires com.google.gson;
+    // compile-time only: hosted Feature/RuntimeForeignAccess API, used solely during
+    // native-image builds (see ffm.nativeimage.SerialFfmFeature), never needed at run time
+    requires static org.graalvm.nativeimage;
 
     exports io.github.danieltuerk.selectrix4java;
     exports io.github.danieltuerk.selectrix4java.block;
