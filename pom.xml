@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
 
   <groupId>io.github.danieltuerk</groupId>
-    <version>0.6-SNAPSHOT</version>
+    <version>0.6</version>
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>selectrix4java</artifactId>
