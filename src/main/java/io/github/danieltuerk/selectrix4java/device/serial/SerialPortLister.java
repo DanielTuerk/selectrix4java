@@ -11,6 +11,7 @@ public class SerialPortLister {
     }
 
     public static List<PortInfo> list() {
-        return OperatingSystem.isWindows() ? WindowsPortLister.list() : LinuxPortLister.list();
+        var infos = OperatingSystem.isWindows() ? WindowsPortLister.list() : LinuxPortLister.list();
+        return infos.stream().map(info -> new PortInfo(info.path(), info.name())).toList();
     }
 }

@@ -1,6 +1,6 @@
 package io.github.danieltuerk.selectrix4java.device.serial.ffm.win;
 
-import io.github.danieltuerk.selectrix4java.device.serial.SerialPortLister;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPortInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +21,7 @@ public class WindowsPortLister {
     private static final int NAME_BUFFER_CHARS = 256;
     private static final int DATA_BUFFER_BYTES = 512;
 
-    public static List<SerialPortLister.PortInfo> list() {
+    public static List<SerialPortInfo> list() {
 
         try (Arena arena = Arena.ofConfined()) {
 
@@ -45,9 +45,9 @@ public class WindowsPortLister {
         }
     }
 
-    private static List<SerialPortLister.PortInfo> enumerateValues(Arena arena, MemorySegment hKey) {
+    private static List<SerialPortInfo> enumerateValues(Arena arena, MemorySegment hKey) {
 
-        List<SerialPortLister.PortInfo> result = new ArrayList<>();
+        List<SerialPortInfo> result = new ArrayList<>();
 
         for (int index = 0; ; index++) {
 
@@ -70,7 +70,7 @@ public class WindowsPortLister {
             }
 
             String value = decodeUtf16(dataBuffer, dataLength.get(JAVA_INT, 0));
-            result.add(new SerialPortLister.PortInfo(value, value));
+            result.add(new SerialPortInfo(value, value));
         }
 
         return result;

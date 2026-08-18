@@ -1,8 +1,7 @@
 package io.github.danieltuerk.selectrix4java.data;
 
 import io.github.danieltuerk.selectrix4java.bus.BusDataReceiver;
-import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPort;
-import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPortImpl;
+import io.github.danieltuerk.selectrix4java.device.serial.SerialPort;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,7 +22,7 @@ abstract class AbstractSerialAccessTask implements Callable<Boolean> {
     /**
      * Create task for given port.
      *
-     * @param serialPort {@link SerialPortImpl}
+     * @param serialPort {@link SerialPort}
      */
     AbstractSerialAccessTask(SerialPort serialPort) {
         this.serialPort = serialPort;

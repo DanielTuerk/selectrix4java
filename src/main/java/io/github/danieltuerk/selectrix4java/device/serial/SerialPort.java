@@ -1,4 +1,4 @@
-package io.github.danieltuerk.selectrix4java.device.serial.ffm;
+package io.github.danieltuerk.selectrix4java.device.serial;
 
 public interface SerialPort {
     void write(byte[] data);

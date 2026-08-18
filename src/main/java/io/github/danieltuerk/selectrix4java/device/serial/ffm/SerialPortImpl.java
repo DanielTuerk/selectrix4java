@@ -1,6 +1,6 @@
 package io.github.danieltuerk.selectrix4java.device.serial.ffm;
 
-import io.github.danieltuerk.selectrix4java.device.serial.SerialServiceFactory;
+import io.github.danieltuerk.selectrix4java.device.serial.SerialPort;
 
 public class SerialPortImpl implements SerialPort {
 
@@ -10,8 +10,7 @@ public class SerialPortImpl implements SerialPort {
         this.service = service;
     }
 
-    public static SerialPortImpl open(String port, SerialConfig config) {
-        SerialPortService service = SerialServiceFactory.create();
+    public static SerialPortImpl open(SerialPortService service, String port, SerialConfig config) {
         service.open(port, config);
         return new SerialPortImpl(service);
     }

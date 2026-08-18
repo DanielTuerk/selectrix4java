@@ -12,6 +12,7 @@ import io.github.danieltuerk.selectrix4java.device.RailVoltageListener;
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.Parity;
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialConfig;
 import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPortImpl;
+import io.github.danieltuerk.selectrix4java.device.serial.ffm.SerialPortService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public class SerialDevice extends AbstractDevice {
     /**
      * OS port for the device to handle the I/O operations.
      */
-    private SerialPortImpl serialPort = null;
+    private SerialPort serialPort = null;
 
     /**
      * ID of the device in the OS. (e.g. COM4)
@@ -83,7 +84,8 @@ public class SerialDevice extends AbstractDevice {
     @Override
     protected BusDataChannel doConnect(BusDataDispatcher busDataDispatcher) throws DeviceAccessException {
         try {
-            serialPort = SerialPortImpl.open(deviceId,
+            SerialPortService service = SerialServiceFactory.create();
+            serialPort = SerialPortImpl.open(service, deviceId,
                 SerialConfig.builder()
                     .baudRate(baudRate)
                     .dataBits(8)
