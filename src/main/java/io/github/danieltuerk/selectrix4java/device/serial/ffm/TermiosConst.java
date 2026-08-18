@@ -13,6 +13,7 @@ public class TermiosConst {
     public static final int B38400 = 15;
     public static final int B57600 = 4097;
     public static final int B115200 = 4098;
+    public static final int B230400 = 4099;
 
     // Flags
     public static final int CS8 = 0x30;

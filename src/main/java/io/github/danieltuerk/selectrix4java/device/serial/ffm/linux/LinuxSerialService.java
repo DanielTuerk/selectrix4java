@@ -94,6 +94,7 @@ public class LinuxSerialService implements SerialPortService {
             case 38400 -> TermiosConst.B38400;
             case 57600 -> TermiosConst.B57600;
             case 115200 -> TermiosConst.B115200;
+            case 230400 -> TermiosConst.B230400;
             default -> throw new IllegalArgumentException("Unsupported baud: " + baud);
         };
     }
