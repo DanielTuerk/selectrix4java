@@ -123,19 +123,46 @@ public class LinuxSerialService implements SerialPortService {
     @Override
     public int read(byte[] buffer, int timeoutMs) {
 
-        configureTimeout(timeoutMs);
+        // With VMIN=0 a single native read() returns as soon as *any* bytes are available,
+        // not once the requested length is filled (unlike Windows' ReadFile, which blocks
+        // internally until ReadTotalTimeoutConstant elapses or the buffer is full). USB-serial
+        // adapters commonly flush in several small chunks, so loop until the buffer is full or
+        // the overall timeout budget runs out.
+        long deadlineNanos = timeoutMs > 0 ? System.nanoTime() + timeoutMs * 1_000_000L : 0;
+        int totalRead = 0;
 
-        try (Arena callArena = Arena.ofConfined()) {
+        while (totalRead < buffer.length) {
+            int remainingMs = timeoutMs;
+            if (timeoutMs > 0) {
+                remainingMs = (int) ((deadlineNanos - System.nanoTime()) / 1_000_000L);
+                if (remainingMs <= 0) {
+                    break;
+                }
+            }
 
-            MemorySegment nativeBuffer = callArena.allocate(Math.max(buffer.length, 1));
+            configureTimeout(remainingMs);
 
-            LibC.Result<Long> result = LibC.read(callArena, fd, nativeBuffer, buffer.length);
-            int bytesRead = (int) Math.max(result.value(), 0);
+            try (Arena callArena = Arena.ofConfined()) {
+                int toRead = buffer.length - totalRead;
+                MemorySegment nativeBuffer = callArena.allocate(toRead);
 
-            MemorySegment.copy(nativeBuffer, JAVA_BYTE, 0, buffer, 0, bytesRead);
+                LibC.Result<Long> result = LibC.read(callArena, fd, nativeBuffer, toRead);
+                int bytesRead = (int) Math.max(result.value(), 0);
+                if (bytesRead <= 0) {
+                    break;
+                }
 
-            return bytesRead;
+                MemorySegment.copy(nativeBuffer, JAVA_BYTE, 0, buffer, totalRead, bytesRead);
+                totalRead += bytesRead;
+            }
+
+            if (timeoutMs <= 0) {
+                // non-blocking poll: single attempt only
+                break;
+            }
         }
+
+        return totalRead;
     }
 
     private void configureTimeout(int timeoutMs) {
@@ -147,9 +174,11 @@ public class LinuxSerialService implements SerialPortService {
             termios.cc(TermiosConst.VMIN, (byte) 0);
             termios.cc(TermiosConst.VTIME, (byte) 0);
         } else {
-            // Timeout (VTIME in 100ms units!)
+            // Timeout (VTIME in 100ms units!). Round up so a remaining budget under 100ms
+            // doesn't collapse to VTIME=0, which would mean "block forever" instead.
+            int vtimeUnits = Math.min(255, Math.max(1, (timeoutMs + 99) / 100));
             termios.cc(TermiosConst.VMIN, (byte) 0);
-            termios.cc(TermiosConst.VTIME, (byte) (timeoutMs / 100));
+            termios.cc(TermiosConst.VTIME, (byte) vtimeUnits);
         }
 
         LibC.tcsetattr(arena, fd, TermiosConst.TCSANOW, termios.segment());
