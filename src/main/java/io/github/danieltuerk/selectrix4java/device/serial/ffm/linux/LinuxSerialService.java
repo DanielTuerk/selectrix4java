@@ -70,10 +70,11 @@ public class LinuxSerialService implements SerialPortService {
             default -> throw new IllegalArgumentException("Invalid stop bits");
         };
 
-        termios.cCflag(cflag);
-
-        // Baudrate
+        // Baudrate: on Linux the kernel reads the rate from the CBAUD bits packed into
+        // c_cflag (classic TCSETS path) - c_ispeed/c_ospeed alone are not enough.
         int baud = mapBaud(cfg.baudRate());
+        cflag |= baud;
+        termios.cCflag(cflag);
         termios.cIspeed(baud);
         termios.cOspeed(baud);
 
